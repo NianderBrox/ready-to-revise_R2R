@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:17
+
+    container_name: r2r-postgres
+
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: r2r_user
+      POSTGRES_PASSWORD: r2r_password
+      POSTGRES_DB: r2r_db
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U r2r_user -d r2r_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
