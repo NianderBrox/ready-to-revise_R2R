@@ -6,6 +6,10 @@ import {
 } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { ConfigService } from '@nestjs/config';
+
 const logger = new Logger('Bootstrap');
 
 async function bootstrap() {
@@ -34,6 +38,14 @@ async function bootstrap() {
     }),
   );
 
+  app.useGlobalInterceptors(
+      new ResponseInterceptor(),
+  );
+
+  app.useGlobalFilters(
+    new HttpExceptionFilter(),
+  );
+
   /*
    * Swagger Configuration
    */
@@ -47,7 +59,11 @@ async function bootstrap() {
 
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(process.env.PORT ?? 3000);
+  const configService = app.get(ConfigService);
+
+  const port = configService.get<number>('PORT', 3000);
+
+  await app.listen(port);
 
   logger.log(
     `🚀 Server running on http://localhost:${process.env.PORT ?? 3000}`,
