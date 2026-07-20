@@ -83,5 +83,7 @@ dependencies {
     implementation(libs.androidx.camera.compose)
     implementation(platform(libs.firebase.bom))
 
-    implementation(libs.firebase.messaging)
+//    implementation(libs.firebase.messaging)
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.compose.material.icons.extended)
 }

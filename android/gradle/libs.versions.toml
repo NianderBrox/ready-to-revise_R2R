@@ -64,7 +64,7 @@ androidx-camera-compose = { group = "androidx.camera", name = "camera-compose", 
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging-ktx" }
-
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
