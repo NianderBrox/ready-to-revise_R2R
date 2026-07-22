@@ -13,11 +13,136 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum StudyItemType {
+  QUESTION
+  NOTE
+  FORMULA
+  FLASHCARD
+}
+
+enum ReviewResult {
+  EASY
+  GOOD
+  HARD
+  AGAIN
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Subject {
+  id   String @id @default(uuid())
+  name String @unique
+
+  chapters Chapter[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Chapter {
+  id   String @id @default(uuid())
+  name String
+
+  subjectId String
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  topics Topic[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([subjectId, name])
+  @@index([subjectId])
+}
+
+model Topic {
+  id   String @id @default(uuid())
+  name String
+
+  chapterId String
+  chapter   Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  studyItems StudyItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([chapterId, name])
+  @@index([chapterId])
+}
+
+model StudyItem {
+  id String @id @default(uuid())
+
+  title   String?
+  content String?
+
+  type       StudyItemType
+  difficulty Difficulty?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  topicId String?
+  topic   Topic?  @relation(fields: [topicId], references: [id], onDelete: SetNull)
+
+  attachments Attachment[]
+  reviews     Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([topicId])
+}
+
+model Review {
+  id String @id @default(uuid())
+
+  studyItemId String
+  studyItem   StudyItem @relation(fields: [studyItemId], references: [id], onDelete: Cascade)
+
+  result       ReviewResult
+  intervalDays Int
+  reviewedAt   DateTime     @default(now())
+
+  nextReviewAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([studyItemId])
+  @@index([nextReviewAt])
+}
+
+model Attachment {
+  id String @id @default(uuid())
+
+  url      String
+  mimeType String?
+  fileSize Int?
+
+  studyItemId String
+  studyItem   StudyItem @relation(fields: [studyItemId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([studyItemId])
+}
+
 model User {
-  id           String   @id @default(uuid())
+  id           String @id @default(uuid())
   name         String
-  email        String   @unique
+  email        String @unique
   passwordHash String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+
+  studyItems StudyItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

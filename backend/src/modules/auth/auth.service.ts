@@ -11,6 +11,7 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 import { access } from 'fs';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 
 @Injectable()
@@ -44,7 +45,7 @@ export class AuthService {
       passwordHash,
     });
 
-    const payload = {
+    const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
     };
@@ -73,7 +74,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const payload = {
+    // const payload = {
+    //   sub: user.id,
+    //   email: user.email,
+    // };
+
+    const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
     };
