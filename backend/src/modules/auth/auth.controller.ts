@@ -10,6 +10,10 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { LoginDto } from './dto/login.dto';
+import { Get, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import type { CurrentUserData } from '../../common/interfaces/current-user-data.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -28,5 +32,13 @@ export class AuthController {
   @Post('login')
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
+  }
+
+  @Get('profile')
+  @UseGuards(JwtAuthGuard)
+  getProfile(
+    @CurrentUser() user: CurrentUserData,
+  ) {
+    return user;
   }
 }
