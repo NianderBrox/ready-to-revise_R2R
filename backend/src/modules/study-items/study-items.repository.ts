@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateStudyItemData } from './interfaces/create-study-item-data.interface';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class StudyItemsRepository {
@@ -50,5 +51,23 @@ export class StudyItemsRepository {
       });
 
       return !!exists;
+    }
+
+    async update(
+    id: string,
+    data: Prisma.StudyItemUpdateInput,
+    ) {
+        return this.prisma.studyItem.update({
+            where: { id },
+            data,
+        });
+    }
+
+    async delete(id: string) {
+        await this.prisma.studyItem.delete({
+            where: {
+            id,
+            },
+        });
     }
 }
