@@ -1,4 +1,4 @@
-package com.r2r.readytorevise.ui.components
+package com.r2r.readytorevise.ui.components.common
 
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions

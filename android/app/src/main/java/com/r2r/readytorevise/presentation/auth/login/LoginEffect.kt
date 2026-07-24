@@ -9,7 +9,7 @@ sealed interface LoginEffect : UiEffect {
 
     data object NavigateToRegister : LoginEffect
 
-    data class ShowError(
+    data class ShowSnackbar(
         val message: String
     ) : LoginEffect
 }
