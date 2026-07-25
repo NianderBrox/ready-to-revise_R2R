@@ -15,6 +15,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { CurrentUserData } from '../../common/interfaces/current-user-data.interface';
 import { UpdateStudyItemDto } from './dto/update-study-item.dto';
+import { ParseUUIDPipe } from '@nestjs/common';
 
 @Controller('study-items')
 @UseGuards(JwtAuthGuard)
@@ -40,7 +41,7 @@ export class StudyItemsController {
 
     @Get(':id')
     async findOne(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() user: CurrentUserData,
     ) {
         return this.studyItemsService.findOne(
@@ -52,7 +53,7 @@ export class StudyItemsController {
 
     @Patch(':id')
     async update(
-        @Param('id') id: string,
+        @Param('id', ParseUUIDPipe) id: string,
         @CurrentUser() user: CurrentUserData,
         @Body() dto: UpdateStudyItemDto,
     ) {
@@ -65,7 +66,7 @@ export class StudyItemsController {
 
     @Delete(':id')
     async remove(
-        @Param('id') id: string,
+        @Param('id', ParseUUIDPipe) id: string,
         @CurrentUser() user: CurrentUserData,
     ) {
         await this.studyItemsService.remove(

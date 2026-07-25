@@ -4,6 +4,7 @@ import { CreateStudyItemDto } from './dto/create-study-item.dto';
 import { StudyItemResponseDto } from './dto/study-item-response.dto';
 import { StudyItemsMapper } from './study-items.mapper';
 import { UpdateStudyItemDto } from './dto/update-study-item.dto';
+import { StringUtils } from 'src/common/utils/string.utils';
 // import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
@@ -18,16 +19,16 @@ export class StudyItemsService {
       dto: CreateStudyItemDto,
     ): Promise<StudyItemResponseDto> {
         const normalizedTitle =
-        dto.title?.trim();
+            StringUtils.trim(dto.title);
 
         const normalizedContent =
-        dto.content?.trim();
+            StringUtils.trim(dto.content);
 
-    if (!normalizedTitle && !normalizedContent) {
-        throw new BadRequestException(
-            'Either title or content is required.',
-        );
-    }
+        if (!normalizedTitle && !normalizedContent) {
+            throw new BadRequestException(
+                'Either title or content is required.',
+            );
+        }
 
       if (dto.topicId !== undefined) {
         const exists = await this.repository.topicExists(dto.topicId);
@@ -38,8 +39,8 @@ export class StudyItemsService {
       }
 
       const studyItem = await this.repository.create({
-        title: dto.title,
-        content: dto.content,
+        title: normalizedTitle,
+        content: normalizedContent,
         type: dto.type,
         difficulty: dto.difficulty,
         topicId: dto.topicId,
@@ -83,22 +84,26 @@ export class StudyItemsService {
     userId: string,
     dto: UpdateStudyItemDto,
     ): Promise<StudyItemResponseDto> {
-        const normalizedTitle =
-        dto.title?.trim();
-
-        const normalizedContent =
-        dto.content?.trim();
-
+        
         const existing = await this.repository.findById(
             id,
             userId,
         );
-
+        
         if (!existing) {
             throw new NotFoundException(
-            'Study item not found.',
+                'Study item not found.',
             );
         }
+        const normalizedTitle =
+            dto.title !== undefined
+                ? StringUtils.trim(dto.title)
+                : existing.title;
+
+        const normalizedContent =
+            dto.content !== undefined
+                ? StringUtils.trim(dto.content)
+                : existing.content;
 
         if (
             normalizedTitle !== undefined &&
@@ -112,9 +117,7 @@ export class StudyItemsService {
         }
 
         if (dto.topicId) {
-            const exists = await this.repository.topicExists(
-            dto.topicId,
-            );
+            const exists = await this.repository.topicExists(dto.topicId);
 
             if (!exists) {
             throw new NotFoundException(
@@ -124,9 +127,15 @@ export class StudyItemsService {
         }
 
         const updateData = {
-            ...dto,
             title: normalizedTitle,
             content: normalizedContent,
+            type: dto.type ?? existing.type,
+            difficulty:
+                dto.difficulty ?? existing.difficulty,
+            topicId:
+                dto.topicId !== undefined
+                ? dto.topicId
+                : existing.topicId,
         };
 
         const updated = await this.repository.update(id,updateData,);
