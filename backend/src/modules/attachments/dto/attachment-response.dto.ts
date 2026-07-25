@@ -1,17 +1,17 @@
 export class AttachmentResponseDto {
-  id!: string;
+    id!: string;
 
-  url!: string;
+    url!: string;
 
-  mimeType?: string;
+    mimeType?: string;
 
-  fileSize?: number;
+    fileSize?: number;
 
-  studyItemId!: string;
+    studyItemId!: string;
 
-  createdAt!: Date;
+    createdAt!: Date;
 
-  updatedAt!: Date;
+    updatedAt!: Date;
 
-  storageProvider?: string;
+    storageProvider?: string;
 }

@@ -1,27 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { AiConfigService } from '../services/ai-config.service';
 
 @Injectable()
 export class GeminiClient {
-  private client: any;
+    private client: any;
 
-  constructor(
-    private readonly config: ConfigService,
-  ) {}
+    constructor(private readonly aiConfig: AiConfigService) {}
 
-  
-  async getClient() {
-    if (!this.client) {
-      const { GoogleGenAI } =
-        await import('@google/genai');
+    async getClient() {
+        if (!this.client) {
+            const { GoogleGenAI } = await import('@google/genai');
 
-      this.client = new GoogleGenAI({
-        apiKey: this.config.getOrThrow<string>(
-          'GEMINI_API_KEY',
-        ),
-      });
+            this.client = new GoogleGenAI({
+                apiKey: this.aiConfig.geminiApiKey,
+            });
+        }
+
+        return this.client;
     }
-
-    return this.client;
-  }
 }

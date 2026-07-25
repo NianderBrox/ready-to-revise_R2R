@@ -1,11 +1,11 @@
 export interface CreateAttachmentData {
-  url: string;
+    url: string;
 
-  storageProvider?: string;
+    storageProvider?: string;
 
-  mimeType?: string;
+    mimeType?: string;
 
-  fileSize?: number;
+    fileSize?: number;
 
-  studyItemId: string;
+    studyItemId: string;
 }

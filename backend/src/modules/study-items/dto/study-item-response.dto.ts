@@ -1,17 +1,17 @@
 export class StudyItemResponseDto {
-  id!: string;
+    id!: string;
 
-  title?: string;
+    title?: string;
 
-  content?: string;
+    content?: string;
 
-  type!: string;
+    type!: string;
 
-  difficulty?: string;
+    difficulty?: string;
 
-  topicId?: string;
+    topicId?: string;
 
-  createdAt!: Date;
+    createdAt!: Date;
 
-  updatedAt!: Date;
+    updatedAt!: Date;
 }

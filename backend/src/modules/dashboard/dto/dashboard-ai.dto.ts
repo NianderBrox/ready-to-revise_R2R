@@ -1,3 +1,3 @@
 export class DashboardAiDto {
-  suggestion!: string | null;
+    suggestion!: string | null;
 }

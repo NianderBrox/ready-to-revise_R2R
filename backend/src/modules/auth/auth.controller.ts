@@ -1,10 +1,4 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -17,28 +11,22 @@ import type { CurrentUserData } from '../../common/interfaces/current-user-data.
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-  ) {}
+    constructor(private readonly authService: AuthService) {}
 
-  @Post('register')
-  @HttpCode(HttpStatus.CREATED)
-  register(
-    @Body() dto: RegisterDto,
-  ): Promise<AuthResponseDto> {
-    return this.authService.register(dto);
-  }
+    @Post('register')
+    @HttpCode(HttpStatus.CREATED)
+    register(@Body() dto: RegisterDto): Promise<AuthResponseDto> {
+        return this.authService.register(dto);
+    }
 
-  @Post('login')
-  login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
-  }
+    @Post('login')
+    login(@Body() dto: LoginDto) {
+        return this.authService.login(dto);
+    }
 
-  @Get('profile')
-  @UseGuards(JwtAuthGuard)
-  getProfile(
-    @CurrentUser() user: CurrentUserData,
-  ) {
-    return user;
-  }
+    @Get('profile')
+    @UseGuards(JwtAuthGuard)
+    getProfile(@CurrentUser() user: CurrentUserData) {
+        return user;
+    }
 }

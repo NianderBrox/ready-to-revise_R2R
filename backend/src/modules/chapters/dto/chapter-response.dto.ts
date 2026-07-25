@@ -1,11 +1,11 @@
 export class ChapterResponseDto {
-  id!: string;
+    id!: string;
 
-  name!: string;
+    name!: string;
 
-  subjectId!: string;
+    subjectId!: string;
 
-  createdAt!: Date;
+    createdAt!: Date;
 
-  updatedAt!: Date;
+    updatedAt!: Date;
 }

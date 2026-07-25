@@ -1,15 +1,15 @@
 import { Prompt } from './prompt.interface';
 import { GeneratedMetadataDto } from '../dto/generated-metadata.dto';
+import { JsonParser } from '../utils/json-parser';
+import { JsonPrompt } from './json.prompt';
 
-export class MetadataPrompt
-  implements Prompt<GeneratedMetadataDto>
-{
-  constructor(
-    private readonly text: string,
-  ) {}
+export class MetadataPrompt extends JsonPrompt<GeneratedMetadataDto> {
+    constructor(private readonly text: string) {
+        super();
+    }
 
-  build(): string {
-    return `
+    build(): string {
+        return `
 You are an expert educational content analyzer.
 
 Your task is to analyze the given study material and return ONLY valid JSON.
@@ -46,5 +46,5 @@ Study Material:
 
 ${this.text}
 `;
-  }
+    }
 }

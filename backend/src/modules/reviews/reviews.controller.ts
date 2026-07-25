@@ -1,10 +1,10 @@
 import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  ParseUUIDPipe,
-  Post,
+    Body,
+    Controller,
+    Get,
+    Param,
+    ParseUUIDPipe,
+    Post,
 } from '@nestjs/common';
 
 import { ReviewsService } from './reviews.service';
@@ -22,9 +22,7 @@ import type { CurrentUserData } from '../../common/interfaces/current-user-data.
 @Controller('reviews')
 @UseGuards(JwtAuthGuard)
 export class ReviewsController {
-  constructor(
-    private readonly reviewsService: ReviewsService,
-  ) {}
+    constructor(private readonly reviewsService: ReviewsService) {}
 
     async create(
         @CurrentUser()
@@ -33,25 +31,16 @@ export class ReviewsController {
         @Body()
         dto: CreateReviewDto,
     ) {
-        return this.reviewsService.create(
-            user.userId,
-            dto,
-        );
+        return this.reviewsService.create(user.userId, dto);
     }
 
     async history(
-    @CurrentUser()
-    user: CurrentUserData,
+        @CurrentUser()
+        user: CurrentUserData,
 
-    @Param(
-        'studyItemId',
-        ParseUUIDPipe,
-    )
+        @Param('studyItemId', ParseUUIDPipe)
         studyItemId: string,
-        ) {
-        return this.reviewsService.history(
-            user.userId,
-            studyItemId,
-        );
+    ) {
+        return this.reviewsService.history(user.userId, studyItemId);
     }
 }

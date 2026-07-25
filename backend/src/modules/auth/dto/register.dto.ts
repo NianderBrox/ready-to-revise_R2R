@@ -1,12 +1,12 @@
 import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 
 export class RegisterDto {
-  @IsNotEmpty()
-  name!: string;
+    @IsNotEmpty()
+    name!: string;
 
-  @IsEmail()
-  email!: string;
+    @IsEmail()
+    email!: string;
 
-  @MinLength(8)
-  password!: string;
+    @MinLength(8)
+    password!: string;
 }

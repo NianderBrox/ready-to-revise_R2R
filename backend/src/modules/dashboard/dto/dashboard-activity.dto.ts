@@ -1,5 +1,5 @@
 export class DashboardActivityDto {
-  title!: string;
+    title!: string;
 
-  reviewedAt!: Date;
+    reviewedAt!: Date;
 }

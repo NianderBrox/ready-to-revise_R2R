@@ -1,8 +1,4 @@
-import {
-  Controller,
-  Get,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 
 import { DashboardService } from './dashboard.service';
 
@@ -15,17 +11,13 @@ import type { CurrentUserData } from '../../common/interfaces/current-user-data.
 @Controller('dashboard')
 @UseGuards(JwtAuthGuard)
 export class DashboardController {
-  constructor(
-    private readonly dashboardService: DashboardService,
-  ) {}
+    constructor(private readonly dashboardService: DashboardService) {}
 
-  @Get()
-  async getDashboard(
-    @CurrentUser()
-    user: CurrentUserData,
-  ) {
-    return this.dashboardService.getDashboard(
-      user.userId,
-    );
-  }
+    @Get()
+    async getDashboard(
+        @CurrentUser()
+        user: CurrentUserData,
+    ) {
+        return this.dashboardService.getDashboard(user.userId);
+    }
 }

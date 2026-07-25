@@ -5,11 +5,8 @@ import { StudyItemsRepository } from './study-items.repository';
 import { PrismaModule } from '../../prisma/prisma.module';
 
 @Module({
-  imports: [PrismaModule],
-  controllers: [StudyItemsController],
-  providers: [
-    StudyItemsService,
-    StudyItemsRepository,
-  ],
+    imports: [PrismaModule],
+    controllers: [StudyItemsController],
+    providers: [StudyItemsService, StudyItemsRepository],
 })
 export class StudyItemsModule {}

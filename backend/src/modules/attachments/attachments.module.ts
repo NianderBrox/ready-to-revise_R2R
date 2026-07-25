@@ -7,18 +7,9 @@ import { AttachmentsRepository } from './attachments.repository';
 import { AttachmentsService } from './attachments.service';
 
 @Module({
-  imports: [
-    PrismaModule,
-  ],
-  controllers: [
-    AttachmentsController,
-  ],
-  providers: [
-    AttachmentsRepository,
-    AttachmentsService,
-  ],
-  exports: [
-    AttachmentsRepository,
-  ],
+    imports: [PrismaModule],
+    controllers: [AttachmentsController],
+    providers: [AttachmentsRepository, AttachmentsService],
+    exports: [AttachmentsRepository],
 })
 export class AttachmentsModule {}

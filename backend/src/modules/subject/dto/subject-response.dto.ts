@@ -1,10 +1,9 @@
 export class SubjectResponseDto {
+    id!: string;
 
-  id!: string;
+    name!: string;
 
-  name!: string;
+    createdAt!: Date;
 
-  createdAt!: Date;
-
-  updatedAt!: Date;
+    updatedAt!: Date;
 }

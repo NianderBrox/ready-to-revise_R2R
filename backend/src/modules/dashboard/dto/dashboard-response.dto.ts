@@ -6,15 +6,15 @@ import { DashboardStatsDto } from './dashboard-stats.dto';
 import { DashboardUserDto } from './dashboard-user.dto';
 
 export class DashboardResponseDto {
-  user!: DashboardUserDto;
+    user!: DashboardUserDto;
 
-  stats!: DashboardStatsDto;
+    stats!: DashboardStatsDto;
 
-  reviews!: DashboardReviewsDto;
+    reviews!: DashboardReviewsDto;
 
-  progress!: DashboardProgressDto;
+    progress!: DashboardProgressDto;
 
-  recentActivity!: DashboardActivityDto[];
+    recentActivity!: DashboardActivityDto[];
 
-  ai!: DashboardAiDto;
+    ai!: DashboardAiDto;
 }

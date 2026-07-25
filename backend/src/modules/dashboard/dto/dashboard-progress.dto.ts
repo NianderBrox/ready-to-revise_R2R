@@ -1,5 +1,5 @@
 export class DashboardProgressDto {
-  completionPercentage!: number;
+    completionPercentage!: number;
 
-  streakDays!: number;
+    streakDays!: number;
 }

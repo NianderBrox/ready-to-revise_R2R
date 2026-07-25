@@ -1,12 +1,12 @@
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Patch,
+    Post,
+    UseGuards,
 } from '@nestjs/common';
 
 import { StudyItemsService } from './study-items.service';
@@ -20,36 +20,28 @@ import { ParseUUIDPipe } from '@nestjs/common';
 @Controller('study-items')
 @UseGuards(JwtAuthGuard)
 export class StudyItemsController {
-  constructor(
-    private readonly studyItemsService: StudyItemsService,
-  ) {}
+    constructor(private readonly studyItemsService: StudyItemsService) {}
 
-  @Post()
-  async create(
-    @CurrentUser() user: CurrentUserData,
-    @Body() dto: CreateStudyItemDto,
-  ) {
-    return this.studyItemsService.create(user.userId, dto);
-  }
+    @Post()
+    async create(
+        @CurrentUser() user: CurrentUserData,
+        @Body() dto: CreateStudyItemDto,
+    ) {
+        return this.studyItemsService.create(user.userId, dto);
+    }
 
-  @Get()
-  async findAll(
-    @CurrentUser() user: CurrentUserData,
-  ) {
-    return this.studyItemsService.findAll(user.userId);
-  }
+    @Get()
+    async findAll(@CurrentUser() user: CurrentUserData) {
+        return this.studyItemsService.findAll(user.userId);
+    }
 
     @Get(':id')
     async findOne(
-    @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: CurrentUserData,
+        @Param('id', ParseUUIDPipe) id: string,
+        @CurrentUser() user: CurrentUserData,
     ) {
-        return this.studyItemsService.findOne(
-            id,
-            user.userId,
-        );
+        return this.studyItemsService.findOne(id, user.userId);
     }
-
 
     @Patch(':id')
     async update(
@@ -57,11 +49,7 @@ export class StudyItemsController {
         @CurrentUser() user: CurrentUserData,
         @Body() dto: UpdateStudyItemDto,
     ) {
-        return this.studyItemsService.update(
-            id,
-            user.userId,
-            dto,
-        );
+        return this.studyItemsService.update(id, user.userId, dto);
     }
 
     @Delete(':id')
@@ -69,10 +57,7 @@ export class StudyItemsController {
         @Param('id', ParseUUIDPipe) id: string,
         @CurrentUser() user: CurrentUserData,
     ) {
-        await this.studyItemsService.remove(
-            id,
-            user.userId,
-        );
+        await this.studyItemsService.remove(id, user.userId);
 
         return {
             message: 'Study item deleted successfully.',

@@ -8,20 +8,16 @@ import { LLM_PROVIDER } from '../tokens/llm-provider.token';
 
 @Injectable()
 export class MetadataService {
-  constructor(
-    @Inject(LLM_PROVIDER)
-    private readonly llm: LlmProvider,
-  ) {}
+    constructor(
+        @Inject(LLM_PROVIDER)
+        private readonly llm: LlmProvider,
+    ) {}
 
-  async generateMetadata(
-    request: GenerateMetadataRequest,
-  ): Promise<GeneratedMetadataDto> {
-    const prompt = new MetadataPrompt(
-      request.text,
-    );
+    async generateMetadata(
+        request: GenerateMetadataRequest,
+    ): Promise<GeneratedMetadataDto> {
+        const prompt = new MetadataPrompt(request.text);
 
-    return this.llm.generateObject<GeneratedMetadataDto>(
-      prompt,
-    );
-  }
+        return this.llm.generate(prompt);
+    }
 }

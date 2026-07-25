@@ -1,15 +1,15 @@
 export class GeneratedMetadataDto {
-  title!: string;
+    title!: string;
 
-  summary!: string;
+    summary!: string;
 
-  subject!: string;
+    subject!: string;
 
-  chapter!: string;
+    chapter!: string;
 
-  topic!: string;
+    topic!: string;
 
-  difficulty!: 'EASY' | 'MEDIUM' | 'HARD';
+    difficulty!: 'EASY' | 'MEDIUM' | 'HARD';
 
-  keywords!: string[];
+    keywords!: string[];
 }

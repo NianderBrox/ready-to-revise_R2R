@@ -1,19 +1,19 @@
 import { ReviewResult } from '@prisma/client';
 
 export class ReviewResponseDto {
-  id!: string;
+    id!: string;
 
-  studyItemId!: string;
+    studyItemId!: string;
 
-  result!: ReviewResult;
+    result!: ReviewResult;
 
-  intervalDays!: number;
+    intervalDays!: number;
 
-  reviewedAt!: Date;
+    reviewedAt!: Date;
 
-  nextReviewAt!: Date;
+    nextReviewAt!: Date;
 
-  createdAt!: Date;
+    createdAt!: Date;
 
-  updatedAt!: Date;
+    updatedAt!: Date;
 }

@@ -7,15 +7,8 @@ import { DashboardRepository } from './dashboard.repository';
 import { DashboardService } from './dashboard.service';
 
 @Module({
-  imports: [
-    PrismaModule,
-  ],
-  controllers: [
-    DashboardController,
-  ],
-  providers: [
-    DashboardRepository,
-    DashboardService,
-  ],
+    imports: [PrismaModule],
+    controllers: [DashboardController],
+    providers: [DashboardRepository, DashboardService],
 })
 export class DashboardModule {}

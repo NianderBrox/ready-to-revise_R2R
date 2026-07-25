@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { StudyItemsRepository } from './study-items.repository';
 import { CreateStudyItemDto } from './dto/create-study-item.dto';
 import { StudyItemResponseDto } from './dto/study-item-response.dto';
@@ -15,14 +19,12 @@ export class StudyItemsService {
     ) {}
 
     async create(
-      userId: string,
-      dto: CreateStudyItemDto,
+        userId: string,
+        dto: CreateStudyItemDto,
     ): Promise<StudyItemResponseDto> {
-        const normalizedTitle =
-            StringUtils.trim(dto.title);
+        const normalizedTitle = StringUtils.trim(dto.title);
 
-        const normalizedContent =
-            StringUtils.trim(dto.content);
+        const normalizedContent = StringUtils.trim(dto.content);
 
         if (!normalizedTitle && !normalizedContent) {
             throw new BadRequestException(
@@ -30,47 +32,36 @@ export class StudyItemsService {
             );
         }
 
-      if (dto.topicId !== undefined) {
-        const exists = await this.repository.topicExists(dto.topicId);
+        if (dto.topicId !== undefined) {
+            const exists = await this.repository.topicExists(dto.topicId);
 
-        if (!exists) {
-          throw new NotFoundException('Topic not found.');
+            if (!exists) {
+                throw new NotFoundException('Topic not found.');
+            }
         }
-      }
 
-      const studyItem = await this.repository.create({
-        title: normalizedTitle,
-        content: normalizedContent,
-        type: dto.type,
-        difficulty: dto.difficulty,
-        topicId: dto.topicId,
-        userId,
-      });
+        const studyItem = await this.repository.create({
+            title: normalizedTitle,
+            content: normalizedContent,
+            type: dto.type,
+            difficulty: dto.difficulty,
+            topicId: dto.topicId,
+            userId,
+        });
 
-      return StudyItemsMapper.toResponse(studyItem);
+        return StudyItemsMapper.toResponse(studyItem);
     }
 
-    async findAll(
-    userId: string,
-    ): Promise<StudyItemResponseDto[]> {
-
-        const studyItems =
-            await this.repository.findAllByUser(userId);
+    async findAll(userId: string): Promise<StudyItemResponseDto[]> {
+        const studyItems = await this.repository.findAllByUser(userId);
 
         return studyItems.map((studyItem) =>
             StudyItemsMapper.toResponse(studyItem),
         );
     }
 
-    async findOne(
-    id: string,
-    userId: string,
-    ): Promise<StudyItemResponseDto> {
-
-        const studyItem = await this.repository.findById(
-            id,
-            userId,
-        );
+    async findOne(id: string, userId: string): Promise<StudyItemResponseDto> {
+        const studyItem = await this.repository.findById(id, userId);
 
         if (!studyItem) {
             throw new NotFoundException('Study item not found.');
@@ -80,20 +71,14 @@ export class StudyItemsService {
     }
 
     async update(
-    id: string,
-    userId: string,
-    dto: UpdateStudyItemDto,
+        id: string,
+        userId: string,
+        dto: UpdateStudyItemDto,
     ): Promise<StudyItemResponseDto> {
-        
-        const existing = await this.repository.findById(
-            id,
-            userId,
-        );
-        
+        const existing = await this.repository.findById(id, userId);
+
         if (!existing) {
-            throw new NotFoundException(
-                'Study item not found.',
-            );
+            throw new NotFoundException('Study item not found.');
         }
         const normalizedTitle =
             dto.title !== undefined
@@ -120,9 +105,7 @@ export class StudyItemsService {
             const exists = await this.repository.topicExists(dto.topicId);
 
             if (!exists) {
-            throw new NotFoundException(
-                'Topic not found.',
-            );
+                throw new NotFoundException('Topic not found.');
             }
         }
 
@@ -130,32 +113,20 @@ export class StudyItemsService {
             title: normalizedTitle,
             content: normalizedContent,
             type: dto.type ?? existing.type,
-            difficulty:
-                dto.difficulty ?? existing.difficulty,
-            topicId:
-                dto.topicId !== undefined
-                ? dto.topicId
-                : existing.topicId,
+            difficulty: dto.difficulty ?? existing.difficulty,
+            topicId: dto.topicId !== undefined ? dto.topicId : existing.topicId,
         };
 
-        const updated = await this.repository.update(id,updateData,);
+        const updated = await this.repository.update(id, updateData);
 
         return StudyItemsMapper.toResponse(updated);
     }
 
-    async remove(
-        id: string,
-        userId: string,
-        ): Promise<void> {
-        const studyItem = await this.repository.findById(
-            id,
-            userId,
-        );
+    async remove(id: string, userId: string): Promise<void> {
+        const studyItem = await this.repository.findById(id, userId);
 
         if (!studyItem) {
-            throw new NotFoundException(
-            'Study item not found.',
-            );
+            throw new NotFoundException('Study item not found.');
         }
 
         await this.repository.delete(id);

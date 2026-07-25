@@ -1,10 +1,7 @@
-import {
-  IsNotEmpty,
-  IsString,
-} from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class GenerateMetadataDto {
-  @IsString()
-  @IsNotEmpty()
-  text!: string;
+    @IsString()
+    @IsNotEmpty()
+    text!: string;
 }

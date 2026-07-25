@@ -1,7 +1,7 @@
 export class DashboardReviewsDto {
-  dueToday!: number;
+    dueToday!: number;
 
-  upcoming!: number;
+    upcoming!: number;
 
-  completedToday!: number;
+    completedToday!: number;
 }

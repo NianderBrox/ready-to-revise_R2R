@@ -1,3 +1,5 @@
 export interface Prompt<T> {
-  build(): string;
+    build(): string;
+
+    parse(output: string): T;
 }

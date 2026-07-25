@@ -1,11 +1,11 @@
 export class DashboardStatsDto {
-  studyItems!: number;
+    studyItems!: number;
 
-  subjects!: number;
+    subjects!: number;
 
-  chapters!: number;
+    chapters!: number;
 
-  topics!: number;
+    topics!: number;
 
-  inboxItems!: number;
+    inboxItems!: number;
 }

@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { AttachmentsRepository } from './attachments.repository';
 import { AttachmentsMapper } from './attachments.mapper';
@@ -11,94 +8,72 @@ import { AttachmentResponseDto } from './dto/attachment-response.dto';
 
 @Injectable()
 export class AttachmentsService {
-  constructor(
-    private readonly repository: AttachmentsRepository,
-  ) {}
+    constructor(private readonly repository: AttachmentsRepository) {}
 
-  async create(
-    userId: string,
-    dto: CreateAttachmentDto,
-  ): Promise<AttachmentResponseDto> {
+    async create(
+        userId: string,
+        dto: CreateAttachmentDto,
+    ): Promise<AttachmentResponseDto> {
+        const exists = await this.repository.studyItemBelongsToUser(
+            dto.studyItemId,
+            userId,
+        );
 
-    const exists =
-      await this.repository.studyItemBelongsToUser(
-        dto.studyItemId,
-        userId,
-      );
+        if (!exists) {
+            throw new NotFoundException(
+                'Study item not found or access denied.',
+            );
+        }
 
-    if (!exists) {
-      throw new NotFoundException(
-        'Study item not found or access denied.',
-      );
+        const attachment = await this.repository.create({
+            url: dto.url,
+            storageProvider: dto.storageProvider,
+            mimeType: dto.mimeType,
+            fileSize: dto.fileSize,
+            studyItemId: dto.studyItemId,
+        });
+
+        return AttachmentsMapper.toResponse(attachment);
     }
 
-    const attachment =
-      await this.repository.create({
-        url: dto.url,
-        storageProvider: dto.storageProvider,
-        mimeType: dto.mimeType,
-        fileSize: dto.fileSize,
-        studyItemId: dto.studyItemId,
-      });
+    async findByStudyItem(
+        userId: string,
+        studyItemId: string,
+    ): Promise<AttachmentResponseDto[]> {
+        const exists = await this.repository.studyItemBelongsToUser(
+            studyItemId,
+            userId,
+        );
 
-    return AttachmentsMapper.toResponse(
-      attachment,
-    );
-  }
+        if (!exists) {
+            throw new NotFoundException(
+                'Study item not found or access denied.',
+            );
+        }
 
-  async findByStudyItem(
-    userId: string,
-    studyItemId: string,
-  ): Promise<AttachmentResponseDto[]> {
+        const attachments = await this.repository.findByStudyItem(studyItemId);
 
-    const exists =
-      await this.repository.studyItemBelongsToUser(
-        studyItemId,
-        userId,
-      );
-
-    if (!exists) {
-      throw new NotFoundException(
-        'Study item not found or access denied.',
-      );
+        return attachments.map(AttachmentsMapper.toResponse);
     }
 
-    const attachments =
-      await this.repository.findByStudyItem(
-        studyItemId,
-      );
+    async remove(userId: string, id: string): Promise<void> {
+        const attachment = await this.repository.findById(id);
 
-    return attachments.map(
-      AttachmentsMapper.toResponse,
-    );
-  }
+        if (!attachment) {
+            throw new NotFoundException('Attachment not found.');
+        }
 
-  async remove(
-    userId: string,
-    id: string,
-  ): Promise<void> {
+        const allowed = await this.repository.studyItemBelongsToUser(
+            attachment.studyItemId,
+            userId,
+        );
 
-    const attachment =
-      await this.repository.findById(id);
+        if (!allowed) {
+            throw new NotFoundException(
+                'Attachment not found or access denied.',
+            );
+        }
 
-    if (!attachment) {
-      throw new NotFoundException(
-        'Attachment not found.',
-      );
+        await this.repository.delete(id);
     }
-
-    const allowed =
-      await this.repository.studyItemBelongsToUser(
-        attachment.studyItemId,
-        userId,
-      );
-
-    if (!allowed) {
-      throw new NotFoundException(
-        'Attachment not found or access denied.',
-      );
-    }
-
-    await this.repository.delete(id);
-  }
 }

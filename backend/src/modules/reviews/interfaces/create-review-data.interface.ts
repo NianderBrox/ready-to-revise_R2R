@@ -1,11 +1,11 @@
 import { ReviewResult } from '@prisma/client';
 
 export interface CreateReviewData {
-  studyItemId: string;
+    studyItemId: string;
 
-  result: ReviewResult;
+    result: ReviewResult;
 
-  intervalDays: number;
+    intervalDays: number;
 
-  nextReviewAt: Date;
+    nextReviewAt: Date;
 }

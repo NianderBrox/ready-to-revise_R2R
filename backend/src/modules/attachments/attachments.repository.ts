@@ -6,63 +6,55 @@ import { CreateAttachmentData } from './interfaces/create-attachment-data.interf
 
 @Injectable()
 export class AttachmentsRepository {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+    constructor(private readonly prisma: PrismaService) {}
 
-  async create(
-    data: CreateAttachmentData,
-  ) {
-    return this.prisma.attachment.create({
-      data,
-    });
-  }
+    async create(data: CreateAttachmentData) {
+        return this.prisma.attachment.create({
+            data,
+        });
+    }
 
-  async findByStudyItem(
-    studyItemId: string,
-  ) {
-    return this.prisma.attachment.findMany({
-      where: {
-        studyItemId,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-  }
+    async findByStudyItem(studyItemId: string) {
+        return this.prisma.attachment.findMany({
+            where: {
+                studyItemId,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+    }
 
-  async delete(id: string) {
-    await this.prisma.attachment.delete({
-      where: {
-        id,
-      },
-    });
-  }
+    async delete(id: string) {
+        await this.prisma.attachment.delete({
+            where: {
+                id,
+            },
+        });
+    }
 
-  async studyItemBelongsToUser(
-    studyItemId: string,
-    userId: string,
-  ): Promise<boolean> {
+    async studyItemBelongsToUser(
+        studyItemId: string,
+        userId: string,
+    ): Promise<boolean> {
+        const studyItem = await this.prisma.studyItem.findFirst({
+            where: {
+                id: studyItemId,
+                userId,
+            },
+            select: {
+                id: true,
+            },
+        });
 
-    const studyItem =
-      await this.prisma.studyItem.findFirst({
-        where: {
-          id: studyItemId,
-          userId,
-        },
-        select: {
-          id: true,
-        },
-      });
+        return !!studyItem;
+    }
 
-    return !!studyItem;
-  }
-
-  async findById(id: string) {
-    return this.prisma.attachment.findUnique({
-      where: {
-        id,
-      },
-    });
-  }
+    async findById(id: string) {
+        return this.prisma.attachment.findUnique({
+            where: {
+                id,
+            },
+        });
+    }
 }

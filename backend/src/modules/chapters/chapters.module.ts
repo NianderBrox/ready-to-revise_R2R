@@ -7,18 +7,9 @@ import { ChaptersService } from './chapters.service';
 import { ChaptersRepository } from './chapters.repository';
 
 @Module({
-  imports: [
-    PrismaModule,
-  ],
-  controllers: [
-    ChaptersController,
-  ],
-  providers: [
-    ChaptersService,
-    ChaptersRepository,
-  ],
-  exports: [
-    ChaptersRepository,
-  ],
+    imports: [PrismaModule],
+    controllers: [ChaptersController],
+    providers: [ChaptersService, ChaptersRepository],
+    exports: [ChaptersRepository],
 })
 export class ChaptersModule {}

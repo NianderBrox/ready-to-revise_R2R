@@ -1,3 +1,3 @@
 export interface CreateSubjectData {
-  name: string;
+    name: string;
 }

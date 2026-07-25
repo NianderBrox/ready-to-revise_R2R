@@ -11,23 +11,25 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
 import { AttachmentsModule } from './modules/attachments/attachments.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { AiModule } from './modules/ai/ai.module';
+import { DocumentAnalysisModule } from './modules/document-analysis/document-analysis.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    HealthModule,
-    AuthModule,
-    UsersModule,
-    PrismaModule,
-    StudyItemsModule,
-    SubjectsModule,
-    ChaptersModule,
-    ReviewsModule,
-    AttachmentsModule,
-    DashboardModule,
-    AiModule
-  ],
+    imports: [
+        ConfigModule.forRoot({
+            isGlobal: true,
+        }),
+        HealthModule,
+        AuthModule,
+        UsersModule,
+        PrismaModule,
+        StudyItemsModule,
+        SubjectsModule,
+        ChaptersModule,
+        ReviewsModule,
+        AttachmentsModule,
+        DashboardModule,
+        AiModule,
+        DocumentAnalysisModule,
+    ],
 })
 export class AppModule {}

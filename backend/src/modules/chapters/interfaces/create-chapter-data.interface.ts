@@ -1,4 +1,4 @@
 export interface CreateChapterData {
-  name: string;
-  subjectId: string;
+    name: string;
+    subjectId: string;
 }

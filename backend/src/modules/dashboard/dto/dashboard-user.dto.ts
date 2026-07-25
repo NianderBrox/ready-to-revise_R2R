@@ -1,3 +1,3 @@
 export class DashboardUserDto {
-  name!: string;
+    name!: string;
 }

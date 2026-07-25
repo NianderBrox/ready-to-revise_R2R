@@ -7,12 +7,9 @@ import { SubjectsRepository } from './subjects.repository';
 import { PrismaModule } from '../../prisma/prisma.module';
 
 @Module({
-  imports: [PrismaModule],
-  controllers: [SubjectsController],
-  providers: [
-    SubjectsService,
-    SubjectsRepository,
-  ],
-  exports: [SubjectsRepository],
+    imports: [PrismaModule],
+    controllers: [SubjectsController],
+    providers: [SubjectsService, SubjectsRepository],
+    exports: [SubjectsRepository],
 })
 export class SubjectsModule {}

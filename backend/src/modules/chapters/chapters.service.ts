@@ -1,8 +1,8 @@
 import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  NotFoundException,
+    BadRequestException,
+    ConflictException,
+    Injectable,
+    NotFoundException,
 } from '@nestjs/common';
 
 import { ChaptersRepository } from './chapters.repository';
@@ -17,142 +17,103 @@ import { StringUtils } from '../../common/utils/string.utils';
 
 @Injectable()
 export class ChaptersService {
-  constructor(
-    private readonly repository: ChaptersRepository,
-  ) {}
+    constructor(private readonly repository: ChaptersRepository) {}
 
-  async create(
-    dto: CreateChapterDto,
-  ): Promise<ChapterResponseDto> {
+    async create(dto: CreateChapterDto): Promise<ChapterResponseDto> {
+        const normalizedName = StringUtils.normalizeName(dto.name);
 
-    const normalizedName =
-      StringUtils.normalizeName(dto.name);
+        const subjectExists = await this.repository.subjectExists(
+            dto.subjectId,
+        );
 
-    const subjectExists =
-      await this.repository.subjectExists(
-        dto.subjectId,
-      );
+        if (!subjectExists) {
+            throw new NotFoundException('Subject not found.');
+        }
 
-    if (!subjectExists) {
-      throw new NotFoundException(
-        'Subject not found.',
-      );
+        const existing = await this.repository.findByNameAndSubject(
+            normalizedName,
+            dto.subjectId,
+        );
+
+        if (existing) {
+            throw new ConflictException(
+                'Chapter already exists in this subject.',
+            );
+        }
+
+        const chapter = await this.repository.create({
+            name: normalizedName,
+            subjectId: dto.subjectId,
+        });
+
+        return ChaptersMapper.toResponse(chapter);
     }
 
-    const existing =
-      await this.repository.findByNameAndSubject(
-        normalizedName,
-        dto.subjectId,
-      );
+    async findAll(): Promise<ChapterResponseDto[]> {
+        const chapters = await this.repository.findAll();
 
-    if (existing) {
-      throw new ConflictException(
-        'Chapter already exists in this subject.',
-      );
+        return chapters.map((chapter) => ChaptersMapper.toResponse(chapter));
     }
 
-    const chapter =
-      await this.repository.create({
-        name: normalizedName,
-        subjectId: dto.subjectId,
-      });
+    async findOne(id: string): Promise<ChapterResponseDto> {
+        const chapter = await this.repository.findById(id);
 
-    return ChaptersMapper.toResponse(chapter);
-  }
+        if (!chapter) {
+            throw new NotFoundException('Chapter not found.');
+        }
 
-  async findAll(): Promise<ChapterResponseDto[]> {
-
-    const chapters =
-      await this.repository.findAll();
-
-    return chapters.map((chapter) =>
-      ChaptersMapper.toResponse(chapter),
-    );
-  }
-
-  async findOne(
-    id: string,
-  ): Promise<ChapterResponseDto> {
-
-    const chapter =
-      await this.repository.findById(id);
-
-    if (!chapter) {
-      throw new NotFoundException(
-        'Chapter not found.',
-      );
+        return ChaptersMapper.toResponse(chapter);
     }
 
-    return ChaptersMapper.toResponse(chapter);
-  }
+    async update(
+        id: string,
+        dto: UpdateChapterDto,
+    ): Promise<ChapterResponseDto> {
+        const chapter = await this.repository.findById(id);
 
-  async update(
-    id: string,
-    dto: UpdateChapterDto,
-  ): Promise<ChapterResponseDto> {
+        if (!chapter) {
+            throw new NotFoundException('Chapter not found.');
+        }
 
-    const chapter =
-      await this.repository.findById(id);
+        const normalizedName =
+            dto.name !== undefined
+                ? StringUtils.normalizeName(dto.name)
+                : chapter.name;
 
-    if (!chapter) {
-      throw new NotFoundException(
-        'Chapter not found.',
-      );
+        const subjectId = dto.subjectId ?? chapter.subjectId;
+
+        const subjectExists = await this.repository.subjectExists(subjectId);
+
+        if (!subjectExists) {
+            throw new NotFoundException('Subject not found.');
+        }
+
+        const existing = await this.repository.findByNameAndSubject(
+            normalizedName,
+            subjectId,
+        );
+
+        if (existing && existing.id !== id) {
+            throw new ConflictException(
+                'Chapter already exists in this subject.',
+            );
+        }
+
+        const updated = await this.repository.update(id, {
+            name: normalizedName,
+            subjectId,
+        });
+
+        return ChaptersMapper.toResponse(updated);
     }
 
-    const normalizedName =
-        dto.name !== undefined
-            ? StringUtils.normalizeName(dto.name)
-            : chapter.name;
+    async remove(id: string): Promise<void> {
+        const chapter = await this.repository.findById(id);
 
-    const subjectId =
-        dto.subjectId ?? chapter.subjectId;
+        if (!chapter) {
+            throw new NotFoundException('Chapter not found.');
+        }
 
-    const subjectExists =
-      await this.repository.subjectExists(
-        subjectId,
-      );
-
-    if (!subjectExists) {
-      throw new NotFoundException(
-        'Subject not found.',
-      );
+        await this.repository.delete(id);
     }
-
-    const existing =
-      await this.repository.findByNameAndSubject(
-        normalizedName,
-        subjectId,
-      );
-
-    if (existing && existing.id !== id) {
-      throw new ConflictException(
-        'Chapter already exists in this subject.',
-      );
-    }
-
-    const updated =
-      await this.repository.update(id, {
-        name: normalizedName,
-        subjectId,
-      });
-
-    return ChaptersMapper.toResponse(updated);
-  }
-
-  async remove(
-    id: string,
-  ): Promise<void> {
-
-    const chapter =
-      await this.repository.findById(id);
-
-    if (!chapter) {
-      throw new NotFoundException(
-        'Chapter not found.',
-      );
-    }
-
-    await this.repository.delete(id);
-  }
 }

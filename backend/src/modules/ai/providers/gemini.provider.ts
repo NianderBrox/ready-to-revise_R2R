@@ -5,62 +5,44 @@ import { GeminiClient } from '../clients/gemini.client';
 import { LlmProvider } from '../interfaces/llm-provider.interface';
 import { Prompt } from '../prompts/prompt.interface';
 import { JsonParser } from '../utils/json-parser';
+import { AbstractGeminiProvider } from './abstract-gemini.provider';
+import { AiConfigService } from '../services/ai-config.service';
 
 @Injectable()
-export class GeminiProvider implements LlmProvider {
-  private readonly model: string;
+export class GeminiProvider
+    extends AbstractGeminiProvider<
+        string,
+        {
+            model: string;
+            input: string;
+        }
+    >
+    implements LlmProvider
+{
+    private readonly model: string;
 
-  constructor(
-    private readonly client: GeminiClient,
-    private readonly config: ConfigService,
-  ) {
-    this.model = this.config.getOrThrow<string>(
-      'GEMINI_MODEL',
-    );
-  }
+    constructor(
+        client: GeminiClient,
+        private readonly aiConfig: AiConfigService,
+    ) {
+        super(client);
 
-  private async invokeModel(
-    prompt: string,
-  ) {
-    const ai = await this.client.getClient();
-
-    return ai.interactions.create({
-      model: this.model,
-      input: prompt,
-    });
-  }
-
-  private async getOutputText(
-    prompt: string,
-  ): Promise<string> {
-    const interaction =
-      await this.invokeModel(prompt);
-
-    if (!interaction.output_text) {
-      throw new Error(
-        'Gemini returned an empty response.',
-      );
+        this.model = this.aiConfig.geminiModel;
     }
 
-    return interaction.output_text;
-  }
+    protected buildInteractionRequest(prompt: string): {
+        model: string;
+        input: string;
+    } {
+        return {
+            model: this.model,
+            input: prompt,
+        };
+    }
 
-  async generateText(
-    prompt: Prompt<string>,
-  ): Promise<string> {
-    return this.getOutputText(
-      prompt.build(),
-    );
-  }
+    async generate<T>(prompt: Prompt<T>): Promise<T> {
+        const output = await this.execute(prompt.build());
 
-  async generateObject<T>(
-    prompt: Prompt<T>,
-  ): Promise<T> {
-    const output =
-      await this.getOutputText(
-        prompt.build(),
-      );
-
-    return JsonParser.parse<T>(output);
-  }
+        return prompt.parse(output);
+    }
 }
