@@ -9,6 +9,7 @@ import { SubjectsModule } from './modules/subject/subjects.module';
 import { ChaptersModule } from './modules/chapters/chapters.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { AttachmentsModule } from './modules/attachments/attachments.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { AttachmentsModule } from './modules/attachments/attachments.module';
     SubjectsModule,
     ChaptersModule,
     ReviewsModule,
-    AttachmentsModule
+    AttachmentsModule,
+    DashboardModule
   ],
 })
 export class AppModule {}
