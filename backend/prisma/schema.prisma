@@ -123,6 +123,7 @@ model Attachment {
   id String @id @default(uuid())
 
   url      String
+  storageProvider String?
   mimeType String?
   fileSize Int?
 

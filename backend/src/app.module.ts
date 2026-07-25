@@ -7,6 +7,8 @@ import { PrismaModule } from './prisma/prisma.module';
 import { StudyItemsModule } from './modules/study-items/study-items.module';
 import { SubjectsModule } from './modules/subject/subjects.module';
 import { ChaptersModule } from './modules/chapters/chapters.module';
+import { ReviewsModule } from './modules/reviews/reviews.module';
+import { AttachmentsModule } from './modules/attachments/attachments.module';
 
 @Module({
   imports: [
@@ -19,7 +21,9 @@ import { ChaptersModule } from './modules/chapters/chapters.module';
     PrismaModule,
     StudyItemsModule,
     SubjectsModule,
-    ChaptersModule
+    ChaptersModule,
+    ReviewsModule,
+    AttachmentsModule
   ],
 })
 export class AppModule {}
