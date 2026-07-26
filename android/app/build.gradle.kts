@@ -7,11 +7,7 @@ plugins {
 
 android {
     namespace = "com.r2r.readytorevise"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 37 // Updated to meet the requirement for core-ktx and lifecycle 2.11.0
     defaultConfig {
         applicationId = "com.r2r.readytorevise"
         minSdk = 26
