@@ -29,7 +29,8 @@ fun AuthHeader(
         Text(
             text = title,
             style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = androidx.compose.ui.graphics.Color.White
         )
 
         Spacer(
@@ -39,7 +40,7 @@ fun AuthHeader(
         Text(
             text = subtitle,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.85f)
         )
     }
 }

@@ -1,17 +1,22 @@
 package com.r2r.readytorevise.ui.components.common
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.dp
 import com.r2r.readytorevise.ui.theme.AppIcons
 
 @Composable
@@ -20,6 +25,8 @@ fun R2RPasswordField(
     onValueChange: (String) -> Unit,
     label: String,
     modifier: Modifier = Modifier,
+    isError: Boolean = false,
+    errorText: String = "",
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
@@ -30,20 +37,40 @@ fun R2RPasswordField(
 
     OutlinedTextField(
         modifier = modifier.fillMaxWidth(),
+
         value = value,
+
         onValueChange = onValueChange,
 
+        singleLine = true,
+
+        isError = isError,
+
         label = {
-            Text(label)
+            Text(
+                text = label,
+                color = if (isError)
+                    Color.Red
+                else
+                    Color.White.copy(alpha = 0.8f)
+            )
         },
 
-        singleLine = true,
+        textStyle = TextStyle(
+            color = Color.White
+        ),
 
         visualTransformation =
             if (visible)
                 VisualTransformation.None
             else
                 PasswordVisualTransformation(),
+
+        keyboardOptions = keyboardOptions,
+
+        keyboardActions = keyboardActions,
+
+        shape = RoundedCornerShape(15.dp),
 
         trailingIcon = {
 
@@ -59,17 +86,56 @@ fun R2RPasswordField(
                             AppIcons.ShowPassword
                         else
                             AppIcons.HidePassword,
-                    contentDescription =
-                        if (visible)
-                            "Hide password"
-                        else
-                            "Show password"
+
+                    contentDescription = null,
+
+                    tint = if (isError)
+                        Color.Red
+                    else
+                        Color.White
                 )
 
             }
 
-        }
+        },
 
+        colors = OutlinedTextFieldDefaults.colors(
+
+            focusedBorderColor =
+                if (isError) Color.Red else Color.White,
+
+            unfocusedBorderColor =
+                if (isError) Color.Red else Color.White.copy(alpha = 0.5f),
+
+            focusedLabelColor =
+                if (isError) Color.Red else Color.White,
+
+            unfocusedLabelColor =
+                if (isError) Color.Red else Color.White.copy(alpha = 0.8f),
+
+            focusedTextColor = Color.White,
+
+            unfocusedTextColor = Color.White,
+
+            cursorColor = Color.White,
+
+            focusedContainerColor = Color.Transparent,
+
+            unfocusedContainerColor = Color.Transparent
+
+        )
     )
+
+    if (isError) {
+
+        Text(
+            text = errorText,
+            color = Color.Red,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp)
+        )
+
+    }
 
 }

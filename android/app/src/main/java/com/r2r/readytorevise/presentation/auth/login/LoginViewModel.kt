@@ -1,127 +1,145 @@
-package com.r2r.readytorevise.presentation.auth.login
+    package com.r2r.readytorevise.presentation.auth.login
 
-import androidx.lifecycle.viewModelScope
-import com.r2r.readytorevise.domain.validation.EmailValidator
-import com.r2r.readytorevise.domain.validation.LoginPasswordValidator
-import com.r2r.readytorevise.domain.validation.ValidationResult
-import com.r2r.readytorevise.presentation.base.BaseViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+    import androidx.lifecycle.viewModelScope
+    import com.r2r.readytorevise.domain.validation.EmailValidator
+    import com.r2r.readytorevise.domain.validation.LoginPasswordValidator
+    import com.r2r.readytorevise.domain.validation.ValidationResult
+    import com.r2r.readytorevise.presentation.base.BaseViewModel
+    import kotlinx.coroutines.delay
+    import kotlinx.coroutines.launch
 
-class LoginViewModel : BaseViewModel<
-        LoginUiState,
-        LoginEvent,
-        LoginEffect
-        >(LoginUiState()) {
+    class LoginViewModel : BaseViewModel<
+            LoginUiState,
+            LoginEvent,
+            LoginEffect
+            >(LoginUiState()) {
 
-    private val emailValidator = EmailValidator()
+        private val emailValidator = EmailValidator()
 
-    private val passwordValidator = LoginPasswordValidator()
+        private val passwordValidator = LoginPasswordValidator()
 
-    override fun onEvent(event: LoginEvent) {
-        when (event) {
+        override fun onEvent(event: LoginEvent) {
+            when (event) {
 
-            is LoginEvent.EmailChanged -> {
-                onEmailChanged(event.email)
-            }
+                is LoginEvent.EmailChanged -> {
+                    onEmailChanged(event.email)
+                }
 
-            is LoginEvent.PasswordChanged -> {
-                onPasswordChanged(event.password)
-            }
+                is LoginEvent.PasswordChanged -> {
+                    onPasswordChanged(event.password)
+                }
 
-            LoginEvent.LoginClicked -> {
-                login()
-            }
+                LoginEvent.LoginClicked -> {
+                    login()
+                }
 
-            LoginEvent.RegisterClicked -> {
-                navigateToRegister()
+                LoginEvent.RegisterClicked -> {
+                    navigateToRegister()
+                }
             }
         }
-    }
 
-    private fun onEmailChanged(email: String) {
+        private fun onEmailChanged(email: String) {
 
-        val validation = emailValidator.validate(email)
-
-        updateState {
-            copy(
-                email = email,
-
-                emailError = when (validation) {
-                    is ValidationResult.Error -> validation.message
-                    ValidationResult.Success -> null
-                },
-
-                isLoginEnabled = isLoginEnabled(
-                    email = email,
-                    password = password
-                )
-            )
-        }
-    }
-
-    private fun onPasswordChanged(password: String) {
-
-        val validation = passwordValidator.validate(password)
-
-        updateState {
-            copy(
-                password = password,
-
-                passwordError = when (validation) {
-                    is ValidationResult.Error -> validation.message
-                    ValidationResult.Success -> null
-                },
-
-                isLoginEnabled = isLoginEnabled(
-                    email = email,
-                    password = password
-                )
-            )
-        }
-    }
-
-    private fun isLoginEnabled(
-        email: String,
-        password: String
-    ): Boolean {
-        return emailValidator.validate(email) is ValidationResult.Success &&
-                passwordValidator.validate(password) is ValidationResult.Success
-    }
-
-    //for now faking the network call
-    private fun login() {
-
-        if (!currentState.isLoginEnabled) return
-
-        viewModelScope.launch {
+            val validation = emailValidator.validate(email)
 
             updateState {
                 copy(
-                    isLoading = true
+                    email = email,
+
+                    emailError = when (validation) {
+                        is ValidationResult.Error -> validation.message
+                        ValidationResult.Success -> null
+                    },
+
+                    isLoginEnabled = isLoginEnabled(
+                        email = email,
+                        password = password
+                    )
                 )
             }
+        }
 
-            // TODO Replace with LoginUseCase
-            delay(2000)
+        private fun onPasswordChanged(password: String) {
+
+            val validation = passwordValidator.validate(password)
 
             updateState {
                 copy(
-                    isLoading = false
+                    password = password,
+
+                    passwordError = when (validation) {
+                        is ValidationResult.Error -> validation.message
+                        ValidationResult.Success -> ""
+                    },
+
+                    showPasswordError = false,
+
+                    isLoginEnabled = isLoginEnabled(
+                        email = email,
+                        password = password
+                    )
                 )
             }
+        }
 
-            sendEffect(
-                LoginEffect.ShowSnackbar(
-                    "Login API not implemented yet."
-                )
-            )
+        private fun isLoginEnabled(
+            email: String,
+            password: String
+        ): Boolean {
+            return emailValidator.validate(email) is ValidationResult.Success &&
+                    passwordValidator.validate(password) is ValidationResult.Success
+        }
+
+        //for now faking the network call
+        // Fake login for testing
+        private fun login() {
+
+            if (!currentState.isLoginEnabled) return
+
+            viewModelScope.launch {
+
+                updateState {
+                    copy(
+                        isLoading = true
+                    )
+                }
+
+                // Simulate network delay
+                delay(2000)
+
+                if (
+                    currentState.email == "admin@gmail.com" &&
+                    currentState.password == "123456"
+                ) {
+
+                    updateState {
+                        copy(
+                            isLoading = false,
+                            showPasswordError = false,
+                            passwordError = ""
+                        )
+                    }
+
+                    sendEffect(LoginEffect.NavigateToDashboard)
+
+                } else {
+
+                    updateState {
+                        copy(
+                            isLoading = false,
+                            showPasswordError = true,
+                            passwordError = "Incorrect email or password."
+                        )
+                    }
+
+                }
+            }
+        }
+
+        private fun navigateToRegister() {
+            viewModelScope.launch {
+                sendEffect(LoginEffect.NavigateToRegister)
+            }
         }
     }
-
-    private fun navigateToRegister() {
-        viewModelScope.launch {
-            sendEffect(LoginEffect.NavigateToRegister)
-        }
-    }
-}
