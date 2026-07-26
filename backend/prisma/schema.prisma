@@ -33,6 +33,13 @@ enum Difficulty {
   HARD
 }
 
+enum DocumentStatus {
+  UPLOADED
+  ANALYZING
+  READY
+  FAILED
+}
+
 model Subject {
   id String @id @default(uuid())
 
@@ -144,7 +151,28 @@ model User {
   passwordHash String
 
   studyItems StudyItem[]
+  documents Document[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Document {
+  id String @id @default(cuid())
+
+  userId String
+  user User @relation( fields: [userId], references: [id], onDelete: Cascade)
+
+  title String?
+
+  originalName String
+  mimeType String
+
+  status DocumentStatus
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
 }
