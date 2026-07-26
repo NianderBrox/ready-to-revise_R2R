@@ -68,9 +68,10 @@ dependencies {
     implementation(libs.retrofit.converter.kotlinx.serialization)
     implementation(libs.okhttp.core)
     implementation(libs.okhttp.logging.interceptor)
+
+    //room
 //    implementation(libs.androidx.room.runtime)
 //    implementation(libs.androidx.room.ktx)
-
 //    ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.coil.compose)
@@ -85,7 +86,13 @@ dependencies {
     implementation(libs.androidx.camera.compose)
     implementation(platform(libs.firebase.bom))
 
-//    implementation(libs.firebase.messaging)
+    val workVersion = "2.11.2" // Use the latest stable version
+
+        // For Kotlin + Coroutines support (Highly Recommended)
+    implementation("androidx.work:work-runtime-ktx:$workVersion")
+
+
+    implementation("com.google.firebase:firebase-messaging")
     implementation(libs.androidx.compose.material.icons.extended)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
 }
