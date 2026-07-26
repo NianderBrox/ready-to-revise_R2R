@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Model Files
+models/*.pkl
+models/*.joblib
+models/*.onnx
+
+# Data
+data/raw/*
+data/processed/*
+data/features/*
+
+# Keep folders
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/features/.gitkeep
+
+# Logs
+*.log
+
+# OS Files
+.DS_Store
+Thumbs.db
