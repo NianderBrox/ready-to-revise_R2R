@@ -7,7 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.r2r.readytorevise.presentation.analytics.AnalyticsScreen
 import com.r2r.readytorevise.presentation.auth.login.LoginRoute
-import com.r2r.readytorevise.presentation.auth.register.RegisterScreen
+import com.r2r.readytorevise.presentation.auth.register.RegisterRoute
 import com.r2r.readytorevise.presentation.dashboard.DashboardScreen
 import com.r2r.readytorevise.presentation.profile.ProfileScreen
 import com.r2r.readytorevise.presentation.revision.RevisionScreen
@@ -42,7 +42,7 @@ fun AppNavGraph(
         }
 
         composable(Screen.Register.route) {
-            RegisterScreen(navController)
+            RegisterRoute(navController)
         }
 
         composable(Screen.Dashboard.route) {
