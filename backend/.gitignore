@@ -68,3 +68,6 @@ uploads/
 *.log
 /generated/prisma
 src/generated/
+
+
+samples
