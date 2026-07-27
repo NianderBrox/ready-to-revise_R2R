@@ -7,10 +7,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,11 +29,11 @@ fun DashboardHeader(
 
 ) {
 
+    var expanded by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier.fillMaxWidth(),
-
         horizontalArrangement = Arrangement.SpaceBetween,
-
         verticalAlignment = Alignment.CenterVertically
     ) {
 
@@ -41,15 +44,53 @@ fun DashboardHeader(
             color = Color.White
         )
 
-        Icon(
-            imageVector = Icons.Default.AccountCircle,
-            contentDescription = "Profile",
-            tint = Color.White,
-            modifier = Modifier
-                .size(38.dp)
-                .clickable {
-                    onProfileClick()
+        androidx.compose.foundation.layout.Box {
+
+            Icon(
+                imageVector = Icons.Default.AccountCircle,
+                contentDescription = "Profile",
+                tint = Color.White,
+                modifier = Modifier
+                    .size(38.dp)
+                    .clickable {
+                        expanded = true
+                    }
+            )
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = {
+                    expanded = false
                 }
-        )
+            ) {
+
+                DropdownMenuItem(
+
+                    text = {
+                        Text("View Profile")
+                    },
+
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Person,
+                            contentDescription = null
+                        )
+                    },
+
+                    onClick = {
+
+                        expanded = false
+
+                        onProfileClick()
+
+                    }
+
+                )
+
+            }
+
+        }
+
     }
+
 }
