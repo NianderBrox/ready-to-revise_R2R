@@ -1,14 +1,17 @@
 package com.r2r.readytorevise.presentation.auth.register
 
 import androidx.lifecycle.viewModelScope
+import com.r2r.readytorevise.domain.repository.AuthRepository
 import com.r2r.readytorevise.presentation.base.BaseViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class RegisterViewModel : BaseViewModel<
+class RegisterViewModel(
+    private val authRepository: AuthRepository
+) : BaseViewModel<
         RegisterUiState,
         RegisterEvent,
-        Nothing
+        RegisterEffect
         >(RegisterUiState()) {
 
     override fun onEvent(event: RegisterEvent) {
@@ -104,10 +107,24 @@ class RegisterViewModel : BaseViewModel<
                 copy(isLoading = true)
             }
 
-            delay(1500)
+            val result = authRepository.register(
+                name = currentState.name,
+                email = currentState.email,
+                password = currentState.password
+            )
 
-            updateState {
-                copy(isLoading = false)
+            result.onSuccess {
+                updateState {
+                    copy(isLoading = false)
+                }
+                sendEffect(RegisterEffect.ShowSnackbar("Registration successful! Please login."))
+                delay(1500)
+                sendEffect(RegisterEffect.NavigateToLogin)
+            }.onFailure { error ->
+                updateState {
+                    copy(isLoading = false)
+                }
+                sendEffect(RegisterEffect.ShowSnackbar(error.message ?: "Registration failed"))
             }
 
         }

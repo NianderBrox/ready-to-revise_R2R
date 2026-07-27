@@ -23,13 +23,14 @@ import com.r2r.readytorevise.ui.theme.ReadyToReviseTheme
 
 @Composable
 fun RegisterScreen(
+    modifier: Modifier = Modifier,
     navController: NavHostController,
     state: RegisterUiState,
     onEvent: (RegisterEvent) -> Unit
 ) {
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color(0xFF23336F))
             .verticalScroll(rememberScrollState())
@@ -89,9 +90,11 @@ fun RegisterScreen(
 
         R2RButton(
             text = "Create Account",
+            loadingText = "Creating account...",
+            loading = state.isLoading,
             enabled = state.isRegisterEnabled,
             onClick = {
-                navController.popBackStack()
+                onEvent(RegisterEvent.RegisterClicked)
             }
         )
 

@@ -5,10 +5,13 @@
     import com.r2r.readytorevise.domain.validation.LoginPasswordValidator
     import com.r2r.readytorevise.domain.validation.ValidationResult
     import com.r2r.readytorevise.presentation.base.BaseViewModel
+    import com.r2r.readytorevise.domain.repository.AuthRepository
     import kotlinx.coroutines.delay
     import kotlinx.coroutines.launch
 
-    class LoginViewModel : BaseViewModel<
+    class LoginViewModel(
+        private val authRepository: AuthRepository
+    ) : BaseViewModel<
             LoginUiState,
             LoginEvent,
             LoginEffect
@@ -91,8 +94,6 @@
                     passwordValidator.validate(password) is ValidationResult.Success
         }
 
-        //for now faking the network call
-        // Fake login for testing
         private fun login() {
 
             if (!currentState.isLoginEnabled) return
@@ -105,14 +106,9 @@
                     )
                 }
 
-                // Simulate network delay
-                delay(2000)
+                val result = authRepository.login(currentState.email, currentState.password)
 
-                if (
-                    currentState.email == "admin@gmail.com" &&
-                    currentState.password == "123456"
-                ) {
-
+                result.onSuccess {
                     updateState {
                         copy(
                             isLoading = false,
@@ -120,19 +116,15 @@
                             passwordError = ""
                         )
                     }
-
                     sendEffect(LoginEffect.NavigateToDashboard)
-
-                } else {
-
+                }.onFailure { error ->
                     updateState {
                         copy(
                             isLoading = false,
                             showPasswordError = true,
-                            passwordError = "Incorrect email or password."
+                            passwordError = error.message ?: "Login failed"
                         )
                     }
-
                 }
             }
         }

@@ -12,13 +12,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.r2r.readytorevise.di.AppContainer
+
 @Composable
 fun LoginRoute(
+    appContainer: AppContainer,
     onLoginSuccess: () -> Unit,
     onRegisterClick: () -> Unit
 ) {
 
-    val viewModel: LoginViewModel = viewModel()
+    val factory = viewModelFactory {
+        initializer {
+            LoginViewModel(appContainer.authRepository)
+        }
+    }
+
+    val viewModel: LoginViewModel = viewModel(factory = factory)
 
     val state by viewModel.state.collectAsState()
 

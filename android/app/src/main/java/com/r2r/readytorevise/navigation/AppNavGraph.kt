@@ -1,6 +1,12 @@
 package com.r2r.readytorevise.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,19 +21,29 @@ import com.r2r.readytorevise.presentation.upload.UploadScreen
 
 @Composable
 fun AppNavGraph(
+    appContainer: com.r2r.readytorevise.di.AppContainer,
     modifier: Modifier = Modifier
 ) {
+    val isLoggedIn by appContainer.authRepository.isLoggedIn.collectAsState(initial = null)
+
+    if (isLoggedIn == null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
 
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Dashboard.route,
+        startDestination = if (isLoggedIn == true) Screen.Dashboard.route else Screen.Login.route,
         modifier = modifier
     ) {
 
         composable(Screen.Login.route) {
             LoginRoute(
+                appContainer = appContainer,
                 onLoginSuccess = {
                     navController.navigate(Screen.Dashboard.route) {
                         popUpTo(Screen.Login.route) {
@@ -42,7 +58,10 @@ fun AppNavGraph(
         }
 
         composable(Screen.Register.route) {
-            RegisterRoute(navController)
+            RegisterRoute(
+                appContainer = appContainer,
+                navController = navController
+            )
         }
 
         composable(Screen.Dashboard.route) {
