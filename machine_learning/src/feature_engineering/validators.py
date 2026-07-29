@@ -11,8 +11,6 @@ def validate_features(df: pd.DataFrame):
     missing = set(ALL_FEATURES + [TARGET]) - set(df.columns)
 
     if missing:
-        raise ValueError(
-            f"Missing features: {missing}"
-        )
+        raise ValueError(f"Missing features: {missing}")
 
     return True

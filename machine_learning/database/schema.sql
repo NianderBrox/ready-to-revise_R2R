@@ -1,15 +1,39 @@
 -- ============================================================
--- R2R Database Schema v1.0
+-- R2R Database Schema v2.0
 -- ============================================================
 
 -- Enable UUID generation
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- ============================================================
+-- ENUM TYPES
+-- ============================================================
+
+CREATE TYPE question_difficulty_enum AS ENUM (
+    'EASY',
+    'MEDIUM',
+    'HARD'
+);
+
+CREATE TYPE confidence_level_enum AS ENUM (
+    'LOW',
+    'MEDIUM',
+    'HIGH'
+);
+
+CREATE TYPE scheduler_rating_enum AS ENUM (
+    'AGAIN',
+    'HARD',
+    'GOOD',
+    'EASY'
+);
+
+-- ============================================================
 -- USERS
 -- ============================================================
 
 CREATE TABLE users (
+
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     created_at TIMESTAMP NOT NULL,
@@ -33,8 +57,8 @@ CREATE TABLE questions (
 
     topic VARCHAR(100) NOT NULL,
 
-    difficulty SMALLINT NOT NULL
-        CHECK (difficulty BETWEEN 1 AND 3),
+    -- Difficulty of the content itself
+    question_difficulty question_difficulty_enum NOT NULL,
 
     word_count INTEGER NOT NULL
         CHECK (word_count >= 0),
@@ -90,8 +114,8 @@ CREATE TABLE question_reviews (
 
     correct BOOLEAN NOT NULL,
 
-    confidence SMALLINT NOT NULL
-        CHECK (confidence BETWEEN 1 AND 3),
+    -- User-selected confidence
+    confidence confidence_level_enum NOT NULL,
 
     response_time_seconds REAL NOT NULL
         CHECK (response_time_seconds >= 0),
@@ -123,6 +147,45 @@ CREATE TABLE question_attempts (
 );
 
 -- ============================================================
+-- REVIEW SCHEDULES
+-- ============================================================
+CREATE TABLE review_schedules (
+
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    review_id UUID NOT NULL
+        REFERENCES question_reviews(id)
+        ON DELETE CASCADE,
+
+    scheduler_name VARCHAR(50) NOT NULL,
+
+    input_rating scheduler_rating_enum,
+
+    recall_probability REAL
+        CHECK (
+            recall_probability IS NULL OR
+            (recall_probability BETWEEN 0 AND 1)
+        ),
+
+    scheduled_interval_days REAL NOT NULL
+        CHECK (scheduled_interval_days > 0),
+
+    next_review_at TIMESTAMP NOT NULL,
+
+    fsrs_state SMALLINT,
+
+    fsrs_step SMALLINT,
+
+    fsrs_stability REAL,
+
+    fsrs_difficulty REAL,
+
+    created_at TIMESTAMP NOT NULL,
+
+    UNIQUE (review_id, scheduler_name)
+);
+
+-- ============================================================
 -- NOTIFICATIONS
 -- ============================================================
 
@@ -141,8 +204,36 @@ CREATE TABLE notifications (
     opened_at TIMESTAMP
 );
 
-ALTER TABLE question_reviews
-ADD COLUMN review_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- ============================================================
+-- REVIEW SCHEDULES
+-- ============================================================
 
-ALTER TABLE question_reviews
-ADD COLUMN previous_review_time TIMESTAMP;
+CREATE TABLE review_schedules (
+
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    review_id UUID UNIQUE
+        REFERENCES question_reviews(id)
+        ON DELETE CASCADE,
+
+    scheduler_name VARCHAR(20) UNIQUE,
+
+    input_rating VARCHAR(20) NOT NULL,
+
+    recall_probability REAL,
+
+    scheduled_interval_days REAL,
+
+    next_review_at TIMESTAMP NOT NULL,
+
+    fsrs_state SMALLINT,
+
+    fsrs_step SMALLINT,
+
+    fsrs_stability REAL,
+
+    fsrs_difficulty REAL,
+
+    created_at TIMESTAMP NOT NULL,
+    last_review TIMESTAMP
+);

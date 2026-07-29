@@ -58,7 +58,6 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
 
     df = add_average_hesitation(df)
 
-
     # -------------------------
     # Temporal features
     # -------------------------
@@ -73,12 +72,10 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
 
     df = add_days_since_last_session(df)
 
-
     # -------------------------
     # Validation
     # -------------------------
 
     validate_features(df)
-
 
     return df

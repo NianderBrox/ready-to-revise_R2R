@@ -9,9 +9,7 @@ DATETIME_COLUMNS = [
 ]
 
 
-def convert_datetime_columns(
-    df: pd.DataFrame
-) -> pd.DataFrame:
+def convert_datetime_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
     Convert timestamp columns to pandas datetime.
     """
@@ -20,9 +18,6 @@ def convert_datetime_columns(
 
     for column in DATETIME_COLUMNS:
         if column in df.columns:
-            df[column] = pd.to_datetime(
-                df[column],
-                errors="coerce"
-            )
+            df[column] = pd.to_datetime(df[column], errors="coerce")
 
     return df

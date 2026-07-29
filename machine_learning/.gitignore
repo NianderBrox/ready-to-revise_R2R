@@ -14,7 +14,8 @@ env/
 
 # VS Code
 .vscode/
-
+.vscode/workspace.json
+.vscode/tasks.json
 # PyCharm
 .idea/
 
@@ -39,3 +40,9 @@ data/features/*
 # OS Files
 .DS_Store
 Thumbs.db
+
+#ruff
+.ruff_cache
+
+.python-version
+uv.lock
