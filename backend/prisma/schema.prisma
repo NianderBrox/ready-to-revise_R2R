@@ -170,6 +170,12 @@ model Document {
 
   status DocumentStatus
 
+  storageKey String?
+
+  fileSize Int?
+
+  checksum String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

@@ -13,11 +13,18 @@ import { MarkDocumentReadyCommand } from '../../commands/mark-document-ready.com
 import { CreateDocumentResponseDto } from '../../dto/create-document-response.dto';
 
 import { DocumentsService } from '../../services/documents.service';
+// import { AttachDocumentStorageCommand } from 'src/modules/storage/commands/attach-document-storage.command';
+// import { SaveFileCommand } from 'src/modules/storage/commands/save-file.command';
+import { StorageService } from '../../../storage/services/storage.service';
+import { SaveFileCommand } from '../../../storage/commands/save-file.command';
+import { AttachDocumentStorageCommand } from '../../../storage/commands/attach-document-storage.command';
 
 @Injectable()
 export class DocumentUploadService {
     constructor(
         private readonly documentsService: DocumentsService,
+
+        private readonly storageService: StorageService,
 
         private readonly documentAnalysisService: DocumentAnalysisService,
     ) {}
@@ -28,8 +35,29 @@ export class DocumentUploadService {
     ): Promise<CreateDocumentResponseDto> {
         const document = await this.documentsService.create(command);
 
+        const storageKey = await this.storageService.save(
+            new SaveFileCommand({
+                documentId: document.id,
+
+                file: file.bytes,
+
+                mimeType: file.mimeType,
+            }),
+        );
+
+        await this.documentsService.attachStorage(
+            document.id,
+
+            new AttachDocumentStorageCommand({
+                storageKey,
+
+                fileSize: file.bytes.length,
+            }),
+        );
+
         await this.documentsService.markAnalyzing(
             document.id,
+
             new MarkDocumentAnalyzingCommand(),
         );
 
@@ -40,6 +68,7 @@ export class DocumentUploadService {
 
             const updated = await this.documentsService.markReady(
                 document.id,
+
                 new MarkDocumentReadyCommand({
                     title: analysis.title,
                 }),
@@ -47,12 +76,15 @@ export class DocumentUploadService {
 
             return new CreateDocumentResponseDto(
                 updated.id,
+
                 updated.status,
+
                 analysis,
             );
         } catch (error) {
             await this.documentsService.markFailed(
                 document.id,
+
                 new MarkDocumentFailedCommand({
                     reason:
                         error instanceof Error

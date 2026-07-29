@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { DocumentStatus } from '@prisma/client';
 
@@ -10,13 +10,25 @@ import { MarkDocumentFailedCommand } from '../commands/mark-document-failed.comm
 import { MarkDocumentReadyCommand } from '../commands/mark-document-ready.command';
 
 import { DocumentsRepository } from '../repositories/documents.repository';
+// import { AttachDocumentStorageCommand } from 'src/modules/storage/commands/attach-document-storage.command';
+import { DocumentSummaryResponseDto } from '../dto/document-summary.dto';
+import { DocumentMapper } from '../mappers/document.mapper';
+import { AttachDocumentStorageCommand } from '../../storage/commands/attach-document-storage.command';
+import { DocumentDetailsResponseDto } from '../dto/document-details.response.dto';
+import { DocumentOwnershipService } from '../application/services/document-ownership.service';
+import { StorageService } from '../../storage/services/storage.service';
+import { Document } from '@prisma/client';
 
 @Injectable()
 export class DocumentsService {
     constructor(
         private readonly documentsRepository: DocumentsRepository,
 
-        private readonly documentAnalysisService: DocumentAnalysisService,
+        private readonly documentOwnershipService: DocumentOwnershipService,
+
+        private readonly storageService: StorageService,
+
+        private readonly documentMapper: DocumentMapper,
     ) {}
 
     create(command: CreateDocumentCommand) {
@@ -49,5 +61,56 @@ export class DocumentsService {
         return this.documentsRepository.update(id, {
             status: DocumentStatus.FAILED,
         });
+    }
+
+    async attachStorage(id: string, command: AttachDocumentStorageCommand) {
+        return this.documentsRepository.attachStorage(id, {
+            storageKey: command.storageKey,
+
+            fileSize: command.fileSize,
+
+            checksum: command.checksum,
+        });
+    }
+
+    async listForUser(userId: string): Promise<DocumentSummaryResponseDto[]> {
+        const documents =
+            await this.documentsRepository.findManyByUserId(userId);
+
+        return documents.map((document) =>
+            this.documentMapper.toSummaryDto(document),
+        );
+    }
+
+    async findByIdForUser(
+        documentId: string,
+        userId: string,
+    ): Promise<DocumentDetailsResponseDto> {
+        const document = await this.documentOwnershipService.getOwnedDocument(
+            documentId,
+            userId,
+        );
+
+        return this.documentMapper.toDetailsDto(document);
+    }
+
+    async getFileForUser(
+        documentId: string,
+        userId: string,
+    ): Promise<{
+        document: Document;
+        file: Buffer;
+    }> {
+        const document = await this.documentOwnershipService.getOwnedDocument(
+            documentId,
+            userId,
+        );
+
+        const file = await this.storageService.read(document.storageKey!);
+
+        return {
+            document,
+            file,
+        };
     }
 }

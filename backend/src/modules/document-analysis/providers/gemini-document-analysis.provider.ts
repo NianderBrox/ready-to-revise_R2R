@@ -10,7 +10,8 @@ import { AnalyzeDocumentPrompt } from '../prompts/analyze-document.prompt';
 import { AnalyzeDocumentRequest } from '../models/analyze-document.request';
 import { DocumentAnalysisResult } from '../models/document-analysis.result';
 import { DocumentAnalysisProvider } from '../interfaces/document-analysis.provider';
-import { AiConfigService } from 'src/modules/ai/services/ai-config.service';
+import { AiConfigService } from '../../ai/services/ai-config.service';
+// import { AiConfigService } from 'src/modules/ai/services/ai-config.service';
 
 @Injectable()
 export class GeminiDocumentAnalysisProvider

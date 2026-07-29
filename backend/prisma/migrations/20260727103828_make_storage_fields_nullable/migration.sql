@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Document" ALTER COLUMN "fileSize" DROP NOT NULL,
+ALTER COLUMN "storageKey" DROP NOT NULL;

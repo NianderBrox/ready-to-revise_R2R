@@ -8,7 +8,8 @@ import { CreateStudyItemDto } from './dto/create-study-item.dto';
 import { StudyItemResponseDto } from './dto/study-item-response.dto';
 import { StudyItemsMapper } from './study-items.mapper';
 import { UpdateStudyItemDto } from './dto/update-study-item.dto';
-import { StringUtils } from 'src/common/utils/string.utils';
+import { StringUtils } from '../../common/utils/string.utils';
+// import { StringUtils } from 'src/common/utils/string.utils';
 // import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()

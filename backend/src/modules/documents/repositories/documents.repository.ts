@@ -4,6 +4,12 @@ import { Document, Prisma } from '@prisma/client';
 
 import { PrismaService } from '../../../prisma/prisma.service';
 
+type AttachStorageData = {
+    storageKey: string;
+    fileSize: number;
+    checksum?: string;
+};
+
 @Injectable()
 export class DocumentsRepository {
     constructor(private readonly prisma: PrismaService) {}
@@ -16,6 +22,15 @@ export class DocumentsRepository {
     }) {
         return this.prisma.document.create({
             data,
+        });
+    }
+
+    findByIdAndUserId(id: string, userId: string) {
+        return this.prisma.document.findFirst({
+            where: {
+                id,
+                userId,
+            },
         });
     }
 
@@ -40,6 +55,27 @@ export class DocumentsRepository {
         return this.prisma.document.delete({
             where: {
                 id,
+            },
+        });
+    }
+
+    attachStorage(id: string, data: AttachStorageData) {
+        return this.prisma.document.update({
+            where: {
+                id,
+            },
+            data,
+        });
+    }
+
+    findManyByUserId(userId: string) {
+        return this.prisma.document.findMany({
+            where: {
+                userId,
+            },
+
+            orderBy: {
+                createdAt: 'desc',
             },
         });
     }

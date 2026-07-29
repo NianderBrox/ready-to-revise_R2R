@@ -1,7 +1,8 @@
 import { DocumentAnalysisResult } from '../models/document-analysis.result';
 import { MultimodalPrompt } from '../../ai/prompts/multimodal-prompt.interface';
 import { Injectable } from '@nestjs/common';
-import { JsonParser } from 'src/modules/ai/utils/json-parser';
+import { JsonParser } from '../../ai/utils/json-parser';
+// import { JsonParser } from 'src/modules/ai/utils/json-parser';
 
 @Injectable()
 export class AnalyzeDocumentPrompt implements MultimodalPrompt<DocumentAnalysisResult> {
