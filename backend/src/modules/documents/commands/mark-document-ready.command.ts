@@ -1,11 +1,13 @@
+import { DocumentAnalysisResult } from '../../document-analysis/models/document-analysis.result';
+
 interface MarkDocumentReadyCommandData {
-    title: string;
+    analysis: DocumentAnalysisResult;
 }
 
 export class MarkDocumentReadyCommand {
-    readonly title: string;
+    readonly analysis: DocumentAnalysisResult;
 
     constructor(data: MarkDocumentReadyCommandData) {
-        this.title = data.title;
+        this.analysis = data.analysis;
     }
 }

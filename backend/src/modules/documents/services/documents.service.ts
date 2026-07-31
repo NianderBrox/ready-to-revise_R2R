@@ -18,6 +18,9 @@ import { DocumentDetailsResponseDto } from '../dto/document-details.response.dto
 import { DocumentOwnershipService } from '../application/services/document-ownership.service';
 import { StorageService } from '../../storage/services/storage.service';
 import { Document } from '@prisma/client';
+import { Difficulty } from '@prisma/client';
+import { DocumentWithMetadata } from '../types/document.types';
+import { FileContent } from '../../../common/files/value-objects/file-content';
 
 @Injectable()
 export class DocumentsService {
@@ -51,10 +54,7 @@ export class DocumentsService {
     }
 
     markReady(id: string, command: MarkDocumentReadyCommand) {
-        return this.documentsRepository.update(id, {
-            title: command.title,
-            status: DocumentStatus.READY,
-        });
+        return this.documentsRepository.markReady(id, command.analysis);
     }
 
     markFailed(id: string, command: MarkDocumentFailedCommand) {
@@ -98,15 +98,21 @@ export class DocumentsService {
         documentId: string,
         userId: string,
     ): Promise<{
-        document: Document;
-        file: Buffer;
+        document: DocumentWithMetadata;
+        file: FileContent;
     }> {
         const document = await this.documentOwnershipService.getOwnedDocument(
             documentId,
             userId,
         );
 
-        const file = await this.storageService.read(document.storageKey!);
+        const bytes = await this.storageService.read(document.storageKey!);
+
+        const file = new FileContent(
+            bytes,
+            document.mimeType,
+            document.originalName,
+        );
 
         return {
             document,

@@ -172,6 +172,8 @@ model Document {
 
   storageKey String?
 
+  metadata DocumentMetadata?
+
   fileSize Int?
 
   checksum String?
@@ -181,4 +183,26 @@ model Document {
 
   @@index([userId])
   @@index([status])
+}
+
+model DocumentMetadata {
+  documentId String @id
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  summary String
+
+  subject String
+
+  chapter String
+
+  topic String
+
+  difficulty Difficulty
+
+  keywords Json
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
 }

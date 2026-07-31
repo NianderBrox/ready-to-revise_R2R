@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 
-import { Document, Prisma } from '@prisma/client';
+import { Document, DocumentStatus, Prisma } from '@prisma/client';
 
 import { PrismaService } from '../../../prisma/prisma.service';
+import { DocumentAnalysisResult } from '../../document-analysis/models/document-analysis.result';
+import { DocumentWithMetadata } from '../types/document.types';
 
 type AttachStorageData = {
     storageKey: string;
@@ -31,13 +33,19 @@ export class DocumentsRepository {
                 id,
                 userId,
             },
+            include: {
+                metadata: true,
+            },
         });
     }
 
-    findById(id: string) {
+    async findById(id: string): Promise<DocumentWithMetadata | null> {
         return this.prisma.document.findUnique({
             where: {
                 id,
+            },
+            include: {
+                metadata: true,
             },
         });
     }
@@ -77,6 +85,48 @@ export class DocumentsRepository {
             orderBy: {
                 createdAt: 'desc',
             },
+            include: {
+                metadata: true,
+            },
+        });
+    }
+
+    async markReady(id: string, analysis: DocumentAnalysisResult) {
+        return this.prisma.$transaction(async (tx) => {
+            const document = await tx.document.update({
+                where: {
+                    id,
+                },
+                data: {
+                    title: analysis.title,
+                    status: DocumentStatus.READY,
+                },
+            });
+
+            await tx.documentMetadata.upsert({
+                where: {
+                    documentId: id,
+                },
+                create: {
+                    documentId: id,
+                    summary: analysis.summary,
+                    subject: analysis.subject,
+                    chapter: analysis.chapter,
+                    topic: analysis.topic,
+                    difficulty: analysis.difficulty,
+                    keywords: analysis.keywords,
+                },
+                update: {
+                    summary: analysis.summary,
+                    subject: analysis.subject,
+                    chapter: analysis.chapter,
+                    topic: analysis.topic,
+                    difficulty: analysis.difficulty,
+                    keywords: analysis.keywords,
+                },
+            });
+
+            return document;
         });
     }
 }

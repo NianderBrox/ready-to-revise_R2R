@@ -12,6 +12,8 @@ import { AttachmentsModule } from './modules/attachments/attachments.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { AiModule } from './modules/ai/ai.module';
 import { DocumentAnalysisModule } from './modules/document-analysis/document-analysis.module';
+import { LearningGenerationModule } from './modules/learning-generation/learning-generation.module';
+import { DocumentCapabilitiesModule } from './modules/document-capabilities/document-capabilities.module';
 
 @Module({
     imports: [
@@ -30,6 +32,8 @@ import { DocumentAnalysisModule } from './modules/document-analysis/document-ana
         DashboardModule,
         AiModule,
         DocumentAnalysisModule,
+        LearningGenerationModule,
+        DocumentCapabilitiesModule,
     ],
 })
 export class AppModule {}

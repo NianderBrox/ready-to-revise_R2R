@@ -4,7 +4,8 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import { StudyItemsRepository } from './study-items.repository';
-import { CreateStudyItemDto } from './dto/create-study-item.dto';
+// import { CreateStudyItemDto } from './dto/create-study-item.dto';
+import { CreateStudyItemCommand } from './commands/create-study-item.command';
 import { StudyItemResponseDto } from './dto/study-item-response.dto';
 import { StudyItemsMapper } from './study-items.mapper';
 import { UpdateStudyItemDto } from './dto/update-study-item.dto';
@@ -20,12 +21,11 @@ export class StudyItemsService {
     ) {}
 
     async create(
-        userId: string,
-        dto: CreateStudyItemDto,
+        command: CreateStudyItemCommand,
     ): Promise<StudyItemResponseDto> {
-        const normalizedTitle = StringUtils.trim(dto.title);
+        const normalizedTitle = StringUtils.trim(command.title);
 
-        const normalizedContent = StringUtils.trim(dto.content);
+        const normalizedContent = StringUtils.trim(command.content);
 
         if (!normalizedTitle && !normalizedContent) {
             throw new BadRequestException(
@@ -33,8 +33,8 @@ export class StudyItemsService {
             );
         }
 
-        if (dto.topicId !== undefined) {
-            const exists = await this.repository.topicExists(dto.topicId);
+        if (command.topicId !== undefined) {
+            const exists = await this.repository.topicExists(command.topicId);
 
             if (!exists) {
                 throw new NotFoundException('Topic not found.');
@@ -44,13 +44,25 @@ export class StudyItemsService {
         const studyItem = await this.repository.create({
             title: normalizedTitle,
             content: normalizedContent,
-            type: dto.type,
-            difficulty: dto.difficulty,
-            topicId: dto.topicId,
-            userId,
+            type: command.type,
+            difficulty: command.difficulty,
+            topicId: command.topicId,
+            userId: command.userId,
         });
 
         return StudyItemsMapper.toResponse(studyItem);
+    }
+
+    async createMany(
+        commands: CreateStudyItemCommand[],
+    ): Promise<StudyItemResponseDto[]> {
+        const studyItems: StudyItemResponseDto[] = [];
+
+        for (const command of commands) {
+            studyItems.push(await this.create(command));
+        }
+
+        return studyItems;
     }
 
     async findAll(userId: string): Promise<StudyItemResponseDto[]> {

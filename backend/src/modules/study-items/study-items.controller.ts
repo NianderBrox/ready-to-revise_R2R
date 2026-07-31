@@ -16,6 +16,7 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { CurrentUserData } from '../../common/interfaces/current-user-data.interface';
 import { UpdateStudyItemDto } from './dto/update-study-item.dto';
 import { ParseUUIDPipe } from '@nestjs/common';
+import { CreateStudyItemCommand } from './commands/create-study-item.command';
 
 @Controller('study-items')
 @UseGuards(JwtAuthGuard)
@@ -27,7 +28,16 @@ export class StudyItemsController {
         @CurrentUser() user: CurrentUserData,
         @Body() dto: CreateStudyItemDto,
     ) {
-        return this.studyItemsService.create(user.userId, dto);
+        const command: CreateStudyItemCommand = {
+            userId: user.userId,
+            title: dto.title,
+            content: dto.content,
+            type: dto.type,
+            difficulty: dto.difficulty,
+            topicId: dto.topicId,
+        };
+
+        return this.studyItemsService.create(command);
     }
 
     @Get()

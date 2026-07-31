@@ -70,7 +70,7 @@ export class DocumentUploadService {
                 document.id,
 
                 new MarkDocumentReadyCommand({
-                    title: analysis.title,
+                    analysis,
                 }),
             );
 
