@@ -37,10 +37,8 @@ export class LearningGenerationService {
         userId: string,
         documentId: string,
     ): Promise<StudyItemResponseDto[]> {
-        const { document, file } = await this.documentsService.getFileForUser(
-            documentId,
-            userId,
-        );
+        
+        const { document, file } = await this.documentsService.getFileForUser(documentId,userId,);
 
         this.ensureReady(document);
 

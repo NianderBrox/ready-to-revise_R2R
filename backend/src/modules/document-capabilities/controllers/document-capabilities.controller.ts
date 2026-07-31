@@ -20,7 +20,7 @@ export class DocumentCapabilitiesController {
 
     @Post(':documentId/questions')
     generateQuestions(
-        @CurrentUser('id') userId: string,
+        @CurrentUser('userId') userId: string,
         @Param('documentId') documentId: string,
     ) {
         return this.learningGenerationService.generateQuestions(
