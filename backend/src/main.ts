@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-
 import { AppModule } from './app.module';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -11,7 +10,9 @@ import { ConfigService } from '@nestjs/config';
 const logger = new Logger('Bootstrap');
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, {
+        bufferLogs: true,
+    });
 
     /*
      * Global API Prefix
@@ -59,13 +60,9 @@ async function bootstrap() {
 
     await app.listen(port);
 
-    logger.log(
-        `🚀 Server running on http://localhost:${process.env.PORT ?? 3000}`,
-    );
+    logger.log(`🚀 Server running on http://localhost:${port}`);
 
-    logger.log(
-        `📖 Swagger: http://localhost:${process.env.PORT ?? 3000}/api/docs`,
-    );
+    logger.log(`📖 Swagger: http://localhost:${port}/api/docs`);
 }
 
 bootstrap();

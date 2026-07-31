@@ -1,23 +1,14 @@
 import { Injectable } from '@nestjs/common';
-
 import { FileContent } from '../../../../common/files/value-objects/file-content';
-
-import { AnalyzeDocumentRequest } from '../../../document-analysis/models/analyze-document.request';
-import { DocumentAnalysisService } from '../../../document-analysis/services/document-analysis.service';
-
-import { CreateDocumentCommand } from '../../commands/create-document.command';
-import { MarkDocumentAnalyzingCommand } from '../../commands/mark-document-analyzing.command';
-import { MarkDocumentFailedCommand } from '../../commands/mark-document-failed.command';
-import { MarkDocumentReadyCommand } from '../../commands/mark-document-ready.command';
-
-import { CreateDocumentResponseDto } from '../../dto/create-document-response.dto';
-
-import { DocumentsService } from '../../services/documents.service';
-// import { AttachDocumentStorageCommand } from 'src/modules/storage/commands/attach-document-storage.command';
-// import { SaveFileCommand } from 'src/modules/storage/commands/save-file.command';
-import { StorageService } from '../../../storage/services/storage.service';
-import { SaveFileCommand } from '../../../storage/commands/save-file.command';
-import { AttachDocumentStorageCommand } from '../../../storage/commands/attach-document-storage.command';
+import { CreateDocumentCommand } from '../commands/create-document.command';
+import { MarkDocumentReadyCommand } from '../commands/mark-document-ready.command';
+import { CreateDocumentResponseDto } from '../../presentation/dto/create-document-response.dto';
+import { DocumentsService } from './documents.service';
+import { SaveFileCommand } from '../../../storage/application/commands/save-file.command';
+import { AttachDocumentStorageCommand } from '../../../storage/application/commands/attach-document-storage.command';
+import { DocumentAnalysisService } from '../../../document-analysis/application/services/document-analysis.service';
+import { AnalyzeDocumentRequest } from '../../../document-analysis/domain/models/analyze-document.request';
+import { StorageService } from '../../../storage/application/services/storage.service';
 
 @Injectable()
 export class DocumentUploadService {
@@ -55,11 +46,7 @@ export class DocumentUploadService {
             }),
         );
 
-        await this.documentsService.markAnalyzing(
-            document.id,
-
-            new MarkDocumentAnalyzingCommand(),
-        );
+        await this.documentsService.markAnalyzing(document.id);
 
         try {
             const analysis = await this.documentAnalysisService.analyze(
@@ -82,16 +69,7 @@ export class DocumentUploadService {
                 analysis,
             );
         } catch (error) {
-            await this.documentsService.markFailed(
-                document.id,
-
-                new MarkDocumentFailedCommand({
-                    reason:
-                        error instanceof Error
-                            ? error.message
-                            : 'Unknown error',
-                }),
-            );
+            await this.documentsService.markFailed(document.id);
 
             throw error;
         }

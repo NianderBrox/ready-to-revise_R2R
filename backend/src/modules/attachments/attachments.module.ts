@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
-
 import { PrismaModule } from '../../prisma/prisma.module';
-
-import { AttachmentsController } from './attachments.controller';
-import { AttachmentsRepository } from './attachments.repository';
-import { AttachmentsService } from './attachments.service';
+import { AttachmentsService } from './application/services/attachments.service';
+import { AttachmentsRepository } from './infrastructure/repositories/attachments.repository';
+import { AttachmentsController } from './presentation/controllers/attachments.controller';
 
 @Module({
     imports: [PrismaModule],

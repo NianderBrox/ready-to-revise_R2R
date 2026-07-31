@@ -1,6 +1,6 @@
 // import { UnsupportedMimeTypeException } from 'src/modules/storage/exceptions/unsupported-mime-type.exception';
 
-import { UnsupportedMimeTypeException } from '../../../modules/storage/exceptions/unsupported-mime-type.exception';
+import { UnsupportedMimeTypeException } from '../../../modules/storage/domain/exceptions/unsupported-mime-type.exception';
 
 const MIME_TYPE_TO_EXTENSION: Record<string, string> = {
     'application/pdf': 'pdf',

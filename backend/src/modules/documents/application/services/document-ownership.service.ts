@@ -1,9 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-
-import { Document } from '@prisma/client';
-
-import { DocumentsRepository } from '../../repositories/documents.repository';
-import { DocumentWithMetadata } from '../../types/document.types';
+import { DocumentsRepository } from '../../infrastructure/repositories/documents.repository';
+import { DocumentWithMetadata } from '../../domain/types/document.types';
 
 @Injectable()
 export class DocumentOwnershipService {

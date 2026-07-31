@@ -1,35 +1,12 @@
-// import { NestFactory } from '@nestjs/core';
-
-// import { AiTestingModule } from '../src/devtools/ai-testing.module';
-// import { createAiContext } from 'src/devtools/create-ai-context';
-
-// async function bootstrap() {
-
-//   const app = await createAiContext();
-
-//   console.log(
-//     'Nest application created.',
-//   );
-
-//   await app.close();
-// }
-
-// bootstrap();
-
-
 import 'reflect-metadata';
 import { readFile } from 'node:fs/promises';
 import { extname } from 'node:path';
-
 import { NestFactory } from '@nestjs/core';
-
 import { AiTestingModule } from '../src/devtools/ai-testing.module';
-
-import { DocumentAnalysisService } from '../src/modules/document-analysis/services/document-analysis.service';
-
 import { FileContent } from '../src/common/files/value-objects/file-content';
-import { AnalyzeDocumentRequest } from '../src/modules/document-analysis/models/analyze-document.request';
 import { basename } from 'node:path';
+import { DocumentAnalysisService } from '../src/modules/document-analysis/application/services/document-analysis.service';
+import { AnalyzeDocumentRequest } from '../src/modules/document-analysis/domain/models/analyze-document.request';
 
 const MIME_TYPES: Record<string, string> = {
   '.pdf': 'application/pdf',

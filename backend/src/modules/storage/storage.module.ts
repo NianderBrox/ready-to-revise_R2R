@@ -1,12 +1,9 @@
 import { Module } from '@nestjs/common';
-
-import { StorageService } from './services/storage.service';
-
-import { LocalStorageProvider } from './providers/local-storage.provider';
+import { LocalStorageProvider } from './infrastructure/providers/local-storage.provider';
 import { ConfigModule } from '@nestjs/config';
-
-import { StorageConfigService } from './services/storage-config.service';
-import { STORAGE_PROVIDER } from './tokens/storage-provider.token';
+import { STORAGE_PROVIDER } from './infrastructure/tokens/storage-provider.token';
+import { StorageConfigService } from './application/services/storage-config.service';
+import { StorageService } from './application/services/storage.service';
 
 @Module({
     imports: [ConfigModule],
