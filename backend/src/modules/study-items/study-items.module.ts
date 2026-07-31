@@ -8,5 +8,8 @@ import { PrismaModule } from '../../prisma/prisma.module';
     imports: [PrismaModule],
     controllers: [StudyItemsController],
     providers: [StudyItemsService, StudyItemsRepository],
+    exports: [
+        StudyItemsService,
+    ],
 })
 export class StudyItemsModule {}
