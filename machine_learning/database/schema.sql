@@ -204,36 +204,5 @@ CREATE TABLE notifications (
     opened_at TIMESTAMP
 );
 
--- ============================================================
--- REVIEW SCHEDULES
--- ============================================================
 
-CREATE TABLE review_schedules (
 
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-    review_id UUID UNIQUE
-        REFERENCES question_reviews(id)
-        ON DELETE CASCADE,
-
-    scheduler_name VARCHAR(20) UNIQUE,
-
-    input_rating VARCHAR(20) NOT NULL,
-
-    recall_probability REAL,
-
-    scheduled_interval_days REAL,
-
-    next_review_at TIMESTAMP NOT NULL,
-
-    fsrs_state SMALLINT,
-
-    fsrs_step SMALLINT,
-
-    fsrs_stability REAL,
-
-    fsrs_difficulty REAL,
-
-    created_at TIMESTAMP NOT NULL,
-    last_review TIMESTAMP
-);
