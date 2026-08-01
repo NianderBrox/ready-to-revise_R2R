@@ -9,6 +9,7 @@ import { StudyItemResponseDto } from '../../presentation/dto/study-item-response
 import { UpdateStudyItemDto } from '../../presentation/dto/update-study-item.dto';
 import { CreateStudyItemCommand } from '../commands/create-study-item.command';
 import { StudyItemsMapper } from '../mappers/study-items.mapper';
+import { CreateStudyItemData } from '../../domain/interfaces/create-study-item-data.interface';
 
 @Injectable()
 export class StudyItemsService {
@@ -50,13 +51,43 @@ export class StudyItemsService {
     async createMany(
         commands: CreateStudyItemCommand[],
     ): Promise<StudyItemResponseDto[]> {
-        const studyItems: StudyItemResponseDto[] = [];
+        const data: CreateStudyItemData[] = [];
 
         for (const command of commands) {
-            studyItems.push(await this.create(command));
+            const normalizedTitle = StringUtils.trim(command.title);
+            const normalizedContent = StringUtils.trim(command.content);
+
+            if (!normalizedTitle && !normalizedContent) {
+                throw new BadRequestException(
+                    'Either title or content is required.',
+                );
+            }
+
+            if (command.topicId !== undefined) {
+                const exists = await this.repository.topicExists(
+                    command.topicId,
+                );
+
+                if (!exists) {
+                    throw new NotFoundException('Topic not found.');
+                }
+            }
+
+            data.push({
+                title: normalizedTitle,
+                content: normalizedContent,
+                type: command.type,
+                difficulty: command.difficulty,
+                topicId: command.topicId,
+                userId: command.userId,
+            });
         }
 
-        return studyItems;
+        const studyItems = await this.repository.createMany(data);
+
+        return studyItems.map((studyItem) =>
+            StudyItemsMapper.toResponse(studyItem),
+        );
     }
 
     async findAll(userId: string): Promise<StudyItemResponseDto[]> {
@@ -87,28 +118,8 @@ export class StudyItemsService {
         if (!existing) {
             throw new NotFoundException('Study item not found.');
         }
-        const normalizedTitle =
-            dto.title !== undefined
-                ? StringUtils.trim(dto.title)
-                : existing.title;
 
-        const normalizedContent =
-            dto.content !== undefined
-                ? StringUtils.trim(dto.content)
-                : existing.content;
-
-        if (
-            normalizedTitle !== undefined &&
-            normalizedContent !== undefined &&
-            normalizedTitle === '' &&
-            normalizedContent === ''
-        ) {
-            throw new BadRequestException(
-                'Title and content cannot both be empty.',
-            );
-        }
-
-        if (dto.topicId) {
+        if (dto.topicId !== undefined) {
             const exists = await this.repository.topicExists(dto.topicId);
 
             if (!exists) {
@@ -117,10 +128,11 @@ export class StudyItemsService {
         }
 
         const updateData = {
-            title: normalizedTitle,
-            content: normalizedContent,
-            type: dto.type ?? existing.type,
-            difficulty: dto.difficulty ?? existing.difficulty,
+            difficulty:
+                dto.difficulty !== undefined
+                    ? dto.difficulty
+                    : existing.difficulty,
+
             topicId: dto.topicId !== undefined ? dto.topicId : existing.topicId,
         };
 

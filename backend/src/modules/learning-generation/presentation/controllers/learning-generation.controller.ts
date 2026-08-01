@@ -2,22 +2,22 @@ import { Controller, Param, Post, UseGuards } from '@nestjs/common';
 import { CurrentUser } from '../../../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../../auth/infrastructure/guards/jwt-auth.guard';
 import { LearningGenerationService } from '../../application/services/learning-generation.service';
+import type { CurrentUserData } from '../../../../common/interfaces/current-user-data.interface';
 
-@Controller('learning-generation')
+@Controller('documents')
 @UseGuards(JwtAuthGuard)
 export class LearningGenerationController {
     constructor(
         private readonly learningGenerationService: LearningGenerationService,
     ) {}
 
-    @Post('documents/:documentId/questions')
+    @Post(':documentId/questions')
     generateQuestions(
-        @CurrentUser('id') userId: string,
+        @CurrentUser() user: CurrentUserData,
         @Param('documentId') documentId: string,
     ) {
-        console.log('Controller reached');
         return this.learningGenerationService.generateQuestions(
-            userId,
+            user.userId,
             documentId,
         );
     }

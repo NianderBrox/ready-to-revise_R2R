@@ -36,7 +36,7 @@ export class GeminiQuestionGenerationProvider
             input: [
                 {
                     type: 'text',
-                    text: this.prompt.build(request.title, request.context),
+                    text: this.prompt.build(request.metadata),
                 },
                 {
                     type: 'document',

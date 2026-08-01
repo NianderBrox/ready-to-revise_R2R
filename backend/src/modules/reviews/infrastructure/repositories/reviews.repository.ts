@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../prisma/prisma.service';
-import { CreateReviewData } from '../interfaces/create-review-data.interface';
+import { CreateReviewData } from '../../domain/interfaces/create-review-data.interface';
 
 @Injectable()
 export class ReviewsRepository {

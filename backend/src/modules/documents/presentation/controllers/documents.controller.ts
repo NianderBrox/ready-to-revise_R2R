@@ -100,6 +100,6 @@ export class DocumentsController {
             `inline; filename="${result.document.originalName}"`,
         );
 
-        response.send(result.file);
+        response.send(result.file.bytes);
     }
 }

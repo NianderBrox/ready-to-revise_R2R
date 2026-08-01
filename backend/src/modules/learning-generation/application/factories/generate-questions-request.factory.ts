@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { FileContent } from '../../../../common/files/value-objects/file-content';
 import { DocumentWithMetadata } from '../../../documents/domain/types/document.types';
 import { GenerateQuestionsRequest } from '../../domain/models/generate-questions.request';
@@ -9,18 +9,12 @@ export class GenerateQuestionsRequestFactory {
         document: DocumentWithMetadata,
         file: FileContent,
     ): GenerateQuestionsRequest {
-        const context = [
-            document.metadata!.subject,
-            document.metadata!.chapter,
-            document.metadata!.topic,
-        ]
-            .filter(Boolean)
-            .join('\n');
+        if (!document.metadata) {
+            throw new BadRequestException(
+                'Document metadata is not available.',
+            );
+        }
 
-        return new GenerateQuestionsRequest(
-            file,
-            document.title ?? undefined,
-            context || undefined,
-        );
+        return new GenerateQuestionsRequest(file, document.metadata);
     }
 }

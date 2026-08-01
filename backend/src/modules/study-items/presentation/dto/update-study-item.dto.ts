@@ -1,4 +1,12 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateStudyItemDto } from './create-study-item.dto';
+import { IsEnum, IsOptional, IsUUID } from 'class-validator';
+import { Difficulty } from '@prisma/client';
 
-export class UpdateStudyItemDto extends PartialType(CreateStudyItemDto) {}
+export class UpdateStudyItemDto {
+    @IsOptional()
+    @IsEnum(Difficulty)
+    difficulty?: Difficulty;
+
+    @IsOptional()
+    @IsUUID()
+    topicId?: string;
+}

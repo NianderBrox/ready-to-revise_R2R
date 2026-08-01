@@ -67,4 +67,21 @@ export class StudyItemsRepository {
             },
         });
     }
+
+    async createMany(data: CreateStudyItemData[]) {
+        return this.prisma.$transaction(
+            data.map((item) =>
+                this.prisma.studyItem.create({
+                    data: {
+                        title: item.title,
+                        content: item.content,
+                        type: item.type,
+                        difficulty: item.difficulty,
+                        topicId: item.topicId,
+                        userId: item.userId,
+                    },
+                }),
+            ),
+        );
+    }
 }

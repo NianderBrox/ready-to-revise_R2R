@@ -9,8 +9,10 @@ import { GenerateQuestionsRequestFactory } from './application/factories/generat
 import { GeneratedQuestionMapper } from './application/mappers/generated-question.mapper';
 import { LearningGenerationService } from './application/services/learning-generation.service';
 import { QuestionGenerationService } from './application/services/question-generation.service';
+import { LearningGenerationController } from './presentation/controllers/learning-generation.controller';
 
 @Module({
+    controllers: [LearningGenerationController],
     imports: [AiModule, DocumentsModule, StudyItemsModule],
     providers: [
         QuestionGenerationService,

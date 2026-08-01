@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateReviewDto } from '../../presentation/dto/create-review.dto';
 import { ReviewScheduler } from '../../infrastructure/utils/review-scheduler';
 import { ReviewResponseDto } from '../../presentation/dto/review-response.dto';
-import { ReviewsRepository } from '../../domain/repositories/reviews.repository';
+import { ReviewsRepository } from '../../infrastructure/repositories/reviews.repository';
 import { ReviewsMapper } from '../mappers/reviews.mapper';
 
 @Injectable()

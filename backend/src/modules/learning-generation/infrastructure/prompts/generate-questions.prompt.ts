@@ -1,8 +1,18 @@
 import { Injectable } from '@nestjs/common';
+import { DocumentMetadata } from '@prisma/client';
 
 @Injectable()
 export class GenerateQuestionsPrompt {
-    build(title?: string, context?: string): string {
+    build(metadata: DocumentMetadata): string {
+        const keywords = Array.isArray(metadata.keywords)
+            ? metadata.keywords
+                  .filter(
+                      (keyword): keyword is string =>
+                          typeof keyword === 'string',
+                  )
+                  .join(', ')
+            : 'None';
+
         return `
 You are an expert educator.
 
@@ -27,21 +37,32 @@ Return ONLY valid JSON.
 Schema:
 
 {
-  "questions": [
-    {
-      "question": "string",
-      "answer": "string",
-      "difficulty": "EASY | MEDIUM | HARD",
-      "explanation": "string"
-    }
-  ]
+    "questions": [
+        {
+            "question": "string",
+            "answer": "string",
+            "difficulty": "EASY | MEDIUM | HARD",
+            "explanation": "string"
+        }
+    ]
 }
 
-Document Title:
-${title ?? 'Unknown'}
+Document Metadata:
 
-Additional Context:
-${context ?? 'None'}
+Subject:
+${metadata.subject ?? 'Unknown'}
+
+Chapter:
+${metadata.chapter ?? 'Unknown'}
+
+Topic:
+${metadata.topic ?? 'Unknown'}
+
+Difficulty:
+${metadata.difficulty ?? 'Unknown'}
+
+Keywords:
+${keywords}
 `;
     }
 }

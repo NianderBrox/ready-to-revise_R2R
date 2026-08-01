@@ -5,8 +5,8 @@ import {
     Param,
     ParseUUIDPipe,
     Post,
+    UseGuards,
 } from '@nestjs/common';
-import { UseGuards } from '@nestjs/common';
 import { CurrentUser } from '../../../../common/decorators/current-user.decorator';
 import type { CurrentUserData } from '../../../../common/interfaces/current-user-data.interface';
 import { JwtAuthGuard } from '../../../auth/infrastructure/guards/jwt-auth.guard';
@@ -18,6 +18,7 @@ import { CreateReviewDto } from '../dto/create-review.dto';
 export class ReviewsController {
     constructor(private readonly reviewsService: ReviewsService) {}
 
+    @Post()
     async create(
         @CurrentUser()
         user: CurrentUserData,
@@ -28,6 +29,7 @@ export class ReviewsController {
         return this.reviewsService.create(user.userId, dto);
     }
 
+    @Get('study-items/:studyItemId')
     async history(
         @CurrentUser()
         user: CurrentUserData,
@@ -35,6 +37,6 @@ export class ReviewsController {
         @Param('studyItemId', ParseUUIDPipe)
         studyItemId: string,
     ) {
-        return this.reviewsService.history(user.userId, studyItemId);
+        return this.reviewsService.history(studyItemId, user.userId);
     }
 }
