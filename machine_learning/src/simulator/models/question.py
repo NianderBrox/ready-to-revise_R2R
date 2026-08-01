@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from simulator.enums import Difficulty
+from machine_learning.src.database.enums import Difficulty
 from uuid import UUID
 
 @dataclass

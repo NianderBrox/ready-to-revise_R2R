@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from machine_learning.src.simulator.enums import Confidence
+from machine_learning.src.database.enums import Confidence
 
 
 @dataclass
