@@ -1,14 +1,15 @@
 package com.r2r.readytorevise.ui.components.dashboard
-import androidx.compose.foundation.layout.padding
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -25,11 +26,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import java.time.DayOfWeek
+import java.time.LocalDate
 
 @Composable
 fun StreakCard() {
 
-    val days = listOf(21, 22, 23, 24, 25, 26, 27)
+    val today = LocalDate.now()
+
+    val monday = today.with(DayOfWeek.MONDAY)
+
+    val week = (0..6).map { monday.plusDays(it.toLong()) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -59,6 +66,7 @@ fun StreakCard() {
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
+
             }
 
             Spacer(modifier = Modifier.height(18.dp))
@@ -68,29 +76,24 @@ fun StreakCard() {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
 
-                days.forEachIndexed { index, day ->
+                week.forEach { date ->
 
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
 
                         Text(
-                            text = day.toString(),
+                            text = date.dayOfMonth.toString(),
                             color = Color.White
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        androidx.compose.foundation.layout.Box(
+                        Box(
                             modifier = Modifier
                                 .size(18.dp)
                                 .clip(CircleShape)
-                                .background(
-                                    if (index < 4)
-                                        Color(0xFF43D17A)
-                                    else
-                                        Color(0xFF7D84B2)
-                                )
+                                .background(Color(0xFF7D84B2))
                         )
 
                     }

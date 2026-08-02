@@ -2,12 +2,15 @@ package com.r2r.readytorevise.ui.components.dashboard
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -23,13 +26,19 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun DashboardHeader(
 
-    userName: String = "Vaibhav Singh",
+    userName: String,
 
-    onProfileClick: () -> Unit = {}
+    onProfileClick: () -> Unit,
+
+    onChangePasswordClick: () -> Unit,
+
+    onLogoutClick: () -> Unit
 
 ) {
 
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by remember {
+        mutableStateOf(false)
+    }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -44,7 +53,9 @@ fun DashboardHeader(
             color = Color.White
         )
 
-        androidx.compose.foundation.layout.Box {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
             Icon(
                 imageVector = Icons.Default.AccountCircle,
@@ -53,39 +64,67 @@ fun DashboardHeader(
                 modifier = Modifier
                     .size(38.dp)
                     .clickable {
-                        expanded = true
+                        onProfileClick()
                     }
             )
 
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = {
-                    expanded = false
-                }
-            ) {
+            androidx.compose.foundation.layout.Spacer(
+                modifier = Modifier.size(12.dp)
+            )
 
-                DropdownMenuItem(
+            Box {
 
-                    text = {
-                        Text("View Profile")
-                    },
-
-                    leadingIcon = {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = null
-                        )
-                    },
-
-                    onClick = {
-
-                        expanded = false
-
-                        onProfileClick()
-
-                    }
-
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Menu",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(34.dp)
+                        .clickable {
+                            expanded = true
+                        }
                 )
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = {
+                        expanded = false
+                    }
+                ) {
+
+                    DropdownMenuItem(
+                        text = {
+                            Text("Change Password")
+                        },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Lock,
+                                contentDescription = null
+                            )
+                        },
+                        onClick = {
+                            expanded = false
+                            onChangePasswordClick()
+                        }
+                    )
+
+                    DropdownMenuItem(
+                        text = {
+                            Text("Log Out")
+                        },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Logout,
+                                contentDescription = null
+                            )
+                        },
+                        onClick = {
+                            expanded = false
+                            onLogoutClick()
+                        }
+                    )
+
+                }
 
             }
 
