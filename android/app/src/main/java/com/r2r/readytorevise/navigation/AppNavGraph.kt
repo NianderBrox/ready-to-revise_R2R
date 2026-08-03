@@ -1,5 +1,5 @@
 package com.r2r.readytorevise.navigation
-
+import com.r2r.readytorevise.presentation.upload.PreviewScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -18,6 +18,7 @@ import com.r2r.readytorevise.presentation.dashboard.DashboardScreen
 import com.r2r.readytorevise.presentation.profile.ProfileScreen
 import com.r2r.readytorevise.presentation.revision.RevisionScreen
 import com.r2r.readytorevise.presentation.upload.UploadScreen
+
 
 @Composable
 fun AppNavGraph(
@@ -67,10 +68,10 @@ fun AppNavGraph(
         composable(Screen.Dashboard.route) {
             DashboardScreen(navController)
         }
-
-        composable(Screen.Upload.route) {
+        composable(Screen.Preview.route) {
             UploadScreen(navController)
         }
+
 
         composable(Screen.Revision.route) {
             RevisionScreen(navController)

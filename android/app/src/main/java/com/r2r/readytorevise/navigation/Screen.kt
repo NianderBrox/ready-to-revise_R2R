@@ -9,6 +9,7 @@ sealed class Screen(val route: String) {
     data object Dashboard : Screen("dashboard")
 
     data object Upload : Screen("upload")
+    data object Preview : Screen("preview")
 
     data object Revision : Screen("revision")
 

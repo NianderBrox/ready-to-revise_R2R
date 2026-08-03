@@ -1,264 +1,73 @@
-    package com.r2r.readytorevise.presentation.upload
-
-    import android.net.Uri
-    import androidx.compose.foundation.Image
-    import androidx.compose.foundation.background
-    import androidx.compose.foundation.clickable
-    import androidx.compose.foundation.layout.*
-    import androidx.compose.foundation.lazy.LazyColumn
-    import androidx.compose.foundation.lazy.itemsIndexed
-    import androidx.compose.foundation.shape.RoundedCornerShape
-    import androidx.compose.material.icons.Icons
-    import androidx.compose.material.icons.filled.Add
-    import androidx.compose.material.icons.filled.ArrowBack
-    import androidx.compose.material3.*
-    import androidx.compose.runtime.Composable
-    import androidx.compose.ui.Alignment
-    import androidx.compose.ui.Modifier
-    import androidx.compose.ui.draw.clip
-    import androidx.compose.ui.graphics.Color
-    import androidx.compose.ui.layout.ContentScale
-    import androidx.compose.ui.unit.dp
-    import androidx.navigation.NavController
-    import coil.compose.rememberAsyncImagePainter
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun PreviewScreen(
-
-        navController: NavController,
-
-        images: List<Uri>,
-
-        onAddImage: () -> Unit,
-
-        onReplaceImage: (Int) -> Unit,
-
-        onSubmit: () -> Unit
-
-    ) {
-
-        Scaffold(
-
-            containerColor = Color(0xFF23336F),
-
-            topBar = {
-
-                TopAppBar(
-
-                    title = {
-
-                        Text(
-                            "Preview Images",
-                            color = Color.White
-                        )
-
-                    },
-
-                    navigationIcon = {
-
-                        IconButton(
-                            onClick = {
-                                navController.popBackStack()
-                            }
-                        ) {
-
-                            Icon(
-                                Icons.Default.ArrowBack,
-                                null,
-                                tint = Color.White
-                            )
-
-                        }
-
-                    },
-
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color(0xFF23336F)
-                    )
-
-                )
-
-            }
-
-        ) { padding ->
-
-            Column(
-
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(horizontal = 20.dp)
-
-            ) {
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Text(
-
-                    text = "Upload up to 5 images",
-
-                    color = Color.White
-
-                )
-
-                Text(
-
-                    text = "${images.size}/5 Selected",
-
-                    color = Color.LightGray
-
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                LazyColumn(
-
-                    modifier = Modifier.weight(1f),
-
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-
-                ) {
-
-                    itemsIndexed(images) { index, uri ->
-
-                        Card(
-
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color(0xFF2C377C)
-                            ),
-
-                            shape = RoundedCornerShape(18.dp)
-
-                        ) {
-
-                            Column {
-
-                                Image(
-
-                                    painter = rememberAsyncImagePainter(uri),
-
-                                    contentDescription = null,
-
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(220.dp)
-                                        .clip(
-                                            RoundedCornerShape(
-                                                topStart = 18.dp,
-                                                topEnd = 18.dp
-                                            )
-                                        ),
-
-                                    contentScale = ContentScale.Crop
-
-                                )
-
-                                TextButton(
-
-                                    onClick = {
-
-                                        onReplaceImage(index)
-
-                                    },
-
-                                    modifier = Modifier.align(Alignment.End)
-
-                                ) {
-
-                                    Text("Replace")
-
-                                }
-
-                            }
-
-                        }
-
-                    }
-
-                    if (images.size < 5) {
-
-                        item {
-
-                            Card(
-
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(140.dp)
-                                    .clickable {
-
-                                        onAddImage()
-
-                                    },
-
-                                colors = CardDefaults.cardColors(
-                                    containerColor = Color(0xFF2C377C)
-                                ),
-
-                                shape = RoundedCornerShape(18.dp)
-
-                            ) {
-
-                                Column(
-
-                                    modifier = Modifier.fillMaxSize(),
-
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-
-                                    verticalArrangement = Arrangement.Center
-
-                                ) {
-
-                                    Icon(
-
-                                        Icons.Default.Add,
-
-                                        null,
-
-                                        tint = Color.White
-
-                                    )
-
-                                    Spacer(modifier = Modifier.height(8.dp))
-
-                                    Text(
-
-                                        "Add Image",
-
-                                        color = Color.White
-
-                                    )
-
-                                }
-
-                            }
-
-                        }
-
-                    }
-
+package com.r2r.readytorevise.presentation.upload
+
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.compose.runtime.remember
+
+@Composable
+fun UploadScreen(
+    navController: NavController,
+    uploadViewModel: UploadViewModel = viewModel()
+) {
+
+    val replaceIndex = remember {
+        androidx.compose.runtime.mutableIntStateOf(-1)
+    }
+
+    val galleryLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.PickVisualMedia()
+        ) { uri ->
+
+            if (uri != null) {
+
+                if (replaceIndex.intValue == -1) {
+                    uploadViewModel.addImage(uri)
+                } else {
+                    uploadViewModel.replaceImage(replaceIndex.intValue, uri)
+                    replaceIndex.intValue = -1
                 }
-
-                Button(
-
-                    onClick = onSubmit,
-
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 18.dp),
-
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF43D17A)
-                    )
-
-                ) {
-
-                    Text("Submit")
-
-                }
-
             }
+        }
+
+    PreviewScreen(
+
+        navController = navController,
+
+        images = uploadViewModel.images,
+
+        onAddImage = {
+
+            galleryLauncher.launch(
+                PickVisualMediaRequest(
+                    ActivityResultContracts.PickVisualMedia.ImageOnly
+                )
+            )
+
+        },
+
+        onReplaceImage = { index ->
+
+            replaceIndex.intValue = index
+
+            galleryLauncher.launch(
+                PickVisualMediaRequest(
+                    ActivityResultContracts.PickVisualMedia.ImageOnly
+                )
+            )
+
+        },
+
+        onSubmit = {
+
+            // We'll connect backend upload next.
 
         }
 
-    }
+    )
+}

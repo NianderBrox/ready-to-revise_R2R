@@ -1,4 +1,6 @@
 package com.r2r.readytorevise.presentation.dashboard
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.r2r.readytorevise.presentation.upload.UploadViewModel
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -38,59 +40,27 @@ fun DashboardScreen(
 ) {
 
     var showBottomSheet by remember { mutableStateOf(false) }
-    var selectedImageUri by remember {
-        mutableStateOf<Uri?>(null)
-    }
-
-    val galleryLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.PickVisualMedia()
-        ) { uri ->
-
-            if (uri != null) {
-                selectedImageUri = uri
-                showBottomSheet = false
-
-                navController.navigate(
-                    Screen.Upload.route + "?imageUri=${Uri.encode(uri.toString())}"
-                )
-            }
-
-        }
+    val uploadViewModel: UploadViewModel = viewModel()
     val context = LocalContext.current
 
     val cameraImageUri = remember {
-
         val contentValues = ContentValues().apply {
-
-            put(
-                MediaStore.Images.Media.DISPLAY_NAME,
-                "R2R_${System.currentTimeMillis()}.jpg"
-            )
-
-            put(
-                MediaStore.Images.Media.MIME_TYPE,
-                "image/jpeg"
-            )
+            put(MediaStore.Images.Media.DISPLAY_NAME, "R2R_${System.currentTimeMillis()}.jpg")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-
                 put(
                     MediaStore.Images.Media.RELATIVE_PATH,
                     "Pictures/ReadyToRevise"
                 )
-
             }
-
         }
 
         context.contentResolver.insert(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             contentValues
         )!!
-
     }
-
     val cameraLauncher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.TakePicture()
@@ -98,18 +68,34 @@ fun DashboardScreen(
 
             if (success) {
 
-                selectedImageUri = cameraImageUri
+                uploadViewModel.clearImages()
+                uploadViewModel.addImage(cameraImageUri)
 
                 showBottomSheet = false
 
-                navController.navigate(
-                    Screen.Upload.route +
-                            "?imageUri=${Uri.encode(cameraImageUri.toString())}"
-                )
+                navController.navigate(Screen.Preview.route)
+            }
+
+        }
+
+    val galleryLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.PickVisualMedia()
+        ) { uri ->
+
+            if (uri != null) {
+                uploadViewModel.clearImages()
+                uploadViewModel.addImage(uri)
+
+                showBottomSheet = false
+
+                navController.navigate(Screen.Preview.route)
 
             }
 
         }
+
+
 
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
