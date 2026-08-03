@@ -18,7 +18,8 @@ import com.r2r.readytorevise.presentation.dashboard.DashboardScreen
 import com.r2r.readytorevise.presentation.profile.ProfileScreen
 import com.r2r.readytorevise.presentation.revision.RevisionScreen
 import com.r2r.readytorevise.presentation.upload.UploadScreen
-
+import com.r2r.readytorevise.presentation.processing.ProcessingScreen
+import com.r2r.readytorevise.presentation.quiz.QuizScreen
 
 @Composable
 fun AppNavGraph(
@@ -70,6 +71,13 @@ fun AppNavGraph(
         }
         composable(Screen.Preview.route) {
             UploadScreen(navController)
+        }
+        composable(Screen.Processing.route) {
+            ProcessingScreen(navController)
+        }
+
+        composable(Screen.Quiz.route) {
+            QuizScreen()
         }
 
 

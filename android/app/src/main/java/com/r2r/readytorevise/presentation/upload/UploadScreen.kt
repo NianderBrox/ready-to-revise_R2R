@@ -66,7 +66,7 @@ fun UploadScreen(
         onSubmit = {
 
             // We'll connect backend upload next.
-
+            navController.navigate("processing")
         }
 
     )

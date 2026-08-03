@@ -33,6 +33,7 @@ import android.content.ContentValues
 import android.os.Build
 import android.provider.MediaStore
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material.icons.filled.Description
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
@@ -95,6 +96,28 @@ fun DashboardScreen(
 
         }
 
+
+    val pdfLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.OpenDocument()
+        ) { uri ->
+            if (uri != null) {
+
+                showBottomSheet = false
+                navController.navigate(Screen.Processing.route)  // We'll handle this later
+            }
+        }
+
+    val wordLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.OpenDocument()
+        ) { uri ->
+            if (uri != null) {
+
+                showBottomSheet = false
+                navController.navigate(Screen.Processing.route)  // We'll handle this later
+            }
+        }
 
 
     val sheetState = rememberModalBottomSheetState(
@@ -190,12 +213,11 @@ fun DashboardScreen(
 
         ) {
 
+            // CAMERA
             Surface(
 
                 onClick = {
-
                     cameraLauncher.launch(cameraImageUri)
-
                 },
 
                 color = Color.Transparent
@@ -224,7 +246,10 @@ fun DashboardScreen(
                 )
 
             }
+
+            // GALLERY
             Surface(
+
                 onClick = {
 
                     galleryLauncher.launch(
@@ -251,7 +276,86 @@ fun DashboardScreen(
 
                     leadingContent = {
                         Icon(
-                            imageVector = Icons.Default.PhotoLibrary,
+                            Icons.Default.PhotoLibrary,
+                            contentDescription = null
+                        )
+                    },
+
+                    modifier = Modifier.fillMaxWidth()
+
+                )
+
+            }
+
+            // PDF
+            Surface(
+
+                onClick = {
+
+                    pdfLauncher.launch(
+                        arrayOf("application/pdf")
+                    )
+
+                },
+
+                color = Color.Transparent
+
+            ) {
+
+                ListItem(
+
+                    headlineContent = {
+                        Text("Upload PDF")
+                    },
+
+                    supportingContent = {
+                        Text("Select a PDF document")
+                    },
+
+                    leadingContent = {
+                        Icon(
+                            Icons.Default.Description,
+                            contentDescription = null
+                        )
+                    },
+
+                    modifier = Modifier.fillMaxWidth()
+
+                )
+
+            }
+
+            // WORD
+            Surface(
+
+                onClick = {
+
+                    wordLauncher.launch(
+                        arrayOf(
+                            "application/msword",
+                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        )
+                    )
+
+                },
+
+                color = Color.Transparent
+
+            ) {
+
+                ListItem(
+
+                    headlineContent = {
+                        Text("Upload Word Document")
+                    },
+
+                    supportingContent = {
+                        Text("Select a Word document")
+                    },
+
+                    leadingContent = {
+                        Icon(
+                            Icons.Default.Description,
                             contentDescription = null
                         )
                     },
@@ -267,5 +371,4 @@ fun DashboardScreen(
         }
 
     }
-
 }
