@@ -2,7 +2,6 @@ from src.scheduler.card_repository import create_new_card
 from src.scheduler.fsrs_scheduler import schedule_review
 from src.scheduler.rating_mapper import map_to_fsrs_rating
 
-
 card = create_new_card()
 
 rating = map_to_fsrs_rating(

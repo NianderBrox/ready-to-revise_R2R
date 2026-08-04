@@ -3,25 +3,24 @@ from src.feature_engineering.cleaning import (
     convert_datetime_columns,
 )
 from src.feature_engineering.historical_features import (
-    add_total_revisions,
-    add_previous_correct,
-    add_previous_confidence,
-    add_previous_response_time,
-    add_previous_hesitation,
-    add_success_rate,
     add_average_confidence,
-    add_average_response_time,
     add_average_hesitation,
+    add_average_response_time,
+    add_previous_confidence_score,
+    add_previous_correct,
+    add_previous_hesitation,
+    add_previous_response_time,
+    add_success_rate,
+    add_total_revisions,
+    sort_reviews,
 )
-
 from src.feature_engineering.temporal_features import (
-    add_review_interval,
-    add_hour_of_day,
     add_day_of_week,
-    add_session_duration,
     add_days_since_last_session,
+    add_hour_of_day,
+    add_review_interval,
+    add_session_duration,
 )
-
 from src.feature_engineering.validators import validate_features
 
 
@@ -29,22 +28,41 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
     """
     Complete R2R feature engineering pipeline.
 
+    Pipeline:
+    1. Convert datetime columns.
+    2. Sort reviews chronologically for each user-question pair.
+    3. Compute historical features.
+    4. Compute temporal features.
+    5. Validate the final dataset.
+
     Input:
         Raw joined review dataframe
 
     Output:
         ML-ready dataframe
     """
+
+    #remove once simulator gives confidence_score, other features to be added as well
+    CONFIDENCE_SCORE_MAP = {
+        "LOW": 0.25,
+        "MEDIUM": 0.60,
+        "HIGH": 0.90,
+    }
+
+    df["confidence_score"] = df["confidence"].map(CONFIDENCE_SCORE_MAP)
+
     df = convert_datetime_columns(df)
-    # -------------------------
+
+    # Sort reviews
+    df = sort_reviews(df)
+
     # Historical features
-    # -------------------------
 
     df = add_total_revisions(df)
 
     df = add_previous_correct(df)
 
-    df = add_previous_confidence(df)
+    df = add_previous_confidence_score(df)
 
     df = add_previous_response_time(df)
 
@@ -58,9 +76,7 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
 
     df = add_average_hesitation(df)
 
-    # -------------------------
     # Temporal features
-    # -------------------------
 
     df = add_review_interval(df)
 
@@ -72,9 +88,7 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
 
     df = add_days_since_last_session(df)
 
-    # -------------------------
     # Validation
-    # -------------------------
 
     validate_features(df)
 

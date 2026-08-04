@@ -33,8 +33,11 @@ NUMERICAL_FEATURES = [
     # Review history
     "review_interval_days",
     "repetition_number",
-    "last_review_confidence",
+
+    "last_review_confidence_score",
+
     "last_review_response_time",
+
     "last_review_hesitation",
     # Behaviour
     "answer_changes",

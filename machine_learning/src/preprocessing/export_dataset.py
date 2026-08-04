@@ -1,10 +1,8 @@
 import os
-import pandas as pd
 
-from src.feature_engineering.loader import load_table
-from src.feature_engineering.joiner import join_tables
 from src.feature_engineering.feature_builder import build_features
-
+from src.feature_engineering.joiner import join_tables
+from src.feature_engineering.loader import load_table
 
 OUTPUT_PATH = "data/features/training_dataset.csv"
 
@@ -20,7 +18,7 @@ def create_training_dataset():
     reviews = load_table("question_reviews")
 
     attempts = load_table("question_attempts")
-
+    #use simulator's confidence_score
     print("Joining tables...")
 
     df = join_tables(

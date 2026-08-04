@@ -4,18 +4,17 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, String
-from database.types import PG_UUID
+from sqlalchemy import DateTime, ForeignKey, String, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import text
+
 from database.base import Base
-from sqlalchemy import DateTime
+from database.types import PG_UUID
 
 if TYPE_CHECKING:
-    from database.models.question import Question
-    from database.models.study_session import StudySession
-    from database.models.question_review import QuestionReview
     from database.models.notification import Notification
+    from database.models.question import Question
+    from database.models.question_review import QuestionReview
+    from database.models.study_session import StudySession
 
 
 class User(Base):
@@ -34,19 +33,19 @@ class User(Base):
 
     timezone: Mapped[str] = mapped_column(String(50))
 
-    questions: Mapped[list["Question"]] = relationship(
+    questions: Mapped[list[Question]] = relationship(
         back_populates="user"
     )
 
-    study_sessions: Mapped[list["StudySession"]] = relationship(
+    study_sessions: Mapped[list[StudySession]] = relationship(
         back_populates="user"
     )
 
-    question_reviews: Mapped[list["QuestionReview"]] = relationship(
+    question_reviews: Mapped[list[QuestionReview]] = relationship(
         back_populates="user"
     )
 
-    notifications: Mapped[list["Notification"]] = relationship(
+    notifications: Mapped[list[Notification]] = relationship(
         back_populates="user"
     )
 

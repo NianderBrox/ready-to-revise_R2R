@@ -1,7 +1,6 @@
-from src.feature_engineering.loader import load_table
-from src.feature_engineering.joiner import join_tables
 from src.feature_engineering.feature_builder import build_features
-
+from src.feature_engineering.joiner import join_tables
+from src.feature_engineering.loader import load_table
 
 questions = load_table("questions")
 

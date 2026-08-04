@@ -1,19 +1,12 @@
-from src.database.review_schedule_repository import (
-    get_latest_review_schedule,
-    save_review_schedule,
+from src.database.repositories.review_schedule_repository import (
+    get_latest_schedule,
 )
-
 from src.scheduler.card_factory import (
     create_new_card,
     restore_card,
 )
-
-from src.scheduler.confidence_mapper import (
-    map_confidence_to_rating,
-)
-
-from src.scheduler.fsrs_scheduler import (
-    review_card,
+from src.scheduler.rating_mapper import (
+    map_to_fsrs_rating,
 )
 
 
@@ -27,16 +20,17 @@ def schedule_review(
     """
     Updates the review schedule after a question review.
     """
-    schedule = get_latest_review_schedule(
-        user_id=user_id,
-        question_id=question_id,
+    schedule = get_latest_schedule(
+        # user_id=user_id,
+        # question_id=question_id,
+        review_id=review_id,
     )
     if schedule is None:
         card = create_new_card()
     else:
         card = restore_card(schedule)
 
-    rating = map_confidence_to_rating(
+    rating = map_to_fsrs_rating(
         correct=correct,
         confidence=confidence,
     )

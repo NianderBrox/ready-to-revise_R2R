@@ -117,10 +117,10 @@ CREATE TABLE question_reviews (
     -- User-selected confidence
     confidence confidence_level_enum NOT NULL,
 
-    response_time_seconds REAL NOT NULL
+    response_time_seconds Float NOT NULL
         CHECK (response_time_seconds >= 0),
 
-    hesitation_seconds REAL NOT NULL
+    hesitation_seconds Float NOT NULL
         CHECK (hesitation_seconds >= 0),
 
     answer_changes SMALLINT NOT NULL
@@ -184,6 +184,7 @@ CREATE TABLE review_schedules (
 
     UNIQUE (review_id, scheduler_name)
 );
+
 
 -- ============================================================
 -- NOTIFICATIONS

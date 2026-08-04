@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 DATETIME_COLUMNS = [
     "review_time",
     "previous_review_time",

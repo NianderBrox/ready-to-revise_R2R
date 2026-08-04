@@ -1,5 +1,4 @@
-from fsrs import Card
-from fsrs import State
+from fsrs import Card, State
 
 
 def create_new_card() -> Card:

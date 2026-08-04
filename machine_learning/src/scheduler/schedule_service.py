@@ -1,7 +1,7 @@
 from fsrs import Card
 
-from src.scheduler.rating_mapper import map_to_fsrs_rating
 from src.scheduler.fsrs_scheduler import schedule_review
+from src.scheduler.rating_mapper import map_to_fsrs_rating
 
 
 def schedule_question_review(
