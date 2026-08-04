@@ -8,12 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.compose.runtime.remember
-
+import com.r2r.readytorevise.presentation.upload.UploadViewModel
 @Composable
 fun UploadScreen(
     navController: NavController,
-    uploadViewModel: UploadViewModel = viewModel()
-) {
+    uploadViewModel: UploadViewModel
+)  {
 
     val replaceIndex = remember {
         androidx.compose.runtime.mutableIntStateOf(-1)

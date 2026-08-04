@@ -113,6 +113,7 @@ dependencies {
     // 1. The Compose BOMs (Declared exactly ONCE per configuration)
     implementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(platform(libs.androidx.compose.bom))
+    implementation("me.saket.swipe:swipe:1.3.0")
 
     // 2. Core Compose & UI
     implementation(libs.androidx.activity.compose)

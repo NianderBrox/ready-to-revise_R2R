@@ -34,14 +34,17 @@ import android.os.Build
 import android.provider.MediaStore
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material.icons.filled.Description
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+
 fun DashboardScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    uploadViewModel: UploadViewModel
 ) {
 
     var showBottomSheet by remember { mutableStateOf(false) }
-    val uploadViewModel: UploadViewModel = viewModel()
+
     val context = LocalContext.current
 
     val cameraImageUri = remember {
