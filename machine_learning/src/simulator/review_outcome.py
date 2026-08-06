@@ -19,4 +19,3 @@ class ReviewOutcome:
     hesitation_seconds: float
 
     answer_changes: int
-

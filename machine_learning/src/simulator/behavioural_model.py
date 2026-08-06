@@ -1,12 +1,14 @@
 from __future__ import annotations
-
 from random import Random
 
 from simulator.review_context import ReviewContext
 from simulator.review_outcome import ReviewOutcome
 from simulator.confidence_result import ConfidenceResult
 from src.simulator.confidence_inference import ConfidenceContext, ConfidenceInference
-
+from simulator.feature_normalizer import FeatureNormalizer
+from simulator.memory_score import MemoryScore
+from src.simulator.config import RESPONSE_TIME_CONFIG,SIMULATION_LIMITS,HESITATION_CONFIG
+from src.simulator.memory_result import MemoryResult
 
 class BehavioralModel:
 
@@ -18,16 +20,31 @@ class BehavioralModel:
         self,
         context: ReviewContext,
     ) -> ReviewOutcome:
+        normalized_context = (
+            FeatureNormalizer.normalize_review_context(
+                context,
+            )
+        )
 
-        correct = self._simulate_correct(context)
+        memory_result = (
+            MemoryScore.compute(
+                normalized_context,
+            )
+        )
+
+        memory_score = (
+            memory_result.memory_score
+        )
+
+        correct = self._simulate_correct(memory_result)
 
         response_time = self._simulate_response_time(
-            context,
+            memory_result,
             correct,
         )
 
         hesitation = self._simulate_hesitation(
-            context,
+            memory_result,
             response_time,
         )
 
@@ -50,6 +67,8 @@ class BehavioralModel:
                 answer_changes=answer_changes,
             )
         )
+
+        
         return ReviewOutcome(
             correct=correct,
             confidence=confidence_result.confidence,
@@ -61,23 +80,82 @@ class BehavioralModel:
 
     def _simulate_correct(
         self,
-        context: ReviewContext,
-    ) -> bool:
-        raise NotImplementedError
+        memory_result: MemoryResult,
+        ) -> bool:
+        return (
+            self.rng.random()
+            < memory_result.memory_score
+        )
 
     def _simulate_response_time(
         self,
-        context: ReviewContext,
-        correct: bool,
+        memory_result: MemoryResult,
     ) -> float:
-        raise NotImplementedError
+        memory = memory_result.memory_score
+
+        expected = (
+            RESPONSE_TIME_CONFIG.min_seconds
+            +
+            (1.0 - memory)
+            * (
+                SIMULATION_LIMITS.max_response_time
+                - RESPONSE_TIME_CONFIG.min_seconds
+            )
+        )
+
+        std_dev = (
+            RESPONSE_TIME_CONFIG.base_std_seconds
+            +
+            (1.0 - memory)
+            * (
+                RESPONSE_TIME_CONFIG.max_std_seconds
+                - RESPONSE_TIME_CONFIG.base_std_seconds
+            )
+        )
+
+        response_time = self.rng.gauss(
+            expected,
+            std_dev,
+        )
+
+        response_time = max(
+            RESPONSE_TIME_CONFIG.min_seconds,
+            response_time,
+        )
+
+        response_time = min(
+            SIMULATION_LIMITS.max_response_time,
+            response_time,
+        )
+
+        return response_time
 
     def _simulate_hesitation(
         self,
-        context: ReviewContext,
+        memory_result: MemoryResult,
         response_time: float,
-    ) -> float:
-        raise NotImplementedError
+        ) -> float:
+
+        memory = memory_result.memory_score
+
+        expected_ratio = (
+            HESITATION_CONFIG.min_ratio
+            +
+            (1.0 - memory)
+            * (
+                HESITATION_CONFIG.max_ratio
+                - HESITATION_CONFIG.min_ratio
+            )
+        )
+
+        ratio = self.rng.gauss(
+            expected_ratio,
+            HESITATION_CONFIG.ratio_std,
+        )
+
+        ratio = max(0.0, min(1.0, ratio))
+
+        return ratio * response_time
 
     def _simulate_answer_changes(
         self,

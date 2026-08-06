@@ -36,3 +36,69 @@ SIMULATION_LIMITS = SimulationLimits(
     max_repetition_number=20,
     max_answer_changes=5,
 )
+
+# Memory score weights
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class MemoryWeights:
+
+    success_rate: float
+
+    average_confidence: float
+
+    average_response_time: float
+
+    average_hesitation: float
+
+    review_interval_days: float
+
+    repetition_number: float
+
+
+MEMORY_WEIGHTS = MemoryWeights(
+
+    success_rate=0.30,
+
+    average_confidence=0.20,
+
+    average_response_time=0.15,
+
+    average_hesitation=0.10,
+
+    review_interval_days=0.15,
+
+    repetition_number=0.10,
+
+)
+
+@dataclass(frozen=True)
+class ResponseTimeConfig:
+    min_seconds: float
+    base_std_seconds: float
+    max_std_seconds: float
+
+RESPONSE_TIME_CONFIG=ResponseTimeConfig(
+    min_seconds=2.0,
+    base_std_seconds=2.0,
+    max_std_seconds=12.0
+)
+
+
+@dataclass(frozen=True)
+class HesitationConfig:
+
+    min_ratio: float
+
+    max_ratio: float
+
+    ratio_std: float
+
+
+HESITATION_CONFIG = HesitationConfig(
+    min_ratio=0.05,
+    max_ratio=0.70,
+    ratio_std=0.08,
+)
