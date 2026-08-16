@@ -20,7 +20,7 @@
     import androidx.compose.ui.unit.dp
     import androidx.navigation.NavController
     import coil3.compose.rememberAsyncImagePainter
-
+    import androidx.compose.material.icons.filled.Delete
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun PreviewScreen(
@@ -32,6 +32,8 @@
         onAddImage: () -> Unit,
 
         onReplaceImage: (Int) -> Unit,
+
+        onRemoveImage: (Int) -> Unit,
 
         onSubmit: () -> Unit
 
@@ -153,19 +155,65 @@
 
                                 )
 
-                                TextButton(
+                                Row(
 
-                                    onClick = {
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 8.dp),
 
-                                        onReplaceImage(index)
+                                    horizontalArrangement = Arrangement.SpaceBetween,
 
-                                    },
-
-                                    modifier = Modifier.align(Alignment.End)
+                                    verticalAlignment = Alignment.CenterVertically
 
                                 ) {
 
-                                    Text("Replace")
+                                    TextButton(
+
+                                        onClick = {
+
+                                            onReplaceImage(index)
+
+                                        }
+
+                                    ) {
+
+                                        Text("Replace")
+
+                                    }
+
+
+
+                                    TextButton(
+
+                                        onClick = {
+
+                                            onRemoveImage(index)
+
+                                        }
+
+                                    ) {
+
+                                        Icon(
+
+                                            Icons.Default.Delete,
+
+                                            contentDescription = null,
+
+                                            tint = Color.Red
+
+                                        )
+
+                                        Spacer(modifier = Modifier.width(4.dp))
+
+                                        Text(
+
+                                            "Remove",
+
+                                            color = Color.Red
+
+                                        )
+
+                                    }
 
                                 }
 

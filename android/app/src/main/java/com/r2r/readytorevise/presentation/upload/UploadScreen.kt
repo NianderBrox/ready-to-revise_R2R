@@ -62,7 +62,11 @@ fun UploadScreen(
             )
 
         },
+        onRemoveImage = { index ->
 
+            uploadViewModel.removeImage(index)
+
+        },
         onSubmit = {
 
             // We'll connect backend upload next.

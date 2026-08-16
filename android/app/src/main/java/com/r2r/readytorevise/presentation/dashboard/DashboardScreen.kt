@@ -102,26 +102,36 @@ fun DashboardScreen(
 
     val pdfLauncher =
         rememberLauncherForActivityResult(
-            ActivityResultContracts.OpenDocument()
-        ) { uri ->
-            if (uri != null) {
+            ActivityResultContracts.OpenMultipleDocuments()
+        ) { uris ->
+
+            if (uris.isNotEmpty()) {
 
                 showBottomSheet = false
-                navController.navigate(Screen.Processing.route)  // We'll handle this later
-            }
-        }
 
+                // We'll process all selected PDFs later
+
+                navController.navigate(Screen.Processing.route)
+
+            }
+
+        }
     val wordLauncher =
         rememberLauncherForActivityResult(
-            ActivityResultContracts.OpenDocument()
-        ) { uri ->
-            if (uri != null) {
+            ActivityResultContracts.OpenMultipleDocuments()
+        ) { uris ->
+
+            if (uris.isNotEmpty()) {
 
                 showBottomSheet = false
-                navController.navigate(Screen.Processing.route)  // We'll handle this later
-            }
-        }
 
+                // We'll process all selected Word files later
+
+                navController.navigate(Screen.Processing.route)
+
+            }
+
+        }
 
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true

@@ -1,11 +1,17 @@
 package com.r2r.readytorevise.presentation.processing
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.r2r.readytorevise.navigation.Screen
@@ -16,78 +22,53 @@ fun ProcessingScreen(
     navController: NavController
 ) {
 
-    var progress by remember {
-        mutableFloatStateOf(0f)
-    }
-
-    var finished by remember {
-        mutableStateOf(false)
-    }
-
     LaunchedEffect(Unit) {
 
-        for (i in 1..100) {
-            delay(100)
-            progress = i / 100f
-        }
+        delay(3000)
 
-        finished = true
-    }
+        navController.navigate(Screen.Dashboard.route) {
 
-    Scaffold(
-        containerColor = Color(0xFF23336F)
-    ) { padding ->
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(24.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            Text(
-                text = "Generating Quiz...",
-                style = MaterialTheme.typography.headlineSmall,
-                color = Color.White
-            )
-
-            Spacer(modifier = Modifier.height(30.dp))
-
-            LinearProgressIndicator(
-                progress = { progress },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "${(progress * 100).toInt()} %",
-                color = Color.White,
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Spacer(modifier = Modifier.height(40.dp))
-
-            Button(
-                onClick = {
-                    navController.navigate(Screen.Quiz.route)
-                },
-                enabled = finished,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                Text(
-                    if (finished)
-                        "Start Quiz"
-                    else
-                        "Generating..."
-                )
-
+            popUpTo(Screen.Processing.route) {
+                inclusive = true
             }
 
         }
+
+    }
+
+    Column(
+
+        modifier = Modifier.fillMaxSize(),
+
+        horizontalAlignment = Alignment.CenterHorizontally,
+
+        verticalArrangement = Arrangement.Center
+
+    ) {
+
+        CircularProgressIndicator()
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Text(
+
+            text = "Processing your notes...",
+
+            style = MaterialTheme.typography.headlineSmall
+
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text("Analyzing uploaded files")
+
+        Text("Generating questions")
+
+        Text("Scheduling revision dates")
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text("Please wait...")
 
     }
 
