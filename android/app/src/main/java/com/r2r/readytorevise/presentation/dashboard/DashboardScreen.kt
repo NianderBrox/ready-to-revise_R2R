@@ -1,6 +1,9 @@
 package com.r2r.readytorevise.presentation.dashboard
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.r2r.readytorevise.presentation.upload.UploadViewModel
+import com.r2r.readytorevise.presentation.upload.UploadedFile
+import com.r2r.readytorevise.presentation.upload.FileType
+import com.r2r.readytorevise.presentation.upload.resolveFileName
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -109,9 +112,18 @@ fun DashboardScreen(
 
                 showBottomSheet = false
 
-                // We'll process all selected PDFs later
+                uploadViewModel.clearFiles()
+                uris.forEach { uri ->
+                    uploadViewModel.addFile(
+                        UploadedFile(
+                            uri = uri,
+                            fileName = uri.resolveFileName(context),
+                            type = FileType.PDF
+                        )
+                    )
+                }
 
-                navController.navigate(Screen.Processing.route)
+                navController.navigate(Screen.DocumentPreview.route)
 
             }
 
@@ -125,9 +137,18 @@ fun DashboardScreen(
 
                 showBottomSheet = false
 
-                // We'll process all selected Word files later
+                uploadViewModel.clearFiles()
+                uris.forEach { uri ->
+                    uploadViewModel.addFile(
+                        UploadedFile(
+                            uri = uri,
+                            fileName = uri.resolveFileName(context),
+                            type = FileType.WORD
+                        )
+                    )
+                }
 
-                navController.navigate(Screen.Processing.route)
+                navController.navigate(Screen.DocumentPreview.route)
 
             }
 
@@ -196,7 +217,7 @@ fun DashboardScreen(
 
             TopicsCard(
                 onRevisionClick = {
-                    navController.navigate(Screen.Quiz.route)
+                    navController.navigate(Screen.Revision.route)
                 }
             )
 
@@ -207,7 +228,7 @@ fun DashboardScreen(
                 },
 
                 onRevisionClick = {
-                    navController.navigate(Screen.Quiz.route)
+                    navController.navigate(Screen.Revision.route)
                 }
             )
 

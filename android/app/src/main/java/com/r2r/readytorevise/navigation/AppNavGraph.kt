@@ -20,8 +20,9 @@ import com.r2r.readytorevise.presentation.dashboard.DashboardScreen
 import com.r2r.readytorevise.presentation.profile.ProfileScreen
 
 import com.r2r.readytorevise.presentation.upload.UploadScreen
+import com.r2r.readytorevise.presentation.upload.DocumentUploadScreen
 import com.r2r.readytorevise.presentation.processing.ProcessingScreen
-import com.r2r.readytorevise.presentation.quiz.QuizScreen
+import com.r2r.readytorevise.presentation.quiz.RevisionScreen
 import com.r2r.readytorevise.presentation.upload.UploadViewModel
 
 
@@ -162,11 +163,21 @@ fun AppNavGraph(
         }
 
 
+        composable(Screen.DocumentPreview.route) {
+
+            DocumentUploadScreen(
+                navController = navController,
+                uploadViewModel = uploadViewModel
+            )
+
+        }
 
 
-        composable(Screen.Quiz.route) {
 
-            QuizScreen(
+
+        composable(Screen.Revision.route) {
+
+            RevisionScreen(
 
                 uploadViewModel = uploadViewModel,
 

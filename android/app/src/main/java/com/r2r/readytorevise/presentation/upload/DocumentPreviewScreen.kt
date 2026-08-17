@@ -2,187 +2,174 @@ package com.r2r.readytorevise.presentation.upload
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DocumentPreviewScreen(
-
     navController: NavController,
-
     uploadedFiles: List<UploadedFile>,
-
     onAddDocument: () -> Unit,
-
     onRemoveDocument: (Int) -> Unit,
-
     onSubmit: () -> Unit
-
 ) {
-
     Scaffold(
-
+        containerColor = Color(0xFF23336F),
         topBar = {
-
             TopAppBar(
-
                 title = {
-
-                    Text("Preview Documents")
-
-                }
-
+                    Text(
+                        text = "Preview Documents",
+                        color = Color.White
+                    )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            navController.popBackStack()
+                        }
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Default.ArrowBack,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF23336F)
+                )
             )
-
         }
-
     ) { padding ->
-
         Column(
-
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp)
-
+                .padding(horizontal = 20.dp)
         ) {
+            Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-
                 text = "Selected Documents",
-
+                color = Color.White,
                 style = MaterialTheme.typography.titleLarge
+            )
 
+            Text(
+                text = "${uploadedFiles.size} file(s) selected",
+                color = Color.LightGray
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            uploadedFiles.forEachIndexed { index, file ->
-
-                Card(
-
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp)
-
-                ) {
-
-                    Row(
-
-                        modifier = Modifier.padding(16.dp)
-
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                itemsIndexed(uploadedFiles) { index, file ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFF2C377C)
+                        ),
+                        shape = RoundedCornerShape(18.dp)
                     ) {
-
-                        Text(
-
-                            text = if (file.type == FileType.PDF)
-                                "📄"
-                            else
-                                "📝",
-
-                            style = MaterialTheme.typography.headlineMedium
-
-                        )
-
-                        Spacer(modifier = Modifier.width(16.dp))
-
-                        Column {
-
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Text(
-
-                                text = file.fileName,
-
-                                style = MaterialTheme.typography.titleMedium
-
+                                text = if (file.type == FileType.PDF) "\uD83D\uDCC4" else "\uD83D\uDCDD",
+                                style = MaterialTheme.typography.headlineMedium
                             )
 
-                            Text(
+                            Spacer(modifier = Modifier.width(16.dp))
 
-                                text = file.type.name
-
-                            )
-
-                        }
-
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        TextButton(
-
-                            onClick = {
-
-                                onRemoveDocument(index)
-
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = file.fileName,
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Text(
+                                    text = file.type.name,
+                                    color = Color.LightGray
+                                )
                             }
 
-                        ) {
-
-                            Text("Remove")
-
+                            IconButton(
+                                onClick = {
+                                    onRemoveDocument(index)
+                                }
+                            ) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Remove",
+                                    tint = Color.Red
+                                )
+                            }
                         }
-
                     }
-
                 }
 
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(140.dp)
+                            .clickable {
+                                onAddDocument()
+                            },
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFF2C377C)
+                        ),
+                        shape = RoundedCornerShape(18.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                Icons.Default.Add,
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Add Document",
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
             }
 
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Card(
-
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-
-                    onAddDocument()
-
-                }
-
-        ) {
-
-            Column(
-
-                modifier = Modifier.padding(20.dp)
-
-            ) {
-
-                Text(
-
-                    text = "➕ Add Document",
-
-                    style = MaterialTheme.typography.titleMedium
-
+            Button(
+                onClick = onSubmit,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 18.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF43D17A)
                 )
-
+            ) {
+                Text("Submit")
             }
-
         }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Button(
-
-            onClick = {
-
-                onSubmit()
-
-            },
-
-            modifier = Modifier.fillMaxWidth()
-
-        ) {
-
-            Text("Submit")
-
-        }
-
     }
-
 }
-
