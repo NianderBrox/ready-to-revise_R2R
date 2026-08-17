@@ -194,7 +194,11 @@ fun DashboardScreen(
 
             StreakCard()
 
-            TopicsCard()
+            TopicsCard(
+                onRevisionClick = {
+                    navController.navigate(Screen.Quiz.route)
+                }
+            )
 
             DashboardButtons(
 
@@ -203,9 +207,8 @@ fun DashboardScreen(
                 },
 
                 onRevisionClick = {
-                    navController.navigate(Screen.Revision.route)
+                    navController.navigate(Screen.Quiz.route)
                 }
-
             )
 
             Spacer(modifier = Modifier.height(30.dp))

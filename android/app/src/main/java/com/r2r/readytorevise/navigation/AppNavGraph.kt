@@ -18,7 +18,7 @@ import com.r2r.readytorevise.presentation.auth.login.LoginRoute
 import com.r2r.readytorevise.presentation.auth.register.RegisterRoute
 import com.r2r.readytorevise.presentation.dashboard.DashboardScreen
 import com.r2r.readytorevise.presentation.profile.ProfileScreen
-import com.r2r.readytorevise.presentation.revision.RevisionScreen
+
 import com.r2r.readytorevise.presentation.upload.UploadScreen
 import com.r2r.readytorevise.presentation.processing.ProcessingScreen
 import com.r2r.readytorevise.presentation.quiz.QuizScreen
@@ -182,11 +182,6 @@ fun AppNavGraph(
 
 
 
-        composable(Screen.Revision.route) {
-
-            RevisionScreen(navController)
-
-        }
 
 
 

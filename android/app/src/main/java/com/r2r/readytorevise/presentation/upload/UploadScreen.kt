@@ -1,23 +1,21 @@
 package com.r2r.readytorevise.presentation.upload
 
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.compose.runtime.remember
-import com.r2r.readytorevise.presentation.upload.UploadViewModel
+import androidx.navigation.NavController
 @Composable
 fun UploadScreen(
     navController: NavController,
     uploadViewModel: UploadViewModel
-)  {
+) {
 
     val replaceIndex = remember {
         androidx.compose.runtime.mutableIntStateOf(-1)
     }
+
 
     val galleryLauncher =
         rememberLauncherForActivityResult(
@@ -27,51 +25,85 @@ fun UploadScreen(
             if (uri != null) {
 
                 if (replaceIndex.intValue == -1) {
+
+                    // ADD IMAGE
                     uploadViewModel.addImage(uri)
+
                 } else {
-                    uploadViewModel.replaceImage(replaceIndex.intValue, uri)
+
+                    // REPLACE IMAGE
+                    uploadViewModel.replaceImage(
+                        replaceIndex.intValue,
+                        uri
+                    )
+
                     replaceIndex.intValue = -1
+
                 }
+
             }
+
         }
+
 
     PreviewScreen(
 
         navController = navController,
 
+        // IMPORTANT: Images only
         images = uploadViewModel.images,
+
 
         onAddImage = {
 
             galleryLauncher.launch(
+
                 PickVisualMediaRequest(
-                    ActivityResultContracts.PickVisualMedia.ImageOnly
+
+                    ActivityResultContracts
+                        .PickVisualMedia
+                        .ImageOnly
+
                 )
+
             )
 
         },
+
 
         onReplaceImage = { index ->
 
             replaceIndex.intValue = index
 
+
             galleryLauncher.launch(
+
                 PickVisualMediaRequest(
-                    ActivityResultContracts.PickVisualMedia.ImageOnly
+
+                    ActivityResultContracts
+                        .PickVisualMedia
+                        .ImageOnly
+
                 )
+
             )
 
         },
+
+
         onRemoveImage = { index ->
 
             uploadViewModel.removeImage(index)
 
         },
+
+
         onSubmit = {
 
-            // We'll connect backend upload next.
             navController.navigate("processing")
+
         }
 
     )
+
 }

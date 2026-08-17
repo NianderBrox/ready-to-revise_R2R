@@ -7,9 +7,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -33,9 +38,9 @@ fun LoginScreen(
     onEvent: (LoginEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     val passwordFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
+    var showAlreadyLoggedInDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -43,10 +48,8 @@ fun LoginScreen(
             .background(Color(0xFF23336F))
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 28.dp, vertical = 40.dp),
-
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Spacer(modifier = Modifier.height(60.dp))
 
         AuthHeader(
@@ -74,37 +77,30 @@ fun LoginScreen(
         )
 
         Spacer(modifier = Modifier.height(18.dp))
+
         R2RPasswordField(
-
             modifier = Modifier.focusRequester(passwordFocusRequester),
-
             value = state.password,
-
             onValueChange = {
                 onEvent(LoginEvent.PasswordChanged(it))
             },
-
             label = "Password",
-
             isError = state.showPasswordError,
-
             errorText = state.passwordError,
-
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Done
             ),
-
             keyboardActions = KeyboardActions(
                 onDone = {
                     keyboardController?.hide()
-
                     if (state.isLoginEnabled) {
                         onEvent(LoginEvent.LoginClicked)
                     }
                 }
             )
         )
+
         Spacer(modifier = Modifier.height(10.dp))
 
         Text(
@@ -137,6 +133,16 @@ fun LoginScreen(
             }
         )
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        R2RButton(
+            text = "Check Session",
+            enabled = true,
+            onClick = {
+                showAlreadyLoggedInDialog = true
+            }
+        )
+
         Spacer(modifier = Modifier.height(36.dp))
 
         Text(
@@ -154,7 +160,29 @@ fun LoginScreen(
             color = Color(0xFFFFC857),
             fontWeight = FontWeight.SemiBold
         )
+    }
 
+    if (showAlreadyLoggedInDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showAlreadyLoggedInDialog = false
+            },
+            title = {
+                Text("Login Conflict")
+            },
+            text = {
+                Text("You are already logged in from another device. Please try again later.")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showAlreadyLoggedInDialog = false
+                    }
+                ) {
+                    Text("OK")
+                }
+            }
+        )
     }
 }
 

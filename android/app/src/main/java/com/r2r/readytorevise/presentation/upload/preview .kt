@@ -1,129 +1,269 @@
-    package com.r2r.readytorevise.presentation.upload
+package com.r2r.readytorevise.presentation.upload
 
-    import android.net.Uri
-    import androidx.compose.foundation.Image
-    import androidx.compose.foundation.clickable
-    import androidx.compose.foundation.layout.*
-    import androidx.compose.foundation.lazy.LazyColumn
-    import androidx.compose.foundation.lazy.itemsIndexed
-    import androidx.compose.foundation.shape.RoundedCornerShape
-    import androidx.compose.material.icons.Icons
-    import androidx.compose.material.icons.filled.Add
-    import androidx.compose.material.icons.filled.ArrowBack
-    import androidx.compose.material3.*
-    import androidx.compose.runtime.Composable
-    import androidx.compose.ui.Alignment
-    import androidx.compose.ui.Modifier
-    import androidx.compose.ui.draw.clip
-    import androidx.compose.ui.graphics.Color
-    import androidx.compose.ui.layout.ContentScale
-    import androidx.compose.ui.unit.dp
-    import androidx.navigation.NavController
-    import coil3.compose.rememberAsyncImagePainter
-    import androidx.compose.material.icons.filled.Delete
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun PreviewScreen(
+import android.net.Uri
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import coil3.compose.rememberAsyncImagePainter
 
-        navController: NavController,
 
-        images: List<Uri>,
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PreviewScreen(
 
-        onAddImage: () -> Unit,
+    navController: NavController,
 
-        onReplaceImage: (Int) -> Unit,
+    images: List<Uri>,
 
-        onRemoveImage: (Int) -> Unit,
+    onAddImage: () -> Unit,
 
-        onSubmit: () -> Unit
+    onReplaceImage: (Int) -> Unit,
 
-    ) {
+    onRemoveImage: (Int) -> Unit,
 
-        Scaffold(
+    onSubmit: () -> Unit
 
-            containerColor = Color(0xFF23336F),
+) {
 
-            topBar = {
+    Scaffold(
 
-                TopAppBar(
+        containerColor = Color(0xFF23336F),
 
-                    title = {
+        topBar = {
 
-                        Text(
-                            "Preview Images",
-                            color = Color.White
-                        )
+            TopAppBar(
 
-                    },
+                title = {
 
-                    navigationIcon = {
-
-                        IconButton(
-                            onClick = {
-                                navController.popBackStack()
-                            }
-                        ) {
-
-                            Icon(
-                                Icons.Default.ArrowBack,
-                                null,
-                                tint = Color.White
-                            )
-
-                        }
-
-                    },
-
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color(0xFF23336F)
+                    Text(
+                        text = "Preview Images",
+                        color = Color.White
                     )
 
+                },
+
+                navigationIcon = {
+
+                    IconButton(
+                        onClick = {
+                            navController.popBackStack()
+                        }
+                    ) {
+
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+
+                    }
+
+                },
+
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF23336F)
                 )
 
-            }
+            )
 
-        ) { padding ->
+        }
 
-            Column(
+    ) { padding ->
 
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(horizontal = 20.dp)
+
+        Column(
+
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(horizontal = 20.dp)
+
+        ) {
+
+
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
+
+
+            Text(
+                text = "Upload up to 5 images",
+                color = Color.White
+            )
+
+
+            Text(
+                text = "${images.size}/5 Selected",
+                color = Color.LightGray
+            )
+
+
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
+
+            LazyColumn(
+
+                modifier = Modifier.weight(1f),
+
+                verticalArrangement = Arrangement.spacedBy(16.dp)
 
             ) {
 
-                Spacer(modifier = Modifier.height(12.dp))
 
-                Text(
+                itemsIndexed(images) { index, uri ->
 
-                    text = "Upload up to 5 images",
 
-                    color = Color.White
+                    Card(
 
-                )
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFF2C377C)
+                        ),
 
-                Text(
+                        shape = RoundedCornerShape(18.dp)
 
-                    text = "${images.size}/5 Selected",
+                    ) {
 
-                    color = Color.LightGray
 
-                )
+                        Column {
 
-                Spacer(modifier = Modifier.height(16.dp))
 
-                LazyColumn(
+                            Image(
 
-                    modifier = Modifier.weight(1f),
+                                painter = rememberAsyncImagePainter(uri),
 
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                                contentDescription = null,
 
-                ) {
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(220.dp)
+                                    .clip(
+                                        RoundedCornerShape(
+                                            topStart = 18.dp,
+                                            topEnd = 18.dp
+                                        )
+                                    ),
 
-                    itemsIndexed(images) { index, uri ->
+                                contentScale = ContentScale.Crop
+
+                            )
+
+
+
+                            Row(
+
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp),
+
+                                horizontalArrangement = Arrangement.SpaceBetween,
+
+                                verticalAlignment = Alignment.CenterVertically
+
+                            ) {
+
+
+                                TextButton(
+
+                                    onClick = {
+
+                                        onReplaceImage(index)
+
+                                    }
+
+                                ) {
+
+                                    Text("Replace")
+
+                                }
+
+
+
+                                TextButton(
+
+                                    onClick = {
+
+                                        onRemoveImage(index)
+
+                                    }
+
+                                ) {
+
+
+                                    Icon(
+
+                                        Icons.Default.Delete,
+
+                                        contentDescription = null,
+
+                                        tint = Color.Red
+
+                                    )
+
+
+                                    Spacer(
+                                        modifier = Modifier.width(4.dp)
+                                    )
+
+
+                                    Text(
+
+                                        text = "Remove",
+
+                                        color = Color.Red
+
+                                    )
+
+                                }
+
+
+                            }
+
+
+                        }
+
+
+                    }
+
+
+                }
+
+
+
+                if (images.size < 5) {
+
+
+                    item {
+
 
                         Card(
+
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(140.dp)
+                                .clickable {
+
+                                    onAddImage()
+
+                                },
+
 
                             colors = CardDefaults.cardColors(
                                 containerColor = Color(0xFF2C377C)
@@ -133,179 +273,84 @@
 
                         ) {
 
-                            Column {
 
-                                Image(
+                            Column(
 
-                                    painter = rememberAsyncImagePainter(uri),
+                                modifier = Modifier.fillMaxSize(),
 
-                                    contentDescription = null,
+                                horizontalAlignment = Alignment.CenterHorizontally,
 
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(220.dp)
-                                        .clip(
-                                            RoundedCornerShape(
-                                                topStart = 18.dp,
-                                                topEnd = 18.dp
-                                            )
-                                        ),
-
-                                    contentScale = ContentScale.Crop
-
-                                )
-
-                                Row(
-
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 8.dp),
-
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-
-                                    verticalAlignment = Alignment.CenterVertically
-
-                                ) {
-
-                                    TextButton(
-
-                                        onClick = {
-
-                                            onReplaceImage(index)
-
-                                        }
-
-                                    ) {
-
-                                        Text("Replace")
-
-                                    }
-
-
-
-                                    TextButton(
-
-                                        onClick = {
-
-                                            onRemoveImage(index)
-
-                                        }
-
-                                    ) {
-
-                                        Icon(
-
-                                            Icons.Default.Delete,
-
-                                            contentDescription = null,
-
-                                            tint = Color.Red
-
-                                        )
-
-                                        Spacer(modifier = Modifier.width(4.dp))
-
-                                        Text(
-
-                                            "Remove",
-
-                                            color = Color.Red
-
-                                        )
-
-                                    }
-
-                                }
-
-                            }
-
-                        }
-
-                    }
-
-                    if (images.size < 5) {
-
-                        item {
-
-                            Card(
-
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(140.dp)
-                                    .clickable {
-
-                                        onAddImage()
-
-                                    },
-
-                                colors = CardDefaults.cardColors(
-                                    containerColor = Color(0xFF2C377C)
-                                ),
-
-                                shape = RoundedCornerShape(18.dp)
+                                verticalArrangement = Arrangement.Center
 
                             ) {
 
-                                Column(
 
-                                    modifier = Modifier.fillMaxSize(),
+                                Icon(
 
-                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    Icons.Default.Add,
 
-                                    verticalArrangement = Arrangement.Center
+                                    contentDescription = null,
 
-                                ) {
+                                    tint = Color.White
 
-                                    Icon(
+                                )
 
-                                        Icons.Default.Add,
 
-                                        null,
+                                Spacer(
+                                    modifier = Modifier.height(8.dp)
+                                )
 
-                                        tint = Color.White
 
-                                    )
+                                Text(
 
-                                    Spacer(modifier = Modifier.height(8.dp))
+                                    text = "Add Image",
 
-                                    Text(
+                                    color = Color.White
 
-                                        "Add Image",
+                                )
 
-                                        color = Color.White
-
-                                    )
-
-                                }
 
                             }
 
+
                         }
+
 
                     }
 
-                }
-
-                Button(
-
-                    onClick = onSubmit,
-
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 18.dp),
-
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF43D17A)
-                    )
-
-                ) {
-
-                    Text("Submit")
 
                 }
+
 
             }
 
+
+
+            Button(
+
+                onClick = onSubmit,
+
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 18.dp),
+
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF43D17A)
+                )
+
+            ) {
+
+
+                Text("Submit")
+
+
+            }
+
+
         }
 
+
     }
+
+
+}
