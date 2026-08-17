@@ -26,12 +26,10 @@ fun UploadScreen(
 
                 if (replaceIndex.intValue == -1) {
 
-                    // ADD IMAGE
                     uploadViewModel.addImage(uri)
 
                 } else {
 
-                    // REPLACE IMAGE
                     uploadViewModel.replaceImage(
                         replaceIndex.intValue,
                         uri
@@ -50,7 +48,6 @@ fun UploadScreen(
 
         navController = navController,
 
-        // IMPORTANT: Images only
         images = uploadViewModel.images,
 
 

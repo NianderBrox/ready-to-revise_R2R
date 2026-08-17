@@ -79,7 +79,6 @@ class RegisterViewModel(
             }
 
             RegisterEvent.LoginClicked -> {
-                // Navigation will be added later
             }
         }
     }

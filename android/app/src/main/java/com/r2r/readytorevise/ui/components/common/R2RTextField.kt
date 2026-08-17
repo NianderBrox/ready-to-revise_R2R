@@ -12,6 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import com.r2r.readytorevise.ui.theme.OnSurface
+import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
+import com.r2r.readytorevise.ui.theme.SkyBlue
 
 @Composable
 fun R2RTextField(
@@ -22,47 +25,33 @@ fun R2RTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
-
     OutlinedTextField(
         modifier = modifier.fillMaxWidth(),
-
         value = value,
-
         onValueChange = onValueChange,
-
         singleLine = true,
-
         label = {
             Text(
                 text = label,
-                color = Color.White.copy(alpha = 0.8f)
+                color = OnSurfaceVariant
             )
         },
-
         textStyle = TextStyle(
-            color = Color.White
+            color = OnSurface
         ),
-
         keyboardOptions = keyboardOptions,
-
         keyboardActions = keyboardActions,
-
         shape = RoundedCornerShape(15.dp),
-
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color.White,
-            unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
-
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White,
-
-            focusedLabelColor = Color.White,
-            unfocusedLabelColor = Color.White.copy(alpha = 0.8f),
-
-            cursorColor = Color.White,
-
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent
+            focusedBorderColor = SkyBlue,
+            unfocusedBorderColor = OnSurfaceVariant.copy(alpha = 0.3f),
+            focusedTextColor = OnSurface,
+            unfocusedTextColor = OnSurface,
+            focusedLabelColor = SkyBlue,
+            unfocusedLabelColor = OnSurfaceVariant,
+            cursorColor = SkyBlue,
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color.White
         )
     )
 }

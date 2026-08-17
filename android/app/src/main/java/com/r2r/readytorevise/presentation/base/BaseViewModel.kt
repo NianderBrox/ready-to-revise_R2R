@@ -19,9 +19,6 @@ abstract class BaseViewModel<
     private val _state = MutableStateFlow(initialState)
     val state: StateFlow<STATE> = _state.asStateFlow()
 
-    /**
-     * Current immutable UI state.
-     */
     protected val currentState: STATE
         get() = _state.value
 

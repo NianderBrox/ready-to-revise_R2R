@@ -4,7 +4,6 @@ package com.r2r.readytorevise.domain.validation
 class EmailValidator {
 
     companion object {
-        // Pure Kotlin Regex, completely independent of the Android SDK
         private val EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[a-zA-Z]{2,}\$".toRegex()
     }
 

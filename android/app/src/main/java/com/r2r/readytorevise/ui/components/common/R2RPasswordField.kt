@@ -18,6 +18,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.r2r.readytorevise.ui.theme.AppIcons
+import com.r2r.readytorevise.ui.theme.Error
+import com.r2r.readytorevise.ui.theme.OnSurface
+import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
+import com.r2r.readytorevise.ui.theme.SkyBlue
 
 @Composable
 fun R2RPasswordField(
@@ -30,112 +34,70 @@ fun R2RPasswordField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
-
     var visible by remember {
         mutableStateOf(false)
     }
 
     OutlinedTextField(
         modifier = modifier.fillMaxWidth(),
-
         value = value,
-
         onValueChange = onValueChange,
-
         singleLine = true,
-
         isError = isError,
-
         label = {
             Text(
                 text = label,
-                color = if (isError)
-                    Color.Red
-                else
-                    Color.White.copy(alpha = 0.8f)
+                color = if (isError) Error else OnSurfaceVariant
             )
         },
-
         textStyle = TextStyle(
-            color = Color.White
+            color = OnSurface
         ),
-
         visualTransformation =
             if (visible)
                 VisualTransformation.None
             else
                 PasswordVisualTransformation(),
-
         keyboardOptions = keyboardOptions,
-
         keyboardActions = keyboardActions,
-
         shape = RoundedCornerShape(15.dp),
-
         trailingIcon = {
-
             IconButton(
                 onClick = {
                     visible = !visible
                 }
             ) {
-
                 Icon(
                     imageVector =
                         if (visible)
                             AppIcons.ShowPassword
                         else
                             AppIcons.HidePassword,
-
                     contentDescription = null,
-
-                    tint = if (isError)
-                        Color.Red
-                    else
-                        Color.White
+                    tint = if (isError) Error else OnSurfaceVariant
                 )
-
             }
-
         },
-
         colors = OutlinedTextFieldDefaults.colors(
-
-            focusedBorderColor =
-                if (isError) Color.Red else Color.White,
-
-            unfocusedBorderColor =
-                if (isError) Color.Red else Color.White.copy(alpha = 0.5f),
-
-            focusedLabelColor =
-                if (isError) Color.Red else Color.White,
-
-            unfocusedLabelColor =
-                if (isError) Color.Red else Color.White.copy(alpha = 0.8f),
-
-            focusedTextColor = Color.White,
-
-            unfocusedTextColor = Color.White,
-
-            cursorColor = Color.White,
-
-            focusedContainerColor = Color.Transparent,
-
-            unfocusedContainerColor = Color.Transparent
-
+            focusedBorderColor = if (isError) Error else SkyBlue,
+            unfocusedBorderColor = if (isError) Error else OnSurfaceVariant.copy(alpha = 0.3f),
+            focusedLabelColor = if (isError) Error else SkyBlue,
+            unfocusedLabelColor = if (isError) Error else OnSurfaceVariant,
+            focusedTextColor = OnSurface,
+            unfocusedTextColor = OnSurface,
+            cursorColor = SkyBlue,
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color.White
         )
     )
 
     if (isError) {
-
         Text(
             text = errorText,
-            color = Color.Red,
+            color = Error,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 4.dp)
         )
-
     }
-
 }

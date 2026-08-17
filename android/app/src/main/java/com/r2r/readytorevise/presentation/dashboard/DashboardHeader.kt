@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -25,17 +25,11 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun DashboardHeader(
-
     userName: String,
-
     onProfileClick: () -> Unit,
-
     onChangePasswordClick: () -> Unit,
-
     onLogoutClick: () -> Unit
-
 ) {
-
     var expanded by remember {
         mutableStateOf(false)
     }
@@ -45,7 +39,6 @@ fun DashboardHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         Text(
             text = "Hi, $userName 👋",
             style = MaterialTheme.typography.headlineSmall,
@@ -56,7 +49,6 @@ fun DashboardHeader(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             Icon(
                 imageVector = Icons.Default.AccountCircle,
                 contentDescription = "Profile",
@@ -73,7 +65,6 @@ fun DashboardHeader(
             )
 
             Box {
-
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = "Menu",
@@ -91,7 +82,6 @@ fun DashboardHeader(
                         expanded = false
                     }
                 ) {
-
                     DropdownMenuItem(
                         text = {
                             Text("Change Password")
@@ -107,14 +97,13 @@ fun DashboardHeader(
                             onChangePasswordClick()
                         }
                     )
-
                     DropdownMenuItem(
                         text = {
                             Text("Log Out")
                         },
                         leadingIcon = {
                             Icon(
-                                Icons.Default.Logout,
+                                Icons.AutoMirrored.Default.Logout,
                                 contentDescription = null
                             )
                         },
@@ -123,13 +112,8 @@ fun DashboardHeader(
                             onLogoutClick()
                         }
                     )
-
                 }
-
             }
-
         }
-
     }
-
 }

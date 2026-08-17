@@ -16,12 +16,23 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.r2r.readytorevise.presentation.upload.UploadViewModel
+import com.r2r.readytorevise.ui.theme.Success
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 
 data class Question(
     val id: String,
@@ -41,10 +52,16 @@ fun RevisionScreen(
         mutableIntStateOf(0)
     }
 
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(1000)
-            elapsedSeconds++
+    var showCongrats by remember {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(showCongrats) {
+        if (!showCongrats) {
+            while (true) {
+                delay(1000)
+                elapsedSeconds++
+            }
         }
     }
 
@@ -52,8 +69,16 @@ fun RevisionScreen(
         mutableStateOf(false)
     }
 
+    var showFinishDialog by remember {
+        mutableStateOf(false)
+    }
+
     BackHandler {
-        showExitDialog = true
+        if (showCongrats) {
+            onBackClick()
+        } else {
+            showExitDialog = true
+        }
     }
 
     var currentQuestion by remember {
@@ -152,26 +177,6 @@ fun RevisionScreen(
                 Box(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    // Layer 1: Green background — revealed on swipe, persistent when memorized
-                    Card(
-                        modifier = Modifier.fillMaxSize(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFF4CAF50)
-                        )
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "✓ Memorized",
-                                color = Color.White,
-                                style = MaterialTheme.typography.titleLarge
-                            )
-                        }
-                    }
-
-                    // Layer 2: Unified swipeable card (question + options)
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -187,14 +192,12 @@ fun RevisionScreen(
                                     onDragEnd = {
                                         scope.launch {
                                             if (offsetX.value <= swipeThresholdPx) {
-                                                // Toggle memorized state
                                                 if (currentMemorized) {
                                                     memorizedQuestions.remove(currentQuestion)
                                                 } else {
                                                     memorizedQuestions.add(currentQuestion)
                                                 }
 
-                                                // Slide left then snap back to center
                                                 offsetX.animateTo(
                                                     targetValue = swipeDistancePx,
                                                     animationSpec = spring(
@@ -210,7 +213,6 @@ fun RevisionScreen(
                                                     )
                                                 )
                                             } else {
-                                                // Bounce back to starting position
                                                 offsetX.animateTo(
                                                     targetValue = 0f,
                                                     animationSpec = spring(
@@ -233,12 +235,10 @@ fun RevisionScreen(
                                 )
                             }
                     ) {
-                        // Box wrapper for stamp overlay on top of content
-                        Box {
+                        Box(modifier = Modifier.fillMaxSize().clipToBounds()) {
                             Column(
                                 modifier = Modifier.padding(15.dp)
                             ) {
-                                // Question content
                                 if (currentQuestion < uploadedImages.size) {
                                     AsyncImage(
                                         model = uploadedImages[currentQuestion],
@@ -268,7 +268,6 @@ fun RevisionScreen(
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                // Options
                                 repeat(4) { index ->
                                     Card(
                                         modifier = Modifier
@@ -305,25 +304,31 @@ fun RevisionScreen(
                                     }
                                 }
                             }
+                        }
+                    }
 
-                            // Layer 3: Diagonal stamp overlay
-                            if (currentMemorized) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = "M E M O R I Z E D",
-                                        color = Color(0xAA1B5E20),
-                                        style = MaterialTheme.typography.headlineLarge,
-                                        modifier = Modifier.graphicsLayer {
-                                            rotationZ = -30f
-                                        }
-                                    )
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .graphicsLayer {
+                                val swipeThreshold = with(density) { 150.dp.toPx() }
+                                val maxSlide = with(density) { 200.dp.toPx() }
+                                translationX = if (currentMemorized) {
+                                    0f
+                                } else {
+                                    val progress = (-offsetX.value / swipeThreshold).coerceIn(0f, 1f)
+                                    maxSlide * (1f - progress)
                                 }
                             }
-                        }
+                            .background(Success, RoundedCornerShape(20.dp))
+                            .padding(horizontal = 16.dp, vertical = 10.dp)
+                    ) {
+                        Text(
+                            text = "✓ Memorized",
+                            color = Color.White,
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
 
@@ -347,7 +352,7 @@ fun RevisionScreen(
                     Button(
                         onClick = {
                             if (currentQuestion == totalQuestions - 1) {
-                                showExitDialog = true
+                                showFinishDialog = true
                             } else {
                                 currentQuestion++
                             }
@@ -365,10 +370,187 @@ fun RevisionScreen(
         }
     }
 
+    if (showCongrats) {
+        val memorizedCount = memorizedQuestions.size
+        val minutes = elapsedSeconds / 60
+        val seconds = elapsedSeconds % 60
+        val checkScale = remember { Animatable(0f) }
+
+        LaunchedEffect(Unit) {
+            checkScale.animateTo(
+                targetValue = 1f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+        }
+
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.CheckCircle,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(96.dp)
+                        .graphicsLayer {
+                            scaleX = checkScale.value
+                            scaleY = checkScale.value
+                        },
+                    tint = Success
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = "Revision Complete!",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Great job keeping up with your studies!",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Your Session",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "$totalQuestions",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "Reviewed",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "$memorizedCount",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Success
+                                )
+                                Text(
+                                    text = "Memorized",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = String.format("%02d:%02d", minutes, seconds),
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "Time",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(40.dp))
+
+                Button(
+                    onClick = onBackClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(
+                        text = "Back to Dashboard",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+            }
+        }
+    }
+
     if (showExitDialog) {
         AlertDialog(
             onDismissRequest = {
                 showExitDialog = false
+            },
+            title = {
+                Text("Go back?")
+            },
+            text = {
+                Text("Your revision progress will be lost. Are you sure you want to go back?")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showExitDialog = false
+                        onBackClick()
+                    }
+                ) {
+                    Text("Go Back")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showExitDialog = false
+                    }
+                ) {
+                    Text("Stay")
+                }
+            }
+        )
+    }
+
+    if (showFinishDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showFinishDialog = false
             },
             title = {
                 Text("Finish Revision")
@@ -379,20 +561,20 @@ fun RevisionScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showExitDialog = false
-                        onBackClick()
+                        showFinishDialog = false
+                        showCongrats = true
                     }
                 ) {
-                    Text("Finish Revision")
+                    Text("Finish")
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = {
-                        showExitDialog = false
+                        showFinishDialog = false
                     }
                 ) {
-                    Text("Continue Revision")
+                    Text("Continue")
                 }
             }
         )

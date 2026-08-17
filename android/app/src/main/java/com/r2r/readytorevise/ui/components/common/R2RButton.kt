@@ -16,74 +16,54 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.r2r.readytorevise.ui.theme.SkyBlue
+import com.r2r.readytorevise.ui.theme.SkyBlueDark
 import com.r2r.readytorevise.ui.theme.spacing
 
 @Composable
 fun R2RButton(
-
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     loading: Boolean = false,
     loadingText: String = text
-
 ) {
-
     Button(
-
         modifier = modifier
             .fillMaxWidth()
             .height(56.dp),
-
         enabled = enabled && !loading,
-
         shape = RoundedCornerShape(15.dp),
-
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF7A3EF0),
+            containerColor = SkyBlue,
             contentColor = Color.White,
-            disabledContainerColor = Color(0xFF5E5E5E),
+            disabledContainerColor = SkyBlueDark.copy(alpha = 0.4f),
             disabledContentColor = Color.White.copy(alpha = 0.7f)
         ),
-
         onClick = onClick
-
     ) {
-
         val spacing = MaterialTheme.spacing
 
         if (loading) {
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-
                 R2RLoading()
-
-                Spacer(
-                    modifier = Modifier.width(spacing.sm)
-                )
-
+                Spacer(modifier = Modifier.width(spacing.sm))
                 Text(
                     text = loadingText,
                     color = Color.White,
                     style = MaterialTheme.typography.titleMedium
                 )
-
             }
-
         } else {
-
             Text(
                 text = text,
                 color = Color.White,
                 style = MaterialTheme.typography.titleMedium
             )
-
         }
-
     }
-
 }

@@ -12,23 +12,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.r2r.readytorevise.ui.theme.SkyBlue
 
 @Composable
 fun DashboardButtons(
-
     onAddClick: () -> Unit,
-
     onRevisionClick: () -> Unit
-
 ) {
-
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-
         Button(
             onClick = onAddClick,
             modifier = Modifier
@@ -36,15 +31,13 @@ fun DashboardButtons(
                 .height(55.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF6C63FF)
+                containerColor = SkyBlue
             )
         ) {
-
             Text(
                 text = "＋ Add",
                 style = MaterialTheme.typography.titleMedium
             )
-
         }
 
         Button(
@@ -54,17 +47,13 @@ fun DashboardButtons(
                 .height(55.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF6C63FF)
+                containerColor = SkyBlue
             )
         ) {
-
             Text(
                 text = "📖 Revision",
                 style = MaterialTheme.typography.titleMedium
             )
-
         }
-
     }
-
 }

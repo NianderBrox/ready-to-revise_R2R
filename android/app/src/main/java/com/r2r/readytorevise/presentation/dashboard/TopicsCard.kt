@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -23,12 +23,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.r2r.readytorevise.ui.theme.OnSurface
+import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
+import com.r2r.readytorevise.ui.theme.SkyBlue
 
 @Composable
 fun TopicsCard(
     onRevisionClick: () -> Unit
 ) {
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -37,31 +39,30 @@ fun TopicsCard(
             },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF2C377C)
+            containerColor = Color.White
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 4.dp
         )
     ) {
-
         Column(
             modifier = Modifier.padding(20.dp)
         ) {
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 Text(
                     text = "Today's Revision",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = OnSurface
                 )
-
                 Icon(
-                    imageVector = Icons.Default.ArrowForwardIos,
+                    imageVector = Icons.AutoMirrored.Default.ArrowForwardIos,
                     contentDescription = null,
-                    tint = Color.White
+                    tint = SkyBlue
                 )
             }
 
@@ -71,27 +72,22 @@ fun TopicsCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 Icon(
-                    imageVector = Icons.Default.MenuBook,
+                    imageVector = Icons.AutoMirrored.Default.MenuBook,
                     contentDescription = null,
-                    tint = Color.White.copy(alpha = 0.8f)
+                    tint = SkyBlue
                 )
-
                 Spacer(modifier = Modifier.height(12.dp))
-
                 Text(
                     text = "Ready to revise",
-                    color = Color.White,
+                    color = OnSurface,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold
                 )
-
                 Spacer(modifier = Modifier.height(6.dp))
-
                 Text(
                     text = "Tap to start",
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = OnSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

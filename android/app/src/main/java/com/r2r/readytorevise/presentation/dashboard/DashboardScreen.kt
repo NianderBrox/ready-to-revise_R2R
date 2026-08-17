@@ -160,14 +160,14 @@ fun DashboardScreen(
 
     Scaffold(
 
-        containerColor = Color(0xFF23336F),
+        containerColor = Color(0xFFF5F9FF),
 
         topBar = {
 
             TopAppBar(
 
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF23336F)
+                    containerColor = Color(0xFF29B6F6)
                 ),
 
                 title = {
@@ -202,7 +202,7 @@ fun DashboardScreen(
 
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF23336F))
+                .background(Color(0xFFF5F9FF))
                 .padding(padding)
                 .padding(horizontal = 20.dp)
                 .verticalScroll(rememberScrollState()),
@@ -250,7 +250,6 @@ fun DashboardScreen(
 
         ) {
 
-            // CAMERA
             Surface(
 
                 onClick = {
@@ -284,7 +283,6 @@ fun DashboardScreen(
 
             }
 
-            // GALLERY
             Surface(
 
                 onClick = {
@@ -324,7 +322,6 @@ fun DashboardScreen(
 
             }
 
-            // PDF
             Surface(
 
                 onClick = {
@@ -362,7 +359,6 @@ fun DashboardScreen(
 
             }
 
-            // WORD
             Surface(
 
                 onClick = {

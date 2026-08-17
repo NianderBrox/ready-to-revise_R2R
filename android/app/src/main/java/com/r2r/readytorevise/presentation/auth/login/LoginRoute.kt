@@ -76,7 +76,9 @@ fun LoginRoute(
 
             state = state,
 
-            onEvent = viewModel::onEvent
+            onEvent = viewModel::onEvent,
+
+            onOfflineMode = onLoginSuccess
 
         )
 

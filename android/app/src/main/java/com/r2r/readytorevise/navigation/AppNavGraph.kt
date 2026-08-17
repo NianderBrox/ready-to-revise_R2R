@@ -55,7 +55,6 @@ fun AppNavGraph(
     val navController = rememberNavController()
 
 
-    // SAME VIEWMODEL FOR ALL SCREENS
     val uploadViewModel: UploadViewModel = viewModel()
 
 

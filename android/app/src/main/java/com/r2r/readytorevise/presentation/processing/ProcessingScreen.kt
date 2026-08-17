@@ -24,10 +24,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.r2r.readytorevise.ui.theme.OnSurface
+import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
+import com.r2r.readytorevise.ui.theme.SkyBlue
+import com.r2r.readytorevise.ui.theme.Success
 import com.r2r.readytorevise.navigation.Screen
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -66,31 +69,30 @@ fun ProcessingScreen(
         verticalArrangement = Arrangement.Center
     ) {
         if (!processingComplete) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(color = SkyBlue)
 
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
                 text = "Processing your notes...",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
+                color = OnSurface
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Text("Analyzing uploaded files")
-
-            Text("Generating questions")
-
-            Text("Scheduling revision dates")
+            Text("Analyzing uploaded files", color = OnSurfaceVariant)
+            Text("Generating questions", color = OnSurfaceVariant)
+            Text("Scheduling revision dates", color = OnSurfaceVariant)
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text("Please wait...")
+            Text("Please wait...", color = OnSurfaceVariant)
         } else {
             Icon(
                 imageVector = Icons.Default.CheckCircle,
                 contentDescription = null,
-                tint = Color(0xFF4CAF50),
+                tint = Success,
                 modifier = Modifier
                     .size(80.dp)
                     .graphicsLayer {
@@ -103,14 +105,14 @@ fun ProcessingScreen(
 
             Text(
                 text = "Processing Complete!",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
+                color = OnSurface
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Text("All files processed successfully")
-
-            Text("Questions generated and ready")
+            Text("All files processed successfully", color = OnSurfaceVariant)
+            Text("Questions generated and ready", color = OnSurfaceVariant)
         }
     }
 }

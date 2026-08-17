@@ -6,8 +6,6 @@ import androidx.lifecycle.ViewModel
 
 class UploadViewModel : ViewModel() {
 
-    // ---------------- IMAGES ----------------
-
     val images = mutableStateListOf<Uri>()
 
     fun addImage(uri: Uri) {
@@ -51,8 +49,6 @@ class UploadViewModel : ViewModel() {
         images.clear()
 
     }
-
-    // ---------------- DOCUMENTS ----------------
 
     val uploadedFiles = mutableStateListOf<UploadedFile>()
 

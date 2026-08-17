@@ -6,8 +6,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -16,6 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.r2r.readytorevise.ui.theme.Background
+import com.r2r.readytorevise.ui.theme.OnSurface
+import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
+import com.r2r.readytorevise.ui.theme.SkyBlue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,7 +31,7 @@ fun DocumentPreviewScreen(
     onSubmit: () -> Unit
 ) {
     Scaffold(
-        containerColor = Color(0xFF23336F),
+        containerColor = Background,
         topBar = {
             TopAppBar(
                 title = {
@@ -50,7 +54,7 @@ fun DocumentPreviewScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF23336F)
+                    containerColor = SkyBlue
                 )
             )
         }
@@ -65,13 +69,13 @@ fun DocumentPreviewScreen(
 
             Text(
                 text = "Selected Documents",
-                color = Color.White,
+                color = OnSurface,
                 style = MaterialTheme.typography.titleLarge
             )
 
             Text(
                 text = "${uploadedFiles.size} file(s) selected",
-                color = Color.LightGray
+                color = OnSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -84,9 +88,12 @@ fun DocumentPreviewScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFF2C377C)
+                            containerColor = Color.White
                         ),
-                        shape = RoundedCornerShape(18.dp)
+                        shape = RoundedCornerShape(18.dp),
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = 2.dp
+                        )
                     ) {
                         Row(
                             modifier = Modifier.padding(16.dp),
@@ -102,12 +109,12 @@ fun DocumentPreviewScreen(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = file.fileName,
-                                    color = Color.White,
+                                    color = OnSurface,
                                     style = MaterialTheme.typography.titleMedium
                                 )
                                 Text(
                                     text = file.type.name,
-                                    color = Color.LightGray
+                                    color = OnSurfaceVariant
                                 )
                             }
 
@@ -135,9 +142,12 @@ fun DocumentPreviewScreen(
                                 onAddDocument()
                             },
                         colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFF2C377C)
+                            containerColor = Color.White
                         ),
-                        shape = RoundedCornerShape(18.dp)
+                        shape = RoundedCornerShape(18.dp),
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = 2.dp
+                        )
                     ) {
                         Column(
                             modifier = Modifier.fillMaxSize(),
@@ -147,12 +157,12 @@ fun DocumentPreviewScreen(
                             Icon(
                                 Icons.Default.Add,
                                 contentDescription = null,
-                                tint = Color.White
+                                tint = SkyBlue
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = "Add Document",
-                                color = Color.White
+                                color = SkyBlue
                             )
                         }
                     }
@@ -165,7 +175,7 @@ fun DocumentPreviewScreen(
                     .fillMaxWidth()
                     .padding(vertical = 18.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF43D17A)
+                    containerColor = SkyBlue
                 )
             ) {
                 Text("Submit")
