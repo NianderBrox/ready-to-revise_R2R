@@ -1,6 +1,7 @@
 package com.r2r.readytorevise.presentation.upload
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil3.compose.rememberAsyncImagePainter
@@ -36,6 +38,8 @@ fun PreviewScreen(
     onRemoveImage: (Int) -> Unit,
     onSubmit: () -> Unit
 ) {
+    val context = LocalContext.current
+
     Scaffold(
         containerColor = Background,
         topBar = {
@@ -187,12 +191,20 @@ fun PreviewScreen(
             }
 
             Button(
-                onClick = onSubmit,
+                onClick = {
+                    if (images.isEmpty()) {
+                        Toast.makeText(context, "Please add at least one image", Toast.LENGTH_SHORT).show()
+                    } else {
+                        onSubmit()
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 18.dp),
+                enabled = images.isNotEmpty(),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = SkyBlue
+                    containerColor = SkyBlue,
+                    disabledContainerColor = SkyBlue.copy(alpha = 0.5f)
                 )
             ) {
                 Text("Submit")

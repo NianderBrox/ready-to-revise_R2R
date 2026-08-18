@@ -1,5 +1,6 @@
 package com.r2r.readytorevise.presentation.auth.login
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -19,22 +20,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.r2r.readytorevise.ui.components.auth.AuthHeader
+import com.r2r.readytorevise.R
 import com.r2r.readytorevise.ui.components.common.R2RButton
 import com.r2r.readytorevise.ui.components.common.R2RPasswordField
 import com.r2r.readytorevise.ui.components.common.R2RTextField
 import com.r2r.readytorevise.ui.theme.Background
 import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
 import com.r2r.readytorevise.ui.theme.ReadyToReviseTheme
-import com.r2r.readytorevise.ui.theme.SkyBlue
 import com.r2r.readytorevise.ui.theme.SkyBlueDark
 
 @Composable
@@ -53,21 +54,12 @@ fun LoginScreen(
             .fillMaxSize()
             .background(Background)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(SkyBlue, SkyBlueDark)
-                    )
-                )
-                .padding(horizontal = 28.dp, vertical = 50.dp)
-        ) {
-            AuthHeader(
-                title = "Ready to Revise",
-                subtitle = "Revise smarter. Remember longer."
-            )
-        }
+        Image(
+            painter = painterResource(id = R.drawable.auth_banner),
+            contentDescription = "Auth Banner",
+            modifier = Modifier.fillMaxWidth(),
+            contentScale = ContentScale.Crop
+        )
 
         Column(
             modifier = Modifier

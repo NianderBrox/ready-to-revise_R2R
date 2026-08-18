@@ -1,5 +1,7 @@
 package com.r2r.readytorevise.presentation.auth.login
 
+import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -35,6 +37,12 @@ fun LoginRoute(
 
     val snackbarHostState = remember {
         SnackbarHostState()
+    }
+
+    val activity = LocalActivity.current
+
+    BackHandler {
+        activity?.finish()
     }
 
     LaunchedEffect(viewModel) {

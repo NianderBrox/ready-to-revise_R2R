@@ -1,4 +1,6 @@
 package com.r2r.readytorevise.presentation.dashboard
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.r2r.readytorevise.presentation.upload.UploadViewModel
 import com.r2r.readytorevise.presentation.upload.UploadedFile
@@ -49,6 +51,11 @@ fun DashboardScreen(
     var showBottomSheet by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
+    val activity = LocalActivity.current
+
+    BackHandler {
+        activity?.finish()
+    }
 
     val cameraImageUri = remember {
         val contentValues = ContentValues().apply {
