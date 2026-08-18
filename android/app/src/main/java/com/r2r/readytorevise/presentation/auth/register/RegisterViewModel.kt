@@ -116,9 +116,8 @@ class RegisterViewModel(
                 updateState {
                     copy(isLoading = false)
                 }
-                sendEffect(RegisterEffect.ShowSnackbar("Registration successful! Please login."))
-                delay(1500)
-                sendEffect(RegisterEffect.NavigateToLogin)
+                delay(1000)
+                sendEffect(RegisterEffect.NavigateToLogin("Account created successfully!"))
             }.onFailure { error ->
                 updateState {
                     copy(isLoading = false)

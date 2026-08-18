@@ -19,8 +19,7 @@ class AuthRepositoryImpl(
 
     override suspend fun register(name: String, email: String, password: String): Result<Unit> {
         return try {
-            val response = authApi.register(RegisterRequestDto(name, email, password))
-            tokenManager.saveToken(response.data.accessToken)
+            authApi.register(RegisterRequestDto(name, email, password))
             Result.success(Unit)
         } catch (e: HttpException) {
             Result.failure(Exception("Registration failed: ${e.message()}"))

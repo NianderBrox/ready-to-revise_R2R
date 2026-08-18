@@ -25,12 +25,35 @@ import com.r2r.readytorevise.presentation.processing.ProcessingScreen
 import com.r2r.readytorevise.presentation.quiz.RevisionScreen
 import com.r2r.readytorevise.presentation.upload.UploadViewModel
 
-
+import com.r2r.readytorevise.ui.SplashScreen
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.setValue
 @Composable
 fun AppNavGraph(
     appContainer: com.r2r.readytorevise.di.AppContainer,
     modifier: Modifier = Modifier
 ) {
+    var showSplash by remember {
+        mutableStateOf(true)
+    }
+
+    var registrationSuccessMessage by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    if (showSplash) {
+
+        SplashScreen(
+            onFinished = {
+                showSplash = false
+            }
+        )
+
+        return
+    }
+
 
     val isLoggedIn by appContainer.authRepository
         .isLoggedIn
@@ -99,6 +122,14 @@ fun AppNavGraph(
 
                     navController.navigate(Screen.Register.route)
 
+                },
+
+                registrationSuccessMessage = registrationSuccessMessage,
+
+                onRegistrationSuccessMessageShown = {
+
+                    registrationSuccessMessage = null
+
                 }
 
             )
@@ -113,7 +144,13 @@ fun AppNavGraph(
 
                 appContainer = appContainer,
 
-                navController = navController
+                navController = navController,
+
+                onRegistrationSuccess = { message ->
+
+                    registrationSuccessMessage = message
+
+                }
 
             )
 

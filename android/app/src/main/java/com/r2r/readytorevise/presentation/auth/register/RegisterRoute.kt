@@ -21,7 +21,8 @@ import com.r2r.readytorevise.di.AppContainer
 @Composable
 fun RegisterRoute(
     appContainer: AppContainer,
-    navController: NavHostController
+    navController: NavHostController,
+    onRegistrationSuccess: (String) -> Unit = {}
 ) {
 
     val factory = viewModelFactory {
@@ -40,6 +41,7 @@ fun RegisterRoute(
         viewModel.effect.collect { effect ->
             when (effect) {
                 is RegisterEffect.NavigateToLogin -> {
+                    onRegistrationSuccess(effect.message)
                     navController.popBackStack()
                 }
                 is RegisterEffect.ShowSnackbar -> {
