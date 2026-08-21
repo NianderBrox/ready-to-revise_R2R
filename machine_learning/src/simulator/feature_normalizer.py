@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from simulator.config import SIMULATION_LIMITS
-from simulator.normalized_review_context import (
+from src.simulator.config import SIMULATION_LIMITS
+from src.simulator.normalized_review_context import (
     NormalizedReviewContext,
 )
-from simulator.review_context import ReviewContext
+from src.simulator.review_context import ReviewContext
 
 
 class FeatureNormalizer:

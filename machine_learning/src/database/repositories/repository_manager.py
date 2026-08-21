@@ -1,12 +1,18 @@
 from sqlalchemy.orm import Session
 
-from database.repositories.notification_repository import NotificationRepository
-from database.repositories.question_attempt_repository import QuestionAttemptRepository
-from database.repositories.question_repository import QuestionRepository
-from database.repositories.question_review_repository import QuestionReviewRepository
-from database.repositories.review_schedule_repository import ReviewScheduleRepository
-from database.repositories.study_session_repository import StudySessionRepository
-from database.repositories.user_repository import UserRepository
+from src.database.repositories.notification_repository import NotificationRepository
+from src.database.repositories.question_attempt_repository import (
+    QuestionAttemptRepository,
+)
+from src.database.repositories.question_repository import QuestionRepository
+from src.database.repositories.question_review_repository import (
+    QuestionReviewRepository,
+)
+from src.database.repositories.review_schedule_repository import (
+    ReviewScheduleRepository,
+)
+from src.database.repositories.study_session_repository import StudySessionRepository
+from src.database.repositories.user_repository import UserRepository
 
 
 class RepositoryManager:

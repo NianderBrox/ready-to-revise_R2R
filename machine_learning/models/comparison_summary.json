@@ -1,0 +1,68 @@
+{
+  "Majority class": {
+    "accuracy": 0.5051,
+    "precision": 0.5051,
+    "recall": 1.0,
+    "f1": 0.6712,
+    "roc_auc": 0.5,
+    "log_loss": 0.6934,
+    "brier": 0.2501,
+    "rmse": 0.5001,
+    "n": 49946
+  },
+  "FSRS retrievability": {
+    "accuracy": 0.6027,
+    "precision": 0.5651,
+    "recall": 0.9271,
+    "f1": 0.7022,
+    "roc_auc": 0.7169,
+    "log_loss": 3.1794,
+    "brier": 0.2664,
+    "rmse": 0.5161,
+    "n": 49946
+  },
+  "LogisticRegression": {
+    "accuracy": 0.7626,
+    "precision": 0.831,
+    "recall": 0.6654,
+    "f1": 0.739,
+    "roc_auc": 0.8482,
+    "log_loss": 0.4511,
+    "brier": 0.1531,
+    "rmse": 0.3913,
+    "n": 49946
+  },
+  "RandomForest": {
+    "accuracy": 0.7624,
+    "precision": 0.843,
+    "recall": 0.6508,
+    "f1": 0.7345,
+    "roc_auc": 0.8477,
+    "log_loss": 0.4482,
+    "brier": 0.1528,
+    "rmse": 0.3909,
+    "n": 49946
+  },
+  "GradientBoosting": {
+    "accuracy": 0.7631,
+    "precision": 0.8494,
+    "recall": 0.6453,
+    "f1": 0.7334,
+    "roc_auc": 0.8489,
+    "log_loss": 0.4476,
+    "brier": 0.1523,
+    "rmse": 0.3903,
+    "n": 49946
+  },
+  "HistGradientBoosting": {
+    "accuracy": 0.7622,
+    "precision": 0.8422,
+    "recall": 0.6513,
+    "f1": 0.7346,
+    "roc_auc": 0.8483,
+    "log_loss": 0.4478,
+    "brier": 0.1526,
+    "rmse": 0.3906,
+    "n": 49946
+  }
+}

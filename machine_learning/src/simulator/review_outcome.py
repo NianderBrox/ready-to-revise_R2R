@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from simulator.enums import ConfidenceLevel
+from src.simulator.enums import ConfidenceLevel
 
 
 @dataclass(frozen=True, slots=True)

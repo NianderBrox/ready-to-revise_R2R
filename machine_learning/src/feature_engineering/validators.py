@@ -62,12 +62,12 @@ def validate_features(df: pd.DataFrame):
                 f"{column} contains negative values."
             )
 
-    if "answer_changes" in df.columns:
-
-        if (df["answer_changes"] < 0).any():
-            raise ValueError(
-                "answer_changes cannot be negative."
-            )
+    if "answer_changes" in df.columns and (
+        df["answer_changes"] < 0
+    ).any():
+        raise ValueError(
+            "answer_changes cannot be negative."
+        )
 
     if "success_rate" in df.columns:
 

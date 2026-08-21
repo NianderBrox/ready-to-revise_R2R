@@ -1,10 +1,10 @@
-import os
 
 from src.feature_engineering.feature_builder import build_features
 from src.feature_engineering.joiner import join_tables
 from src.feature_engineering.loader import load_table
+from src.utils.config import FEATURE_DATA_DIR
 
-OUTPUT_PATH = "data/features/training_dataset.csv"
+OUTPUT_PATH = FEATURE_DATA_DIR / "training_dataset.csv"
 
 
 def create_training_dataset():
@@ -18,6 +18,8 @@ def create_training_dataset():
     reviews = load_table("question_reviews")
 
     attempts = load_table("question_attempts")
+
+    schedules = load_table("review_schedules")
     #use simulator's confidence_score
     print("Joining tables...")
 
@@ -26,6 +28,7 @@ def create_training_dataset():
         questions,
         sessions,
         attempts,
+        schedules=schedules,
     )
 
     print("Building features...")
@@ -34,7 +37,7 @@ def create_training_dataset():
 
     print("Saving dataset...")
 
-    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+    FEATURE_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
     dataset.to_csv(OUTPUT_PATH, index=False)
 

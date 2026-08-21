@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from simulator.config import (
+from src.simulator.confidence_context import ConfidenceContext
+from src.simulator.confidence_result import ConfidenceResult
+from src.simulator.config import (
     ANSWER_CHANGE_WEIGHT,
     CORRECT_WEIGHT,
     HESITATION_WEIGHT,
@@ -8,11 +10,8 @@ from simulator.config import (
     LOW_CONFIDENCE_THRESHOLD,
     RESPONSE_TIME_WEIGHT,
 )
-
-from simulator.confidence_context import ConfidenceContext
-from simulator.confidence_result import ConfidenceResult
-from simulator.enums import ConfidenceLevel
-from simulator.feature_normalizer import FeatureNormalizer
+from src.simulator.enums import ConfidenceLevel
+from src.simulator.feature_normalizer import FeatureNormalizer
 
 
 class ConfidenceInference:

@@ -4,8 +4,8 @@ from uuid import UUID
 
 from sqlalchemy import select
 
-from database.models.question import Question
-from database.repositories.base_repository import BaseRepository
+from src.database.models.question import Question
+from src.database.repositories.base_repository import BaseRepository
 
 
 class QuestionRepository(BaseRepository[Question]):

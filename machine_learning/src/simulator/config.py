@@ -7,12 +7,22 @@ from dataclasses import dataclass
 LOW_CONFIDENCE_THRESHOLD = 0.40
 HIGH_CONFIDENCE_THRESHOLD = 0.75
 
+# Outcome noise shaping: p(correct) = clamp(0.5 + K * (memory_score - 0.5)).
+# K=1 reproduces the original Bernoulli(memory_score) draw; larger values
+# sharpen outcomes toward deterministic and raise the classifier accuracy
+# ceiling (~85% at K=2).
+
+OUTCOME_SHARPNESS_K = 2.0
+
 # Confidence weights
 
 CORRECT_WEIGHT = 0.40
 RESPONSE_TIME_WEIGHT = 0.25
 HESITATION_WEIGHT = 0.20
 ANSWER_CHANGE_WEIGHT = 0.15
+
+ANSWER_CHANGE_MEMORY_WEIGHT = 0.70
+ANSWER_CHANGE_HESITATION_WEIGHT = 0.30
 
 
 @dataclass(frozen=True)

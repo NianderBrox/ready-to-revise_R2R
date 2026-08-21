@@ -4,8 +4,8 @@ from uuid import UUID
 
 from sqlalchemy import desc, select
 
-from database.models.notification import Notification
-from database.repositories.base_repository import BaseRepository
+from src.database.models.notification import Notification
+from src.database.repositories.base_repository import BaseRepository
 
 
 class NotificationRepository(BaseRepository[Notification]):

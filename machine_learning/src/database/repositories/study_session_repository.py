@@ -4,8 +4,8 @@ from uuid import UUID
 
 from sqlalchemy import desc, select
 
-from database.models.study_session import StudySession
-from database.repositories.base_repository import BaseRepository
+from src.database.models.study_session import StudySession
+from src.database.repositories.base_repository import BaseRepository
 
 
 class StudySessionRepository(BaseRepository[StudySession]):

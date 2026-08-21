@@ -1,4 +1,8 @@
 import pandas as pd
+
+from src.feature_engineering.aggregate_features import (
+    add_aggregate_features,
+)
 from src.feature_engineering.cleaning import (
     convert_datetime_columns,
 )
@@ -51,6 +55,16 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
 
     df["confidence_score"] = df["confidence"].map(CONFIDENCE_SCORE_MAP)
 
+    DIFFICULTY_SCORE_MAP = {
+        "EASY": 1,
+        "MEDIUM": 2,
+        "HARD": 3,
+    }
+
+    df["difficulty"] = df["question_difficulty"].map(DIFFICULTY_SCORE_MAP)
+
+    df["question_position_in_session"] = df["question_position"]
+
     df = convert_datetime_columns(df)
 
     # Sort reviews
@@ -87,6 +101,10 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
     df = add_session_duration(df)
 
     df = add_days_since_last_session(df)
+
+    # Aggregate + hybrid features
+
+    df = add_aggregate_features(df)
 
     # Validation
 

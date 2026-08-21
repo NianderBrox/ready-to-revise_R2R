@@ -1,14 +1,23 @@
 from __future__ import annotations
+
 from random import Random
 
-from simulator.review_context import ReviewContext
-from simulator.review_outcome import ReviewOutcome
-from simulator.confidence_result import ConfidenceResult
-from src.simulator.confidence_inference import ConfidenceContext, ConfidenceInference
-from simulator.feature_normalizer import FeatureNormalizer
-from simulator.memory_score import MemoryScore
-from src.simulator.config import RESPONSE_TIME_CONFIG,SIMULATION_LIMITS,HESITATION_CONFIG
+from src.simulator.confidence_context import ConfidenceContext
+from src.simulator.confidence_inference import ConfidenceInference
+from src.simulator.config import (
+    ANSWER_CHANGE_HESITATION_WEIGHT,
+    ANSWER_CHANGE_MEMORY_WEIGHT,
+    HESITATION_CONFIG,
+    OUTCOME_SHARPNESS_K,
+    RESPONSE_TIME_CONFIG,
+    SIMULATION_LIMITS,
+)
+from src.simulator.feature_normalizer import FeatureNormalizer
 from src.simulator.memory_result import MemoryResult
+from src.simulator.memory_score import MemoryScore
+from src.simulator.review_context import ReviewContext
+from src.simulator.review_outcome import ReviewOutcome
+
 
 class BehavioralModel:
 
@@ -32,15 +41,10 @@ class BehavioralModel:
             )
         )
 
-        memory_score = (
-            memory_result.memory_score
-        )
-
         correct = self._simulate_correct(memory_result)
 
         response_time = self._simulate_response_time(
             memory_result,
-            correct,
         )
 
         hesitation = self._simulate_hesitation(
@@ -48,11 +52,14 @@ class BehavioralModel:
             response_time,
         )
 
+
         answer_changes = self._simulate_answer_changes(
+            memory_result,
             hesitation,
+            response_time,
         )
 
-        context = ConfidenceContext(
+        confidence_context = ConfidenceContext(
             correct=correct,
             response_time_seconds=response_time,
             hesitation_seconds=hesitation,
@@ -60,12 +67,7 @@ class BehavioralModel:
         )
 
         confidence_result = ConfidenceInference.infer(
-            ConfidenceContext(
-                correct=correct,
-                response_time_seconds=response_time,
-                hesitation_seconds=hesitation,
-                answer_changes=answer_changes,
-            )
+            confidence_context
         )
 
         
@@ -82,10 +84,13 @@ class BehavioralModel:
         self,
         memory_result: MemoryResult,
         ) -> bool:
-        return (
-            self.rng.random()
-            < memory_result.memory_score
+        probability = 0.5 + OUTCOME_SHARPNESS_K * (
+            memory_result.memory_score - 0.5
         )
+
+        probability = max(0.0, min(1.0, probability))
+
+        return self.rng.random() < probability
 
     def _simulate_response_time(
         self,
@@ -155,10 +160,57 @@ class BehavioralModel:
 
         ratio = max(0.0, min(1.0, ratio))
 
-        return ratio * response_time
+        hesitation = ratio * response_time
+
+        hesitation = min(
+            SIMULATION_LIMITS.max_hesitation,
+            hesitation,
+        )
+
+        return hesitation
 
     def _simulate_answer_changes(
         self,
-        hesitation: float,
+        memory_result: MemoryResult,
+        hesitation_seconds: float,
+        response_time_seconds: float,
     ) -> int:
-        raise NotImplementedError
+
+        memory = memory_result.memory_score
+
+        if response_time_seconds <= 0:
+            raise ValueError(
+                "Response time must be greater than zero."
+            )
+
+        hesitation_ratio = (
+            hesitation_seconds
+            / response_time_seconds
+        )
+
+        memory_uncertainty = 1.0 - memory
+
+        change_probability = (
+            ANSWER_CHANGE_MEMORY_WEIGHT
+            * memory_uncertainty
+            +
+            ANSWER_CHANGE_HESITATION_WEIGHT
+            * hesitation_ratio
+        )
+
+        change_probability = max(
+            0.0,
+            min(change_probability, 1.0),
+        )
+
+        answer_changes = 0
+
+        for _ in range(
+            SIMULATION_LIMITS.max_answer_changes
+        ):
+            if self.rng.random() < change_probability:
+                answer_changes += 1
+            else:
+                break
+
+        return answer_changes

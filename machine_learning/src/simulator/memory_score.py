@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from simulator.config import MEMORY_WEIGHTS
-from simulator.memory_result import MemoryResult
-from simulator.normalized_review_context import (
+from src.simulator.config import MEMORY_WEIGHTS
+from src.simulator.memory_result import MemoryResult
+from src.simulator.normalized_review_context import (
     NormalizedReviewContext,
 )
 

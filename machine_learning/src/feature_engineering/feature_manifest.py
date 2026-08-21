@@ -41,6 +41,20 @@ NUMERICAL_FEATURES = [
     "last_review_hesitation",
     # Behaviour
     "answer_changes",
+    # Hybrid + aggregate features
+    "fsrs_recall_probability",
+    "user_success_rate",
+    "user_average_confidence",
+    "user_average_response_time",
+    "question_global_success_rate",
+    "recent_success_rate_5",
+    "recent_confidence_5",
+    "consecutive_correct",
+    "hesitation_response_ratio",
+    "normalized_interval_days",
+    "normalized_repetition_number",
+    "normalized_avg_response_time",
+    "normalized_avg_hesitation",
 ]
 
 
@@ -62,6 +76,7 @@ CATEGORICAL_FEATURES = [
 
 BOOLEAN_FEATURES = [
     "last_review_correct",
+    "had_fsrs_estimate",
 ]
 
 

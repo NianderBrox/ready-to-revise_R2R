@@ -17,12 +17,12 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from database.base import Base
-from database.enums import SchedulerRating
-from database.types import PG_UUID
+from src.database.base import Base
+from src.database.enums import SchedulerRating
+from src.database.types import PG_UUID
 
 if TYPE_CHECKING:
-    from database.models.question_review import QuestionReview
+    from src.database.models.question_review import QuestionReview
 
 
 class ReviewSchedule(Base):
@@ -46,13 +46,13 @@ class ReviewSchedule(Base):
     )
 
     id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        PG_UUID,
         primary_key=True,
         server_default=text("gen_random_uuid()"),
     )
 
     review_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        PG_UUID,
         ForeignKey("question_reviews.id", ondelete="CASCADE"),
     )
 

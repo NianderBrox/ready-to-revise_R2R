@@ -7,24 +7,24 @@ from uuid import UUID
 from sqlalchemy import Boolean, DateTime, ForeignKey, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from database.base import Base
-from database.types import PG_UUID
+from src.database.base import Base
+from src.database.types import PG_UUID
 
 if TYPE_CHECKING:
-    from database.models.user import User
+    from src.database.models.user import User
 
 
 class Notification(Base):
     __tablename__ = "notifications"
 
     id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        PG_UUID,
         primary_key=True,
         server_default=text("gen_random_uuid()"),
     )
 
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        PG_UUID,
         ForeignKey("users.id", ondelete="CASCADE"),
     )
 

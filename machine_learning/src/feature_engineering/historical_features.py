@@ -17,6 +17,7 @@ All historical features use only information available before the
 current review to avoid target leakage.
 
 """
+import numpy as np
 import pandas as pd
 
 
@@ -34,11 +35,27 @@ def running_average(
 
     grouped = grouped_reviews(df)
 
-    previous_sum = grouped[column].transform(lambda x: x.shift().cumsum())
+    previous_sum = (
+        grouped[column]
+        .transform(lambda x: x.shift().cumsum())
+        .astype(float)
+    )
 
-    previous_count = grouped.cumcount()
+    previous_count = _safe_previous_count(grouped)
 
     return previous_sum / previous_count
+
+
+def _safe_previous_count(grouped):
+    """
+    Number of reviews BEFORE the current one per group.
+
+    The first review of a group has count 0, which becomes NaN
+    so that downstream divisions produce NaN instead of raising
+    ZeroDivisionError (0/0 has no defined rate).
+    """
+
+    return grouped.cumcount().replace(0, np.nan)
 
 
 def grouped_reviews(df: pd.DataFrame):
@@ -118,9 +135,13 @@ def add_success_rate(df: pd.DataFrame) -> pd.DataFrame:
 
     grouped = grouped_reviews(df)
 
-    previous_correct = grouped["correct"].transform(lambda x: x.shift().cumsum())
+    previous_correct = (
+        grouped["correct"]
+        .transform(lambda x: x.shift().cumsum())
+        .astype(float)
+    )
 
-    previous_reviews = grouped.cumcount()
+    previous_reviews = _safe_previous_count(grouped)
 
     df["success_rate"] = previous_correct / previous_reviews
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from database.models.user import User
-from database.repositories.base_repository import BaseRepository
+from src.database.models.user import User
+from src.database.repositories.base_repository import BaseRepository
 
 
 class UserRepository(BaseRepository[User]):
