@@ -1,13 +1,4 @@
-"""
-Phase 8: FSRS vs ML model comparison.
 
-Re-creates the exact stratified holdout used by the trainer
-(same seed / split), scores every candidate on the common,
-FSRS-covered subset, runs segment analysis and writes
-docs/model_comparison_results.md.
-
-    python -m src.evaluation.compare_baselines
-"""
 
 from __future__ import annotations
 
@@ -144,7 +135,7 @@ def run_comparison() -> None:
     test_df, y_true, predictions, covered = build_predictions()
 
     lines = []
-    lines.append("# Model Comparison Results (Phase 8)")
+    lines.append("# Model Comparison Results")
     lines.append("")
     lines.append(
         f"_Generated: {datetime.now(UTC).isoformat()}_"

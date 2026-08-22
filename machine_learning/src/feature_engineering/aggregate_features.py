@@ -1,19 +1,4 @@
-"""
-Aggregate and hybrid features.
 
-Every feature here uses ONLY information available strictly
-before the current review:
-
-    - user-level expanding means (shifted by one)
-    - cross-user question hardness ordered by review time
-      (shifted by one, so the current outcome never leaks)
-    - rolling last-5 statistics per user-question pair
-    - consecutive-correct streak ending before this review
-    - FSRS pre-review retrievability stored on schedules
-
-Cold-start rows yield NaN and are imputed inside the sklearn
-pipeline.
-"""
 
 from __future__ import annotations
 
@@ -24,10 +9,7 @@ from src.simulator.config import SIMULATION_LIMITS
 
 
 def add_fsrs_probability(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Renames the joined schedule probability and flags which
-    rows actually had an FSRS estimate.
-    """
+
 
     df["fsrs_recall_probability"] = df["recall_probability"]
 
@@ -44,10 +26,7 @@ def _expanding_mean_shifted(
     sort_columns: list[str],
     column: str,
 ) -> pd.Series:
-    """
-    Mean of `column` over all EARLIER rows of the same group,
-    ordered by `sort_columns`. NaN for each group's first row.
-    """
+
 
     ordered = df.sort_values(sort_columns, kind="mergesort")
 
@@ -92,10 +71,7 @@ def add_user_average_response_time(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def add_question_global_success_rate(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Cross-user hardness proxy: mean correctness of ALL earlier
-    reviews of the question, regardless of who answered.
-    """
+
 
     df["question_global_success_rate"] = _expanding_mean_shifted(
         df,
@@ -141,11 +117,7 @@ def add_recent_confidence(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _streak_from_previous(series: pd.Series) -> pd.Series:
-    """
-    Length of the run of consecutive corrects ENDING at the
-    previous review. 0 when the previous review was wrong, NaN
-    when there is no previous review.
-    """
+
 
     previous = series.shift()
 
@@ -182,10 +154,6 @@ def add_hesitation_response_ratio(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def add_normalized_memory_inputs(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Reproduces the simulator's FeatureNormalizer transforms so
-    models can reconstruct memory_score directly.
-    """
 
     df["normalized_interval_days"] = (
         df["review_interval_days"]
@@ -211,10 +179,6 @@ def add_normalized_memory_inputs(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def add_aggregate_features(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Full aggregate stage; expects the historical features to
-    already exist and the frame to be sorted per user-question.
-    """
 
     df = add_fsrs_probability(df)
 

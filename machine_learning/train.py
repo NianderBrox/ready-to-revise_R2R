@@ -1,11 +1,3 @@
-"""
-Entry point for the training pipeline.
-
-    1. Export features from PostgreSQL -> training_dataset.csv
-       (run `python -m src.preprocessing.export_dataset` first,
-        or pass --skip-export if the CSV is current)
-    2. Train + compare models, persist artifacts to models/
-"""
 
 from __future__ import annotations
 

@@ -1,13 +1,4 @@
-"""
-R2R inference REST API (Phase 9).
 
-    uvicorn src.inference.app:app --host 0.0.0.0 --port 8000
-
-Endpoints:
-    GET  /health               liveness + model status
-    POST /predict              recall probability for one review
-    POST /recommend-revisions  rank candidate questions by urgency
-"""
 
 from __future__ import annotations
 

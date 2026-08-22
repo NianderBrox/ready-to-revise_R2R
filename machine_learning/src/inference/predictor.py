@@ -1,7 +1,4 @@
-"""
-Loads a serialized sklearn Pipeline and predicts recall
-probabilities from engineered feature vectors.
-"""
+
 
 from __future__ import annotations
 
@@ -19,12 +16,7 @@ from src.utils.config import MODEL_DIR
 
 
 class ModelPredictor:
-    """
-    Thread-safe single-model predictor.
 
-    model_name maps to models/{model_name}.joblib produced by
-    src/training/trainer.py.
-    """
 
     def __init__(
         self,
@@ -56,10 +48,7 @@ class ModelPredictor:
         self,
         records: list[dict],
     ) -> pd.DataFrame:
-        """
-        Builds the exact ALL_FEATURES column layout; missing
-        optional values become NaN for pipeline imputation.
-        """
+
 
         frame = pd.DataFrame(records)
 

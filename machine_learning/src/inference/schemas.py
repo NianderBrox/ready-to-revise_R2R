@@ -1,12 +1,4 @@
-"""
-Request/response schemas for the inference API.
 
-The API consumes an ALREADY-ENGINEERED feature vector (option
-A in ml_architecture.md §18): the caller supplies the same 22
-features produced by src/feature_engineering. Missing optional
-fields are forwarded as NaN and imputed inside the model
-pipeline.
-"""
 
 from __future__ import annotations
 
@@ -16,7 +8,6 @@ from pydantic import BaseModel, Field
 
 
 class ReviewFeatures(BaseModel):
-    """One review candidate with its engineered features."""
 
     total_revisions: float | None = Field(default=None, ge=0)
     success_rate: float | None = Field(default=None, ge=0, le=1)

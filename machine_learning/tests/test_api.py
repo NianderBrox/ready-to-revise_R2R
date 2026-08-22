@@ -1,7 +1,4 @@
-"""
-Inference API integration tests (require trained models in
-models/ — run `python train.py` once before the suite).
-"""
+
 
 from __future__ import annotations
 

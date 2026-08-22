@@ -1,6 +1,3 @@
-"""
-Rating mapping tests (behavioral outcome -> FSRS / DB enums).
-"""
 
 from __future__ import annotations
 

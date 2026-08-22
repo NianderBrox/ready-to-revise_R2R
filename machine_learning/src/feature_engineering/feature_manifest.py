@@ -1,19 +1,7 @@
-"""
-R2R ML Feature Manifest
-
-This file defines the official features used by the forgetting curve model.
-
-Do not change feature names without updating:
-- preprocessing
-- training
-- inference
-- backend API
-"""
 
 
-# ==============================
+
 # Numerical Features
-# ==============================
 
 NUMERICAL_FEATURES = [
     # Student history
@@ -58,9 +46,7 @@ NUMERICAL_FEATURES = [
 ]
 
 
-# ==============================
 # Categorical Features
-# ==============================
 
 CATEGORICAL_FEATURES = [
     "subject",
@@ -70,9 +56,7 @@ CATEGORICAL_FEATURES = [
 ]
 
 
-# ==============================
 # Boolean Features
-# ==============================
 
 BOOLEAN_FEATURES = [
     "last_review_correct",
@@ -80,15 +64,11 @@ BOOLEAN_FEATURES = [
 ]
 
 
-# ==============================
 # Target
-# ==============================
 
 TARGET = "correct"
 
 
-# ==============================
 # Complete Feature List
-# ==============================
 
 ALL_FEATURES = NUMERICAL_FEATURES + CATEGORICAL_FEATURES + BOOLEAN_FEATURES

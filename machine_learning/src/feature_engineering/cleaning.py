@@ -9,9 +9,7 @@ DATETIME_COLUMNS = [
 
 
 def convert_datetime_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Convert timestamp columns to pandas datetime.
-    """
+
 
     df = df.copy()
 

@@ -21,17 +21,7 @@ SCHEDULER_NAME = "fsrs"
 
 
 class SchedulerService:
-    """
-    End-to-end FSRS scheduling with database persistence.
 
-    Flow:
-        1. Find the latest schedule of a previous review of the
-           same user+question (unless one is supplied).
-        2. Restore the FSRS Card from that schedule.
-        3. Map (correct, confidence) to an FSRS Rating.
-        4. Apply the review to get the updated card state.
-        5. Persist a new ReviewSchedule row.
-    """
 
     def __init__(
         self,

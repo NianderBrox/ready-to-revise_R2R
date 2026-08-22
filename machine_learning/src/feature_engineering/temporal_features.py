@@ -2,9 +2,6 @@ import pandas as pd
 
 
 def add_review_interval(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Time between previous review and current review in days.
-    """
 
     df = df.copy()
 
@@ -16,9 +13,6 @@ def add_review_interval(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def add_hour_of_day(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Hour when review occurred.
-    """
 
     df = df.copy()
 
@@ -28,12 +22,9 @@ def add_hour_of_day(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def add_day_of_week(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Day of week.
-
-    Monday = 0
-    Sunday = 6
-    """
+    # Day of week.
+    # Monday = 0
+    # Sunday = 6
 
     df = df.copy()
 
@@ -43,9 +34,7 @@ def add_day_of_week(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def add_session_duration(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Session duration in minutes.
-    """
+    #Session duration in minutes.
 
     df = df.copy()
 
@@ -59,9 +48,7 @@ def add_session_duration(df: pd.DataFrame) -> pd.DataFrame:
 def add_days_since_last_session(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
-    """
-    Days since user's previous study session.
-    """
+ 
 
     df = df.sort_values(["user_id", "started_at"]).copy()
 

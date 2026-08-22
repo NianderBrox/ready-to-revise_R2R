@@ -8,14 +8,7 @@ def join_tables(
     attempts: pd.DataFrame,
     schedules: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
-    """
-    Merge all review-related tables into a single DataFrame.
 
-    When `schedules` is provided, the pre-review FSRS
-    retrievability (`recall_probability`) is attached per
-    review. Join keys are normalized to strings because the DB
-    driver returns uuid.UUID objects.
-    """
 
     # Review + Question metadata
     df = reviews.merge(

@@ -8,9 +8,7 @@ from src.feature_engineering.feature_manifest import ALL_FEATURES, TARGET
 def load_dataset(
     path,
 ) -> pd.DataFrame:
-    """
-    Loads the exported training dataset.
-    """
+
 
     df = pd.read_csv(path)
 

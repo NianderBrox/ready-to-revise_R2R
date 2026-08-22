@@ -17,9 +17,7 @@ class ReviewScheduleRepository(BaseRepository[ReviewSchedule]):
         self,
         review_id: UUID,
     ) -> list[ReviewSchedule]:
-        """
-        Return all schedules generated for a specific review.
-        """
+
         stmt = (
             select(ReviewSchedule)
             .where(
@@ -38,9 +36,7 @@ class ReviewScheduleRepository(BaseRepository[ReviewSchedule]):
         self,
         review_id: UUID,
     ) -> ReviewSchedule | None:
-        """
-        Return the latest schedule for a specific review.
-        """
+
         stmt = (
             select(ReviewSchedule)
             .where(
@@ -60,17 +56,7 @@ class ReviewScheduleRepository(BaseRepository[ReviewSchedule]):
         question_id: UUID,
         review_time: datetime,
     ) -> ReviewSchedule | None:
-        """
-        Return the latest schedule belonging to a previous
-        review of the same question.
 
-        The previous review must:
-        - belong to the same user
-        - belong to the same question
-        - have occurred before the current review
-
-        This is used to restore the previous FSRS card state.
-        """
 
         stmt = (
             select(ReviewSchedule)

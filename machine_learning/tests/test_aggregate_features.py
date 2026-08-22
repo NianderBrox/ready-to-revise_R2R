@@ -1,14 +1,4 @@
-"""
-Leakage and correctness tests for aggregate features.
 
-Invariants:
-    - user-level aggregates use only EARLIER reviews of that
-      user (chronological, across questions)
-    - question hardness uses only EARLIER reviews by ANY user
-    - rolling windows exclude the current review
-    - streaks count consecutive corrects ending at the previous
-      review and reset to 0 after a failure
-"""
 
 from __future__ import annotations
 
@@ -57,10 +47,6 @@ def test_user_success_rate_excludes_current_review():
 
 
 def test_user_aggregates_are_chronological_across_questions():
-    """
-    Reviews arrive interleaved across questions; the expanding
-    mean must follow review_time, not dataframe order.
-    """
 
     df = _frame(
         [

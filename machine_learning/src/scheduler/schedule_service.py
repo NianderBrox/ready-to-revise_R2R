@@ -8,9 +8,7 @@ def schedule_question_review(
     correct: bool,
     confidence: str,
 ):
-    """
-    Schedule one completed review.
-    """
+
 
     # New card for now.
     # Later we'll load it from the database.

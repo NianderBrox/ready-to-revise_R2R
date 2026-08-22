@@ -18,9 +18,7 @@ def _as_utc(value: datetime | None) -> datetime:
 
 
 def get_retrievability(card: Card, review_time: datetime | None = None) -> float:
-    """
-    FSRS retrievability (recall probability) BEFORE the review happens.
-    """
+
 
     return scheduler.get_card_retrievability(
         card,
@@ -33,10 +31,7 @@ def schedule_review(
     rating: Rating,
     review_time: datetime | None = None,
 ) -> dict:
-    """
-    Applies one FSRS review and returns everything needed to
-    persist a ReviewSchedule record.
-    """
+
 
     updated_card, review_log = scheduler.review_card(
         card,

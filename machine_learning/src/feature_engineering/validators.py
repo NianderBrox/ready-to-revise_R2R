@@ -7,14 +7,7 @@ from src.feature_engineering.feature_manifest import (
 
 
 def validate_features(df: pd.DataFrame):
-    """
-    Validation for the engineered training dataset.
 
-    This module validates the final dataset before it is exported
-    or passed to model training. It verifies schema, feature ranges,
-    and data consistency, but intentionally does not impute missing
-    values or modify the dataset.
-    """
 
     missing = set(ALL_FEATURES + [TARGET]) - set(df.columns)
 

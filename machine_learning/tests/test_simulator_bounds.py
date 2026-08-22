@@ -1,6 +1,3 @@
-"""
-Behavioral simulator bounds + determinism tests.
-"""
 
 from __future__ import annotations
 

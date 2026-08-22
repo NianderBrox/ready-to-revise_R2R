@@ -8,26 +8,13 @@ from src.database.models.review_schedule import ReviewSchedule
 
 
 def create_new_card() -> Card:
-    """
-    Creates a brand new FSRS card.
-    """
+
 
     return Card()
 
 
 def restore_card(schedule: ReviewSchedule) -> Card:
-    """
-    Restores an FSRS card from a stored ReviewSchedule record.
 
-    The schedule stores the full FSRS state after a review:
-    state, step, stability, difficulty and next_review_at (due).
-    last_review is not persisted directly; the schedule's
-    created_at (written at review time) is used instead.
-
-    Timestamps are stored as naive UTC in PostgreSQL and are
-    re-attached to UTC here because py-fsrs requires
-    timezone-aware datetimes.
-    """
 
     if _is_unscheduled(schedule):
         return create_new_card()
@@ -43,11 +30,7 @@ def restore_card(schedule: ReviewSchedule) -> Card:
 
 
 def _is_unscheduled(schedule: ReviewSchedule) -> bool:
-    """
-    A schedule without complete FSRS state cannot be restored.
-    This happens when the row was written by an older pipeline
-    or when the review was never actually scheduled.
-    """
+
 
     if (
         schedule.fsrs_state is None

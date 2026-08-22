@@ -1,7 +1,3 @@
-"""
-Probability-quality metrics shared by the evaluation and
-comparison pipelines.
-"""
 
 from __future__ import annotations
 
@@ -20,9 +16,7 @@ def compute_metrics(
     y_true,
     y_proba,
 ) -> dict:
-    """
-    Full metric suite for binary outcome + probability estimates.
-    """
+
 
     y_true = np.asarray(y_true).astype(bool)
 

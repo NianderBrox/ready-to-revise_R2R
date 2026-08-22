@@ -7,21 +7,7 @@ def map_to_fsrs_rating(
     correct: bool,
     confidence: str,
 ) -> Rating:
-    """
-    Maps R2R review data to an FSRS rating.
 
-    Parameters
-    ----------
-    correct : bool
-        Whether the answer was correct.
-
-    confidence : str
-        LOW, MEDIUM or HIGH
-
-    Returns
-    -------
-    Rating
-    """
 
     confidence = confidence.upper()
 
@@ -44,10 +30,6 @@ def map_to_scheduler_rating(
     correct: bool,
     confidence: str,
 ) -> SchedulerRating:
-    """
-    Same mapping as map_to_fsrs_rating but returns the
-    SchedulerRating enum used for database storage.
-    """
 
     if not correct:
         return SchedulerRating.AGAIN

@@ -88,11 +88,7 @@ class ReviewEngine:
         history: QuestionHistory,
         review_time: datetime,
     ) -> tuple[dict, dict, dict]:
-        """
-        Simulates and persists one review at `review_time`.
 
-        Returns (review_row, attempt_row, schedule_row).
-        """
 
         naive_review_time = _naive(review_time)
 
@@ -220,9 +216,7 @@ class ReviewEngine:
 
 
 def _naive(value: datetime) -> datetime:
-    """
-    Store naive UTC timestamps in PostgreSQL.
-    """
+
 
     if value.tzinfo is None:
         return value

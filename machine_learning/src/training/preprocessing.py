@@ -1,17 +1,4 @@
-"""
-Preprocessing for model training.
 
-Cold-start rows (first review of a user-question pair) contain
-NaNs. All imputation happens INSIDE the sklearn Pipeline so it
-is fitted on training folds only — no leakage into validation
-or test data.
-
-Column treatment follows feature_manifest.py:
-    - NUMERICAL_FEATURES  -> median impute (+ optional scaling)
-    - CATEGORICAL_FEATURES-> one-hot (subject/topic as strings,
-                             hour_of_day/day_of_week as ints)
-    - BOOLEAN_FEATURES    -> False-imputed integer passthrough
-"""
 
 from __future__ import annotations
 

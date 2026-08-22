@@ -1,6 +1,4 @@
-"""
-Consistency tests for shared constants and dataset plumbing.
-"""
+
 
 from __future__ import annotations
 
@@ -18,11 +16,7 @@ from src.training.dataset import load_dataset, split_xy
 
 
 def test_confidence_maps_are_consistent():
-    """
-    The simulator writes LOW/MEDIUM/HIGH strings; the feature
-    builder maps them to scores. Both modules must agree on the
-    numeric encoding or training data silently shifts meaning.
-    """
+ 
 
     builder_map = {"LOW": 0.25, "MEDIUM": 0.60, "HIGH": 0.90}
 

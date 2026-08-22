@@ -29,22 +29,7 @@ from src.feature_engineering.validators import validate_features
 
 
 def build_features(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Complete R2R feature engineering pipeline.
 
-    Pipeline:
-    1. Convert datetime columns.
-    2. Sort reviews chronologically for each user-question pair.
-    3. Compute historical features.
-    4. Compute temporal features.
-    5. Validate the final dataset.
-
-    Input:
-        Raw joined review dataframe
-
-    Output:
-        ML-ready dataframe
-    """
 
     #remove once simulator gives confidence_score, other features to be added as well
     CONFIDENCE_SCORE_MAP = {

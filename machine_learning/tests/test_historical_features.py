@@ -1,10 +1,3 @@
-"""
-Leakage and shift-correctness tests for historical features.
-
-The core invariant: every historical feature for a review may
-only use STRICTLY EARLIER reviews of the same (user, question)
-pair. The first review must therefore yield NaN, never 0.
-"""
 
 from __future__ import annotations
 
@@ -24,11 +17,10 @@ from src.feature_engineering.historical_features import (
 
 @pytest.fixture()
 def reviews():
-    """
-    One user, two questions:
-      q1: three reviews with known values
-      q2: a single review (cold start edge case)
-    """
+  
+    # One user, two questions:
+    #   q1: three reviews with known values
+    #   q2: a single review (cold start edge case)
 
     return pd.DataFrame(
         {
