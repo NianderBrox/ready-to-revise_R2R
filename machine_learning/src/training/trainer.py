@@ -1,18 +1,4 @@
-"""
-Model training pipeline (Phase 7 + accuracy enhancement round).
 
-    dataset -> stratified split -> 5-fold CV model comparison
-            -> optional hyperparameter search (--tune)
-            -> OOF decision-threshold optimization
-            -> isotonic calibration of the winner
-            -> persist models + metrics
-
-Models:
-    - LogisticRegression (scaled, L2)
-    - RandomForestClassifier
-    - GradientBoostingClassifier
-    - HistGradientBoostingClassifier
-"""
 
 from __future__ import annotations
 
@@ -204,11 +190,7 @@ def tune_model(
     X_train,
     y_train,
 ):
-    """
-    RandomizedSearchCV on a stratified subsample to keep the
-    one-off search affordable; the winning config is refit on
-    the full training set afterwards.
-    """
+
 
     X_sub, y_sub = stratified_subsample(
         X_train,
@@ -260,10 +242,7 @@ def optimize_threshold(
     y_train,
     cv,
 ) -> float:
-    """
-    Accuracy is threshold-sensitive; pick the cutoff that
-    maximizes out-of-fold accuracy instead of assuming 0.5.
-    """
+=
 
     print("Optimizing decision threshold on OOF predictions")
 
