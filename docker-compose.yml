@@ -7,9 +7,9 @@ services:
     restart: unless-stopped
 
     environment:
-      POSTGRES_USER: r2r_user
-      POSTGRES_PASSWORD: r2r_password
-      POSTGRES_DB: r2r_db
+      POSTGRES_USER: ${POSTGRES_USER:-r2r_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-r2r_password}
+      POSTGRES_DB: ${POSTGRES_DB:-r2r_db}
 
     ports:
       - "5433:5432"
@@ -23,5 +23,51 @@ services:
       timeout: 5s
       retries: 5
 
+  ml:
+    build:
+      context: ./machine_learning
+
+    container_name: r2r-ml
+
+    restart: unless-stopped
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    ports:
+      - "127.0.0.1:${ML_PORT:-8000}:8000"
+
+    volumes:
+      - ml_models:/app/models
+
+  backend:
+    build:
+      context: ./backend
+
+    container_name: r2r-backend
+
+    restart: unless-stopped
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+      ml:
+        condition: service_started
+
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-r2r_user}:${POSTGRES_PASSWORD:-r2r_password}@postgres:5432/${POSTGRES_DB:-r2r_db}?schema=public
+
+      JWT_SECRET: ${JWT_SECRET:-change-me-dev-secret}
+
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+
+      ML_SERVICE_URL: http://ml:8000
+
+    ports:
+      - "3000:3000"
+
 volumes:
   postgres_data:
+  ml_models:

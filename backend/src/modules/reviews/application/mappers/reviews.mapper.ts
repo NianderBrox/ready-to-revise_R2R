@@ -10,6 +10,8 @@ export class ReviewsMapper {
             intervalDays: review.intervalDays,
             reviewedAt: review.reviewedAt,
             nextReviewAt: review.nextReviewAt,
+            isCorrect: review.isCorrect ?? undefined,
+            confidenceScore: review.confidenceScore ?? undefined,
             createdAt: review.createdAt,
             updatedAt: review.updatedAt,
         };

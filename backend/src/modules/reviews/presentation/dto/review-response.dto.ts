@@ -13,6 +13,10 @@ export class ReviewResponseDto {
 
     nextReviewAt!: Date;
 
+    isCorrect?: boolean;
+
+    confidenceScore?: number;
+
     createdAt!: Date;
 
     updatedAt!: Date;

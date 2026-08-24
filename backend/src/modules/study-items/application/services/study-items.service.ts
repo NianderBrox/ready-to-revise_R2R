@@ -3,6 +3,7 @@ import {
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
+import { StudyItemType } from '../../../../common/enums';
 import { StringUtils } from '../../../../common/utils/string.utils';
 import { StudyItemsRepository } from '../../infrastructure/repositories/study-items.repository';
 import { StudyItemResponseDto } from '../../presentation/dto/study-item-response.dto';
@@ -10,6 +11,8 @@ import { UpdateStudyItemDto } from '../../presentation/dto/update-study-item.dto
 import { CreateStudyItemCommand } from '../commands/create-study-item.command';
 import { StudyItemsMapper } from '../mappers/study-items.mapper';
 import { CreateStudyItemData } from '../../domain/interfaces/create-study-item-data.interface';
+
+export const INITIAL_REVIEW_DELAY_MS = 24 * 60 * 60 * 1000;
 
 @Injectable()
 export class StudyItemsService {
@@ -43,6 +46,16 @@ export class StudyItemsService {
             difficulty: command.difficulty,
             topicId: command.topicId,
             userId: command.userId,
+
+            options: this.validatedOptions(command),
+
+            correctAnswerIndex: command.correctAnswerIndex,
+
+            origin: command.origin,
+
+            mediaDocumentId: command.mediaDocumentId,
+
+            nextReviewAt: this.initialReviewDate(command),
         });
 
         return StudyItemsMapper.toResponse(studyItem);
@@ -80,6 +93,16 @@ export class StudyItemsService {
                 difficulty: command.difficulty,
                 topicId: command.topicId,
                 userId: command.userId,
+
+                options: this.validatedOptions(command),
+
+                correctAnswerIndex: command.correctAnswerIndex,
+
+                origin: command.origin,
+
+                mediaDocumentId: command.mediaDocumentId,
+
+                nextReviewAt: this.initialReviewDate(command),
             });
         }
 
@@ -90,8 +113,14 @@ export class StudyItemsService {
         );
     }
 
-    async findAll(userId: string): Promise<StudyItemResponseDto[]> {
-        const studyItems = await this.repository.findAllByUser(userId);
+    async findAll(
+        userId: string,
+        filters: { type?: string; due?: boolean } = {},
+    ): Promise<StudyItemResponseDto[]> {
+        const studyItems = await this.repository.findAllByUser(userId, {
+            type: filters.type as never,
+            due: filters.due,
+        });
 
         return studyItems.map((studyItem) =>
             StudyItemsMapper.toResponse(studyItem),
@@ -149,5 +178,25 @@ export class StudyItemsService {
         }
 
         await this.repository.delete(id);
+    }
+
+    private validatedOptions(
+        command: CreateStudyItemCommand,
+    ): string[] | undefined {
+        if (command.options === undefined) {
+            return undefined;
+        }
+
+        return command.options;
+    }
+
+    private initialReviewDate(
+        command: CreateStudyItemCommand,
+    ): Date | undefined {
+        if (command.type !== StudyItemType.QUESTION) {
+            return undefined;
+        }
+
+        return new Date(Date.now() + INITIAL_REVIEW_DELAY_MS);
     }
 }

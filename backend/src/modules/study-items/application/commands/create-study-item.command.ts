@@ -12,4 +12,12 @@ export class CreateStudyItemCommand {
     difficulty?: Difficulty;
 
     topicId?: string;
+
+    options?: string[];
+
+    correctAnswerIndex?: number;
+
+    mediaDocumentId?: string;
+
+    origin?: string;
 }

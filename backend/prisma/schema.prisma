@@ -25,6 +25,7 @@ enum ReviewResult {
   GOOD
   HARD
   AGAIN
+  MEMORIZED
 }
 
 enum Difficulty {
@@ -92,6 +93,15 @@ model StudyItem {
   type       StudyItemType
   difficulty Difficulty?
 
+  options            Json?
+  correctAnswerIndex Int?
+
+  origin           String?
+
+  mediaDocumentId String?
+
+  nextReviewAt DateTime?
+
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -106,6 +116,7 @@ model StudyItem {
 
   @@index([userId])
   @@index([topicId])
+  @@index([type, nextReviewAt])
 }
 
 model Review {
@@ -120,11 +131,21 @@ model Review {
 
   nextReviewAt DateTime
 
+  selectedOptionIndex Int?
+  isCorrect           Boolean?
+  confidenceScore     Float?
+
+  responseTimeMs Int?
+  hesitationMs   Int?
+  answerChanges  Int?
+  sessionId      String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([studyItemId])
   @@index([nextReviewAt])
+  @@index([sessionId])
 }
 
 model Attachment {

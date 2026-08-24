@@ -4,4 +4,6 @@ export class DashboardReviewsDto {
     upcoming!: number;
 
     completedToday!: number;
+
+    slippingSoon!: number;
 }

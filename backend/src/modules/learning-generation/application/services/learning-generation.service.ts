@@ -45,7 +45,15 @@ export class LearningGenerationService {
 
         const result = await this.questionGenerationService.generate(request);
 
-        const commands = this.mapper.toCommands(userId, result.questions);
+        const isImageSource = document.mimeType
+            ?.toLowerCase()
+            .startsWith('image/');
+
+        const commands = this.mapper.toCommands(
+            userId,
+            result.questions,
+            isImageSource ? documentId : undefined,
+        );
 
         return this.studyItemsService.createMany(commands);
     }

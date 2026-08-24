@@ -1,6 +1,7 @@
 // import { UnsupportedMimeTypeException } from 'src/modules/storage/exceptions/unsupported-mime-type.exception';
 
 import { UnsupportedMimeTypeException } from '../../../modules/storage/domain/exceptions/unsupported-mime-type.exception';
+import { DOCX_MIME_TYPE } from '../constants/document-mime.constants';
 
 const MIME_TYPE_TO_EXTENSION: Record<string, string> = {
     'application/pdf': 'pdf',
@@ -12,6 +13,8 @@ const MIME_TYPE_TO_EXTENSION: Record<string, string> = {
     'image/jpg': 'jpg',
 
     'image/webp': 'webp',
+
+    [DOCX_MIME_TYPE]: 'docx',
 };
 
 export function getExtensionFromMimeType(mimeType: string): string {

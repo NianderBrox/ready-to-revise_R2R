@@ -11,6 +11,14 @@ export class StudyItemResponseDto {
 
     topicId?: string;
 
+    options?: string[];
+
+    origin?: string;
+
+    mediaDocumentId?: string;
+
+    nextReviewAt?: Date;
+
     createdAt!: Date;
 
     updatedAt!: Date;

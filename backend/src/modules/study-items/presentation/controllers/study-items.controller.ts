@@ -7,6 +7,7 @@ import {
     ParseUUIDPipe,
     Patch,
     Post,
+    Query,
     UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from '../../../../common/decorators/current-user.decorator';
@@ -34,14 +35,24 @@ export class StudyItemsController {
             type: dto.type,
             difficulty: dto.difficulty,
             topicId: dto.topicId,
+            options: dto.options,
+            correctAnswerIndex: dto.correctAnswerIndex,
         };
 
         return this.studyItemsService.create(command);
     }
 
     @Get()
-    async findAll(@CurrentUser() user: CurrentUserData) {
-        return this.studyItemsService.findAll(user.userId);
+    async findAll(
+        @CurrentUser() user: CurrentUserData,
+        @Query('type') type?: string,
+        @Query('due') due?: string,
+    ) {
+        return this.studyItemsService.findAll(user.userId, {
+            type,
+
+            due: due === 'true',
+        });
     }
 
     @Get(':id')

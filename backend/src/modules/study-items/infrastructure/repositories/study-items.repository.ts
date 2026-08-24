@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { CreateStudyItemData } from '../../domain/interfaces/create-study-item-data.interface';
+import { StudyItemType } from '../../../../common/enums';
 
 @Injectable()
 export class StudyItemsRepository {
@@ -16,14 +17,21 @@ export class StudyItemsRepository {
                 difficulty: data.difficulty,
                 topicId: data.topicId,
                 userId: data.userId,
+                options: data.options ?? undefined,
+                correctAnswerIndex: data.correctAnswerIndex ?? undefined,
+                origin: data.origin ?? undefined,
+                mediaDocumentId: data.mediaDocumentId ?? undefined,
+                nextReviewAt: data.nextReviewAt ?? undefined,
             },
         });
     }
 
-    async findAllByUser(userId: string) {
+    async findAllByUser(userId: string, filters: FindFilters = {}) {
         return this.prisma.studyItem.findMany({
             where: {
                 userId,
+                type: filters.type,
+                ...(filters.due ? { nextReviewAt: { lte: new Date() } } : {}),
             },
             orderBy: {
                 createdAt: 'desc',
@@ -79,9 +87,20 @@ export class StudyItemsRepository {
                         difficulty: item.difficulty,
                         topicId: item.topicId,
                         userId: item.userId,
+                        options: item.options ?? undefined,
+                        correctAnswerIndex:
+                            item.correctAnswerIndex ?? undefined,
+                        origin: item.origin ?? undefined,
+                        mediaDocumentId: item.mediaDocumentId ?? undefined,
+                        nextReviewAt: item.nextReviewAt ?? undefined,
                     },
                 }),
             ),
         );
     }
+}
+
+export interface FindFilters {
+    type?: StudyItemType;
+    due?: boolean;
 }

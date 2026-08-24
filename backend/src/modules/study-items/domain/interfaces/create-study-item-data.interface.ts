@@ -7,4 +7,10 @@ export interface CreateStudyItemData {
     difficulty?: Difficulty;
     topicId?: string;
     userId: string;
+
+    options?: string[];
+    correctAnswerIndex?: number;
+    origin?: string;
+    mediaDocumentId?: string;
+    nextReviewAt?: Date;
 }

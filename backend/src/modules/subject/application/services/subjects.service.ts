@@ -22,9 +22,8 @@ export class SubjectsService {
 
         const normalizedName = StringUtils.normalizeSubjectName(dto.name);
 
-        const existing = await this.repository.findByNormalizedName(
-            normalizedName!,
-        );
+        const existing =
+            await this.repository.findByNormalizedName(normalizedName);
 
         if (existing) {
             throw new ConflictException('Subject already exists.');

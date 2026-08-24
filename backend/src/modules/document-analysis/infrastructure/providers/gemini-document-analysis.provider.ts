@@ -30,21 +30,34 @@ export class GeminiDocumentAnalysisProvider
         model: string;
         input: unknown;
     } {
+        const contentParts: Array<Record<string, unknown>> = [
+            {
+                type: 'text',
+                text: this.prompt.instruction(),
+            },
+        ];
+
+        if (request.extractedText) {
+            contentParts.push({
+                type: 'text',
+
+                text:
+                    'The following is the extracted text of a study document. ' +
+                    'Analyze it according to the instructions above.\n\n' +
+                    request.extractedText,
+            });
+        } else {
+            contentParts.push({
+                type: 'document',
+                data: request.file.bytes.toString('base64'),
+                mime_type: request.file.mimeType,
+            });
+        }
+
         return {
             model: this.aiConfig.geminiModel,
 
-            input: [
-                {
-                    type: 'text',
-                    text: this.prompt.instruction(),
-                },
-
-                {
-                    type: 'document',
-                    data: request.file.bytes.toString('base64'),
-                    mime_type: request.file.mimeType,
-                },
-            ],
+            input: contentParts,
         };
     }
 

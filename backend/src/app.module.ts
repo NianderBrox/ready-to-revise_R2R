@@ -13,7 +13,9 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { AiModule } from './modules/ai/ai.module';
 import { DocumentAnalysisModule } from './modules/document-analysis/document-analysis.module';
 import { LearningGenerationModule } from './modules/learning-generation/learning-generation.module';
-import { DocumentCapabilitiesModule } from './modules/document-capabilities/document-capabilities.module';
+import { DocumentsModule } from './modules/documents/documents.module';
+import { MlClientModule } from './modules/ml-client/ml-client.module';
+import { RecallPredictionsModule } from './modules/recall-predictions/recall-predictions.module';
 
 @Module({
     imports: [
@@ -33,7 +35,9 @@ import { DocumentCapabilitiesModule } from './modules/document-capabilities/docu
         AiModule,
         DocumentAnalysisModule,
         LearningGenerationModule,
-        DocumentCapabilitiesModule,
+        DocumentsModule,
+        MlClientModule,
+        RecallPredictionsModule,
     ],
 })
 export class AppModule {}

@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
+import { DOCX_MIME_TYPE } from '../files/constants/document-mime.constants';
 
 @Injectable()
 export class FileValidationPipe implements PipeTransform<Express.Multer.File> {
@@ -6,6 +7,7 @@ export class FileValidationPipe implements PipeTransform<Express.Multer.File> {
         'application/pdf',
         'image/png',
         'image/jpeg',
+        DOCX_MIME_TYPE,
     ];
 
     private static readonly MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB

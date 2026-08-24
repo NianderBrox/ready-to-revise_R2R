@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { FileContent } from '../../../../common/files/value-objects/file-content';
 import { CreateDocumentCommand } from '../commands/create-document.command';
 import { MarkDocumentReadyCommand } from '../commands/mark-document-ready.command';
@@ -7,6 +7,7 @@ import { DocumentsService } from './documents.service';
 import { SaveFileCommand } from '../../../storage/application/commands/save-file.command';
 import { AttachDocumentStorageCommand } from '../../../storage/application/commands/attach-document-storage.command';
 import { DocumentAnalysisService } from '../../../document-analysis/application/services/document-analysis.service';
+import { DocumentTextExtractorService } from '../../../document-analysis/application/services/document-text-extractor.service';
 import { AnalyzeDocumentRequest } from '../../../document-analysis/domain/models/analyze-document.request';
 import { StorageService } from '../../../storage/application/services/storage.service';
 
@@ -18,6 +19,8 @@ export class DocumentUploadService {
         private readonly storageService: StorageService,
 
         private readonly documentAnalysisService: DocumentAnalysisService,
+
+        private readonly textExtractor: DocumentTextExtractorService,
     ) {}
 
     async upload(
@@ -49,8 +52,12 @@ export class DocumentUploadService {
         await this.documentsService.markAnalyzing(document.id);
 
         try {
+            const extractedText = this.textExtractor.supports(file)
+                ? await this.textExtractor.extract(file)
+                : undefined;
+
             const analysis = await this.documentAnalysisService.analyze(
-                new AnalyzeDocumentRequest(file),
+                new AnalyzeDocumentRequest(file, extractedText),
             );
 
             const updated = await this.documentsService.markReady(
@@ -71,7 +78,12 @@ export class DocumentUploadService {
         } catch (error) {
             await this.documentsService.markFailed(document.id);
 
-            throw error;
+            throw new ServiceUnavailableException(
+                'AI analysis is temporarily unavailable. The document was ' +
+                    'marked as FAILED; please retry the upload later.',
+
+                { cause: error },
+            );
         }
     }
 }
