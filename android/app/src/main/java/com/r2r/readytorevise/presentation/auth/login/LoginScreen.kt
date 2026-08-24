@@ -38,6 +38,8 @@ import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
 import com.r2r.readytorevise.ui.theme.ReadyToReviseTheme
 import com.r2r.readytorevise.ui.theme.SkyBlueDark
 
+private const val SHOW_CHECK_SESSION = false
+
 @Composable
 fun LoginScreen(
     state: LoginUiState,
@@ -140,15 +142,17 @@ fun LoginScreen(
                 onClick = onOfflineMode
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            if (SHOW_CHECK_SESSION) {
+                Spacer(modifier = Modifier.height(16.dp))
 
-            R2RButton(
-                text = "Check Session",
-                enabled = true,
-                onClick = {
-                    showAlreadyLoggedInDialog = true
-                }
-            )
+                R2RButton(
+                    text = "Check Session",
+                    enabled = true,
+                    onClick = {
+                        showAlreadyLoggedInDialog = true
+                    }
+                )
+            }
 
             Spacer(modifier = Modifier.height(36.dp))
 

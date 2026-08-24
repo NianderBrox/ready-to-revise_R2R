@@ -3,8 +3,10 @@ package com.r2r.readytorevise.data.remote
 import com.r2r.readytorevise.data.remote.dto.AuthResponseDto
 import com.r2r.readytorevise.data.remote.dto.BaseResponseDto
 import com.r2r.readytorevise.data.remote.dto.LoginRequestDto
+import com.r2r.readytorevise.data.remote.dto.ProfileDto
 import com.r2r.readytorevise.data.remote.dto.RegisterRequestDto
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface AuthApi {
@@ -18,4 +20,7 @@ interface AuthApi {
     suspend fun login(
         @Body request: LoginRequestDto
     ): BaseResponseDto<AuthResponseDto>
+
+    @GET("api/v1/auth/profile")
+    suspend fun profile(): BaseResponseDto<ProfileDto>
 }

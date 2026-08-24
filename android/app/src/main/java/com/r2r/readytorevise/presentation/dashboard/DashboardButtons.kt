@@ -12,13 +12,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import com.r2r.readytorevise.ui.theme.SkyBlue
 
 @Composable
 fun DashboardButtons(
     onAddClick: () -> Unit,
-    onRevisionClick: () -> Unit
+    onRevisionClick: () -> Unit,
+    revisionEnabled: Boolean = true
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -42,9 +44,11 @@ fun DashboardButtons(
 
         Button(
             onClick = onRevisionClick,
+            enabled = revisionEnabled,
             modifier = Modifier
                 .width(155.dp)
-                .height(55.dp),
+                .height(55.dp)
+                .alpha(if (revisionEnabled) 1f else 0.4f),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = SkyBlue

@@ -35,10 +35,15 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 
 @Composable
-fun StreakCard() {
+fun StreakCard(
+    streakDays: Int = 0,
+    activeDates: Set<LocalDate> = emptySet(),
+) {
     val today = LocalDate.now()
     val monday = today.with(DayOfWeek.MONDAY)
     val week = (0..6).map { monday.plusDays(it.toLong()) }
+
+    val streakDates = (0 until streakDays).map { today.minusDays(it.toLong()) }.toSet()
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -82,6 +87,8 @@ fun StreakCard() {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     week.forEach { date ->
+                        val active = date in streakDates || date in activeDates
+
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
@@ -94,7 +101,10 @@ fun StreakCard() {
                                 modifier = Modifier
                                     .size(18.dp)
                                     .clip(CircleShape)
-                                    .background(SkyBlueLight.copy(alpha = 0.6f))
+                                    .background(
+                                        if (active) Color.White
+                                        else SkyBlueLight.copy(alpha = 0.6f)
+                                    )
                             )
                         }
                     }

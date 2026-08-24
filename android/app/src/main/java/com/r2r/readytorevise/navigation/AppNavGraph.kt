@@ -9,27 +9,30 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
-import com.r2r.readytorevise.presentation.analytics.AnalyticsScreen
+import com.r2r.readytorevise.presentation.analytics.AnalyticsRoute
 import com.r2r.readytorevise.presentation.auth.login.LoginRoute
 import com.r2r.readytorevise.presentation.auth.register.RegisterRoute
-import com.r2r.readytorevise.presentation.dashboard.DashboardScreen
-import com.r2r.readytorevise.presentation.profile.ProfileScreen
+import com.r2r.readytorevise.presentation.dashboard.DashboardRoute
+import com.r2r.readytorevise.presentation.profile.ProfileRoute
 
 import com.r2r.readytorevise.presentation.upload.UploadScreen
 import com.r2r.readytorevise.presentation.upload.DocumentUploadScreen
-import com.r2r.readytorevise.presentation.processing.ProcessingScreen
-import com.r2r.readytorevise.presentation.quiz.RevisionScreen
+import com.r2r.readytorevise.presentation.processing.ProcessingRoute
+import com.r2r.readytorevise.quiz.RevisionRoute
 import com.r2r.readytorevise.presentation.upload.UploadViewModel
 
 import com.r2r.readytorevise.ui.SplashScreen
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.setValue
+
 @Composable
 fun AppNavGraph(
     appContainer: com.r2r.readytorevise.di.AppContainer,
@@ -78,7 +81,26 @@ fun AppNavGraph(
     val navController = rememberNavController()
 
 
-    val uploadViewModel: UploadViewModel = viewModel()
+    val appContext = LocalContext.current.applicationContext
+
+
+    val uploadViewModel: UploadViewModel = viewModel(
+
+        factory = viewModelFactory {
+
+            initializer {
+
+                UploadViewModel(
+                    documentsRepository = appContainer.documentsRepository,
+                    studyItemsRepository = appContainer.studyItemsRepository,
+                    appContext = appContext,
+                )
+
+            }
+
+        }
+
+    )
 
 
 
@@ -161,12 +183,10 @@ fun AppNavGraph(
 
         composable(Screen.Dashboard.route) {
 
-            DashboardScreen(
-
+            DashboardRoute(
+                appContainer = appContainer,
                 navController = navController,
-
                 uploadViewModel = uploadViewModel
-
             )
 
         }
@@ -194,7 +214,10 @@ fun AppNavGraph(
 
         composable(Screen.Processing.route) {
 
-            ProcessingScreen(navController)
+            ProcessingRoute(
+                uploadViewModel = uploadViewModel,
+                navController = navController
+            )
 
         }
 
@@ -213,9 +236,9 @@ fun AppNavGraph(
 
         composable(Screen.Revision.route) {
 
-            RevisionScreen(
+            RevisionRoute(
 
-                uploadViewModel = uploadViewModel,
+                appContainer = appContainer,
 
                 onBackClick = {
                     navController.popBackStack()
@@ -235,7 +258,10 @@ fun AppNavGraph(
 
         composable(Screen.Analytics.route) {
 
-            AnalyticsScreen(navController)
+            AnalyticsRoute(
+                appContainer = appContainer,
+                navController = navController
+            )
 
         }
 
@@ -244,7 +270,10 @@ fun AppNavGraph(
 
         composable(Screen.Profile.route) {
 
-            ProfileScreen(navController)
+            ProfileRoute(
+                appContainer = appContainer,
+                navController = navController
+            )
 
         }
 

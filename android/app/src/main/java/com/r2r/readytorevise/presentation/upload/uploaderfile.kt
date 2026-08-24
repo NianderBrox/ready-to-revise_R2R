@@ -7,13 +7,14 @@ import android.provider.OpenableColumns
 data class UploadedFile(
     val uri: Uri,
     val fileName: String,
-    val type: FileType
+    val type: FileType,
+    val mimeType: String = "",
 )
 
 enum class FileType {
     IMAGE,
     PDF,
-    WORD
+    WORD,
 }
 
 fun Uri.resolveFileName(context: Context): String {

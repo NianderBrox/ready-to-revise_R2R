@@ -87,7 +87,11 @@ fun PreviewScreen(
                 color = OnSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+
+            AiPrivacyNotice()
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             LazyColumn(
                 modifier = Modifier.weight(1f),

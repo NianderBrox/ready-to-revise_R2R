@@ -29,6 +29,8 @@ import com.r2r.readytorevise.ui.theme.SkyBlue
 
 @Composable
 fun TopicsCard(
+    readyCount: Int = 0,
+    topTitle: String? = null,
     onRevisionClick: () -> Unit
 ) {
     Card(
@@ -79,16 +81,22 @@ fun TopicsCard(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "Ready to revise",
+                    text = if (readyCount > 0) "Ready to revise: $readyCount"
+                    else "Nothing due right now",
                     color = OnSurface,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "Tap to start",
+                    text = when {
+                        topTitle != null -> topTitle
+                        readyCount > 0 -> "Tap to start"
+                        else -> "Upload notes to create questions"
+                    },
                     color = OnSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1
                 )
             }
         }

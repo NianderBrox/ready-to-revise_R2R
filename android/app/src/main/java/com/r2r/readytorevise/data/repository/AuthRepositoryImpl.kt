@@ -3,6 +3,7 @@ package com.r2r.readytorevise.data.repository
 import com.r2r.readytorevise.data.local.TokenManager
 import com.r2r.readytorevise.data.remote.AuthApi
 import com.r2r.readytorevise.data.remote.dto.LoginRequestDto
+import com.r2r.readytorevise.data.remote.dto.ProfileDto
 import com.r2r.readytorevise.data.remote.dto.RegisterRequestDto
 import com.r2r.readytorevise.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
@@ -38,9 +39,31 @@ class AuthRepositoryImpl(
         } catch (e: HttpException) {
             Result.failure(Exception("Login failed. Please check your credentials."))
         } catch (e: IOException) {
+            Result.failure(Exception("Network error: ${e.message ?: e.javaClass.simpleName}"))
+        } catch (e: Exception) {
+            Result.failure(Exception("An unexpected error occurred."))
+        }
+    }
+
+    override suspend fun profile(): Result<ProfileDto> {
+        return try {
+            Result.success(authApi.profile().data)
+        } catch (e: HttpException) {
+            if (e.code() == 401) tokenManager.clearToken()
+            Result.failure(Exception("Couldn't load profile."))
+        } catch (e: IOException) {
             Result.failure(Exception("Network error. Please check your connection."))
         } catch (e: Exception) {
             Result.failure(Exception("An unexpected error occurred."))
+        }
+    }
+
+    override suspend fun logout(): Result<Unit> {
+        return try {
+            tokenManager.clearToken()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(Exception("Logout failed."))
         }
     }
 }

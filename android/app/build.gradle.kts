@@ -133,6 +133,7 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit.core)
+    implementation("io.coil-kt:coil-compose:2.6.0")
     implementation(libs.retrofit.converter.kotlinx.serialization)
     implementation(libs.okhttp.core)
     implementation(libs.okhttp.logging.interceptor)

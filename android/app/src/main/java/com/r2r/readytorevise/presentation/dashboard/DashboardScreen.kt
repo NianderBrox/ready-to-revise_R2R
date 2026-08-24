@@ -2,9 +2,14 @@ package com.r2r.readytorevise.presentation.dashboard
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.r2r.readytorevise.di.AppContainer
+import com.r2r.readytorevise.presentation.upload.UploadEvent
 import com.r2r.readytorevise.presentation.upload.UploadViewModel
 import com.r2r.readytorevise.presentation.upload.UploadedFile
 import com.r2r.readytorevise.presentation.upload.FileType
+import com.r2r.readytorevise.presentation.upload.guessMime
 import com.r2r.readytorevise.presentation.upload.resolveFileName
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -12,6 +17,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +31,7 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -43,7 +50,53 @@ import androidx.compose.material.icons.filled.Description
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 
+fun DashboardRoute(
+    appContainer: AppContainer,
+    navController: NavHostController,
+    uploadViewModel: UploadViewModel,
+) {
+
+    val factory = viewModelFactory {
+        initializer {
+            DashboardViewModel(
+                dashboardRepository = appContainer.dashboardRepository,
+                recommendationsRepository = appContainer.recommendationsRepository,
+                authRepository = appContainer.authRepository,
+            )
+        }
+    }
+
+    val viewModel: DashboardViewModel = viewModel(factory = factory)
+
+    val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(viewModel) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                DashboardEffect.LoggedOut -> {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            }
+        }
+    }
+
+    DashboardScreen(
+        state = state,
+        onEvent = viewModel::onEvent,
+        navController = navController,
+        uploadViewModel = uploadViewModel,
+    )
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+
 fun DashboardScreen(
+    state: DashboardUiState,
+    onEvent: (DashboardEvent) -> Unit,
     navController: NavHostController,
     uploadViewModel: UploadViewModel
 ) {
@@ -82,8 +135,8 @@ fun DashboardScreen(
 
             if (success) {
 
-                uploadViewModel.clearImages()
-                uploadViewModel.addImage(cameraImageUri)
+                uploadViewModel.onEvent(UploadEvent.ClearImages)
+                uploadViewModel.onEvent(UploadEvent.AddImage(cameraImageUri))
 
                 showBottomSheet = false
 
@@ -98,8 +151,8 @@ fun DashboardScreen(
         ) { uri ->
 
             if (uri != null) {
-                uploadViewModel.clearImages()
-                uploadViewModel.addImage(uri)
+                uploadViewModel.onEvent(UploadEvent.ClearImages)
+                uploadViewModel.onEvent(UploadEvent.AddImage(uri))
 
                 showBottomSheet = false
 
@@ -119,16 +172,16 @@ fun DashboardScreen(
 
                 showBottomSheet = false
 
-                uploadViewModel.clearFiles()
-                uris.forEach { uri ->
-                    uploadViewModel.addFile(
-                        UploadedFile(
-                            uri = uri,
-                            fileName = uri.resolveFileName(context),
-                            type = FileType.PDF
-                        )
+                val picked = uris.map { uri ->
+                    val fileName = uri.resolveFileName(context)
+                    UploadedFile(
+                        uri = uri,
+                        fileName = fileName,
+                        type = FileType.PDF,
+                        mimeType = guessMime(fileName),
                     )
                 }
+                uploadViewModel.onEvent(UploadEvent.SetFiles(picked))
 
                 navController.navigate(Screen.DocumentPreview.route)
 
@@ -144,16 +197,16 @@ fun DashboardScreen(
 
                 showBottomSheet = false
 
-                uploadViewModel.clearFiles()
-                uris.forEach { uri ->
-                    uploadViewModel.addFile(
-                        UploadedFile(
-                            uri = uri,
-                            fileName = uri.resolveFileName(context),
-                            type = FileType.WORD
-                        )
+                val picked = uris.map { uri ->
+                    val fileName = uri.resolveFileName(context)
+                    UploadedFile(
+                        uri = uri,
+                        fileName = fileName,
+                        type = FileType.WORD,
+                        mimeType = guessMime(fileName),
                     )
                 }
+                uploadViewModel.onEvent(UploadEvent.SetFiles(picked))
 
                 navController.navigate(Screen.DocumentPreview.route)
 
@@ -181,7 +234,7 @@ fun DashboardScreen(
 
                     DashboardHeader(
 
-                        userName = "Vaibhav Singh",
+                        userName = state.userName.ifBlank { "there" },
 
                         onProfileClick = {
                             navController.navigate(Screen.Profile.route)
@@ -192,7 +245,7 @@ fun DashboardScreen(
                         },
 
                         onLogoutClick = {
-                            navController.navigate(Screen.Login.route)
+                            onEvent(DashboardEvent.LogoutClicked)
                         }
 
                     )
@@ -204,6 +257,46 @@ fun DashboardScreen(
         }
 
     ) { padding ->
+
+        if (state.loading) {
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+
+            return@Scaffold
+
+        }
+
+        val loadError = state.error
+
+        if (loadError != null && state.userName.isBlank()) {
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(loadError)
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Button(onClick = { onEvent(DashboardEvent.RetryLoad) }) {
+                    Text("Retry")
+                }
+            }
+
+            return@Scaffold
+
+        }
 
         Column(
 
@@ -220,9 +313,13 @@ fun DashboardScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            StreakCard()
+            StreakCard(
+                streakDays = state.streakDays
+            )
 
             TopicsCard(
+                readyCount = state.readyToReviseCount,
+                topTitle = state.topRecommendationTitle,
                 onRevisionClick = {
                     navController.navigate(Screen.Revision.route)
                 }
@@ -236,7 +333,9 @@ fun DashboardScreen(
 
                 onRevisionClick = {
                     navController.navigate(Screen.Revision.route)
-                }
+                },
+
+                revisionEnabled = state.readyToReviseCount > 0
             )
 
             Spacer(modifier = Modifier.height(30.dp))
@@ -372,7 +471,6 @@ fun DashboardScreen(
 
                     wordLauncher.launch(
                         arrayOf(
-                            "application/msword",
                             "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                         )
                     )

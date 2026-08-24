@@ -4,13 +4,18 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.navigation.NavController
+
 @Composable
 fun UploadScreen(
     navController: NavController,
     uploadViewModel: UploadViewModel
 ) {
+
+    val state by uploadViewModel.state.collectAsState()
 
     val replaceIndex = remember {
         androidx.compose.runtime.mutableIntStateOf(-1)
@@ -26,13 +31,12 @@ fun UploadScreen(
 
                 if (replaceIndex.intValue == -1) {
 
-                    uploadViewModel.addImage(uri)
+                    uploadViewModel.onEvent(UploadEvent.AddImage(uri))
 
                 } else {
 
-                    uploadViewModel.replaceImage(
-                        replaceIndex.intValue,
-                        uri
+                    uploadViewModel.onEvent(
+                        UploadEvent.ReplaceImage(replaceIndex.intValue, uri)
                     )
 
                     replaceIndex.intValue = -1
@@ -48,7 +52,7 @@ fun UploadScreen(
 
         navController = navController,
 
-        images = uploadViewModel.images,
+        images = state.images,
 
 
         onAddImage = {
@@ -90,12 +94,14 @@ fun UploadScreen(
 
         onRemoveImage = { index ->
 
-            uploadViewModel.removeImage(index)
+            uploadViewModel.onEvent(UploadEvent.RemoveImage(index))
 
         },
 
 
         onSubmit = {
+
+            uploadViewModel.onEvent(UploadEvent.Submit)
 
             navController.navigate("processing")
 

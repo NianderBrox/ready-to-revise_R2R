@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -82,7 +83,11 @@ fun DocumentPreviewScreen(
                 color = OnSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+
+            AiPrivacyNotice()
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             LazyColumn(
                 modifier = Modifier.weight(1f),
@@ -192,6 +197,39 @@ fun DocumentPreviewScreen(
             ) {
                 Text("Submit")
             }
+        }
+    }
+}
+
+
+@Composable
+fun AiPrivacyNotice() {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF2A2110)
+        ),
+        shape = RoundedCornerShape(14.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Default.Info,
+                contentDescription = null,
+                tint = Color(0xFFF5B942)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Text(
+                text = "Your documents are processed by AI to generate " +
+                    "questions. Please don't upload personal or sensitive " +
+                    "information.",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color(0xFFF5DFAE)
+            )
         }
     }
 }
