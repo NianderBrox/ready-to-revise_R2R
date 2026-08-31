@@ -29,6 +29,8 @@ import com.r2r.readytorevise.quiz.RevisionRoute
 import com.r2r.readytorevise.presentation.upload.UploadViewModel
 
 import com.r2r.readytorevise.ui.SplashScreen
+import com.r2r.readytorevise.notification.NotificationPreferences
+import com.r2r.readytorevise.notification.NotificationSettingsRoute
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -101,6 +103,10 @@ fun AppNavGraph(
         }
 
     )
+
+
+
+    val notificationPreferences = remember { NotificationPreferences(appContext) }
 
 
 
@@ -275,6 +281,15 @@ fun AppNavGraph(
                 navController = navController
             )
 
+        }
+
+        composable(Screen.NotificationSettings.route) {
+            NotificationSettingsRoute(
+                preferences = notificationPreferences,
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
         }
 
 

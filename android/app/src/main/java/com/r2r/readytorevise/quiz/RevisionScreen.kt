@@ -82,6 +82,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -94,6 +97,7 @@ import com.r2r.readytorevise.presentation.quiz.RevisionEvent
 import com.r2r.readytorevise.presentation.quiz.RevisionUiState
 import com.r2r.readytorevise.presentation.quiz.RevisionViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.awaitCancellation
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -145,16 +149,28 @@ fun RevisionScreen(
     var elapsedSeconds by remember { mutableLongStateOf(0L) }
     var showFinishDialog by remember { mutableStateOf(false) }
     var showExitDialog by remember { mutableStateOf(false) }
+    var showPausedDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(state.finished) {
-        while (!state.finished) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner, state.finished, state.finishing) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP && !state.finished && !state.finishing) {
+                showPausedDialog = true
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        awaitCancellation()
+    }
+
+    LaunchedEffect(state.finished, showPausedDialog) {
+        while (!state.finished && !showPausedDialog) {
             delay(1000L)
             elapsedSeconds += 1
         }
     }
 
-    BackHandler(enabled = !state.finished && !state.finishing) {
-        showExitDialog = true
+    BackHandler(enabled = !state.finished && !state.finishing && !showPausedDialog) {
+        showPausedDialog = true
     }
 
     Box(
@@ -247,6 +263,35 @@ fun RevisionScreen(
             dismissButton = {
                 TextButton(onClick = { showExitDialog = false }) {
                     Text("Stay", color = TextMuted)
+                }
+            },
+            containerColor = CardBackground,
+        )
+    }
+
+    if (showPausedDialog) {
+        AlertDialog(
+            onDismissRequest = { },
+            title = { Text("Quiz Paused", color = TextPrimary) },
+            text = {
+                Text(
+                    "Your quiz has been paused. Would you like to resume or exit?",
+                    color = TextMuted,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showPausedDialog = false
+                }) {
+                    Text("Resume", color = AccentGreen)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showPausedDialog = false
+                    onEvent(RevisionEvent.ExitConfirmed)
+                }) {
+                    Text("Exit", color = AccentAmber)
                 }
             },
             containerColor = CardBackground,

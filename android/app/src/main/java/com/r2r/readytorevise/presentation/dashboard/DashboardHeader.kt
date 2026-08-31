@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -28,6 +29,7 @@ fun DashboardHeader(
     userName: String,
     onProfileClick: () -> Unit,
     onChangePasswordClick: () -> Unit,
+    onNotificationSettingsClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
     var expanded by remember {
@@ -95,6 +97,21 @@ fun DashboardHeader(
                         onClick = {
                             expanded = false
                             onChangePasswordClick()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text("Notification Settings")
+                        },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Notifications,
+                                contentDescription = null
+                            )
+                        },
+                        onClick = {
+                            expanded = false
+                            onNotificationSettingsClick()
                         }
                     )
                     DropdownMenuItem(

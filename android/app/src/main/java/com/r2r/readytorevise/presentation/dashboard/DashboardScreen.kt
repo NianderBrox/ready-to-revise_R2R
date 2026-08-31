@@ -244,6 +244,10 @@ fun DashboardScreen(
 
                         },
 
+                        onNotificationSettingsClick = {
+                            navController.navigate(Screen.NotificationSettings.route)
+                        },
+
                         onLogoutClick = {
                             onEvent(DashboardEvent.LogoutClicked)
                         }
