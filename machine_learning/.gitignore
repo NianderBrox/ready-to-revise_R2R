@@ -21,8 +21,11 @@ env/
 
 # Model Files
 models/*.pkl
-models/*.joblib
 models/*.onnx
+models/*.joblib
+
+!models/gradient_boosting.joblib
+!models/calibrated_best.joblib
 
 # Data
 data/raw/*
@@ -45,4 +48,5 @@ Thumbs.db
 .ruff_cache
 
 .python-version
-docs/
+
+docs/*

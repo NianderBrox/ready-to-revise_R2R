@@ -10,4 +10,5 @@ DB_CONFIG = {
     "database": os.getenv("DB_NAME"),
     "user": os.getenv("DB_USER"),
     "password": os.getenv("DB_PASSWORD"),
+    "schema": os.getenv("DB_SCHEMA", "ml"),
 }

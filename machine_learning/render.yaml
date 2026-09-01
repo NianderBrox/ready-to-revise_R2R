@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: r2r-ml
+    runtime: docker
+    repo: https://github.com/NianderBrox/ready-to-revise_R2R.git
+    plan: starter
+    dockerfilePath: machine_learning/Dockerfile
+    dockerContext: machine_learning
+    # Only rebuild when the ML service or its shared compose/build files change.
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: MODEL_NAME
+        value: gradient_boosting
+      - key: ML_TIMEOUT_MS
+        value: 2000
+      # Training only — inference never touches the DB. Provide values from the
+      # Render Postgres dashboard or leave to the postgres service below.
+      - key: DB_HOST
+        sync: false
+        value: localhost
+      - key: DB_PORT
+        sync: false
+        value: "5432"
+      - key: DB_NAME
+        sync: false
+        value: r2r_db
+      - key: DB_USER
+        sync: false
+        value: ml_readonly
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_SCHEMA
+        sync: false
+        value: ml
+
+databases:
+  - name: r2r-db
+    plan: free
+    ipAllowList: [] # allow access from all locations (including backend/ML)
