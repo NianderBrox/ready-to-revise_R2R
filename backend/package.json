@@ -22,6 +22,7 @@
     "ai:test": "tsx scripts/test-document-analysis.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1124.0",
     "@google/genai": "^2.13.0",
     "@nestjs/axios": "^4.0.1",
     "@nestjs/common": "^11.0.1",

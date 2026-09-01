@@ -101,12 +101,10 @@ export class RecallQueryRepository {
         createdAt: Date;
         mediaDocumentId: string | null;
         options: unknown;
-        topic?:
-            | {
-                  name: string | null;
-                  chapter?: { subject?: { name: string | null } | null } | null;
-              }
-            | null;
+        topic?: {
+            name: string | null;
+            chapter?: { subject?: { name: string | null } | null } | null;
+        } | null;
     }): DueQuestionRow {
         return {
             id: item.id,
@@ -125,8 +123,7 @@ export class RecallQueryRepository {
 
             options: Array.isArray(item.options)
                 ? item.options.filter(
-                      (option): option is string =>
-                          typeof option === 'string',
+                      (option): option is string => typeof option === 'string',
                   )
                 : null,
 

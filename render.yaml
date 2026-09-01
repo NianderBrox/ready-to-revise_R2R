@@ -1,0 +1,97 @@
+services:
+  - type: web
+    runtime: docker
+    name: r2r-backend
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # NOTE: This file is reference-only. Deploy manually in the Render dashboard
+      # (see docs/DEPLOY_RENDER.md). Database is hosted Postgres (Supabase free tier).
+
+      # Database — connection string to hosted Postgres (Supabase free tier).
+      # Set in the Render dashboard, e.g.
+      # postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require
+      # NOTE: managed Postgres can NOT capture this from a free external DB.
+      - key: DATABASE_URL
+        sync: false
+
+      # Secrets — Render auto-generates JWT_SECRET on first deploy
+      - key: JWT_SECRET
+        generateValue: true
+
+      - key: JWT_EXPIRES_IN
+        value: 7d
+
+      # Gemini AI — set manually in Render dashboard
+      - key: GEMINI_API_KEY
+        sync: false
+
+      - key: GEMINI_MODEL
+        value: gemini-3.6-flash
+
+      - key: ML_SERVICE_URL
+        sync: false
+
+      - key: ML_MODEL_NAME
+        value: gradient_boosting
+
+      - key: ML_TIMEOUT_MS
+        value: "10000"
+
+      - key: ML_FAILURE_COOLDOWN_MS
+        value: "30000"
+
+      # CORS — set to your production domain, default allow all
+      - key: CORS_ORIGIN
+        value: "*"
+
+      # Object storage — Tigris (S3-compatible), set creds in dashboard
+      # Endpoint: https://t3.storage.dev, Region: auto, ForcePathStyle: true
+      - key: STORAGE_DRIVER
+        value: s3
+
+      - key: S3_BUCKET
+        sync: false
+
+      - key: S3_ENDPOINT
+        sync: false
+
+      - key: S3_REGION
+        value: auto
+
+      - key: S3_ACCESS_KEY_ID
+        sync: false
+
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false
+
+      - key: S3_FORCE_PATH_STYLE
+        value: "true"
+
+      - key: S3_PREFIX
+        value: r2r
+
+      # Recommendation tuning
+      - key: RECOMMENDATION_TARGET_RETENTION
+        value: "0.9"
+
+      - key: RECOMMENDATION_SLIDING_WINDOW_HOURS
+        value: "48"
+
+      - key: RECOMMENDATION_REFRACTORY_HOURS
+        value: "20"
+
+      - key: RECOMMENDATION_DAILY_CAP
+        value: "20"
+
+# NOTE: managed Postgres entry is unused (DB is hosted externally via Supabase).
+# Kept as reference only.
+# databases:
+#   - name: r2r-postgres
+#     databaseName: r2r_db
+#     user: r2r_user
+#     plan: starter

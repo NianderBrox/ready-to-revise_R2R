@@ -21,10 +21,14 @@ async function bootstrap() {
      */
     app.setGlobalPrefix('api/v1');
 
+    const configService = app.get(ConfigService);
+
     /*
      * Enable CORS
      */
-    app.enableCors();
+    const corsOrigin = configService.get<string>('CORS_ORIGIN', '*');
+
+    app.enableCors({ origin: corsOrigin });
 
     /*
      * Global Validation
@@ -53,8 +57,6 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, config);
 
     SwaggerModule.setup('api/docs', app, document);
-
-    const configService = app.get(ConfigService);
 
     const port = configService.get<number>('PORT', 3000);
 

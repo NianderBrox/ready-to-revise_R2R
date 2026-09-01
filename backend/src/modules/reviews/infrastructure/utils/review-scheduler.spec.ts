@@ -75,15 +75,17 @@ describe('ReviewScheduler', () => {
         it('always beats a plain GOOD on identical history', () => {
             const prev = 30;
 
-            expect(ReviewScheduler.calculate(ReviewResult.MEMORIZED, prev)).toBeGreaterThan(
+            expect(
+                ReviewScheduler.calculate(ReviewResult.MEMORIZED, prev),
+            ).toBeGreaterThan(
                 ReviewScheduler.calculate(ReviewResult.GOOD, prev),
             );
         });
 
         it('never exceeds the cap even when multiplied', () => {
-            expect(ReviewScheduler.calculate(ReviewResult.MEMORIZED, 365)).toBeLessThanOrEqual(
-                365,
-            );
+            expect(
+                ReviewScheduler.calculate(ReviewResult.MEMORIZED, 365),
+            ).toBeLessThanOrEqual(365);
         });
     });
 

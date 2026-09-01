@@ -49,7 +49,6 @@ export class DocumentsController {
 
         return this.documentUploadService.upload(
             this.fileMapper.toFileContent(file),
-
             command,
         );
     }

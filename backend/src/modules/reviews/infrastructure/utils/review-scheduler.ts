@@ -30,9 +30,8 @@ export class ReviewScheduler {
         }
 
         if (result === ReviewResult.MEMORIZED) {
-            const goodInterval = ReviewScheduler.progressGood(
-                previousIntervalDays,
-            );
+            const goodInterval =
+                ReviewScheduler.progressGood(previousIntervalDays);
 
             return Math.min(
                 ReviewScheduler.MAX_INTERVAL_DAYS,
@@ -68,9 +67,7 @@ export class ReviewScheduler {
         return next;
     }
 
-    private static progressGood(
-        previousIntervalDays?: number | null,
-    ): number {
+    private static progressGood(previousIntervalDays?: number | null): number {
         const base = ReviewScheduler.BASE_INTERVAL_DAYS.GOOD;
 
         if (
@@ -82,8 +79,7 @@ export class ReviewScheduler {
         }
 
         const expanded = Math.ceil(
-            previousIntervalDays *
-                ReviewScheduler.EXPANSION_MULTIPLIERS.GOOD,
+            previousIntervalDays * ReviewScheduler.EXPANSION_MULTIPLIERS.GOOD,
         );
 
         return Math.max(base, expanded);

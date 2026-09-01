@@ -107,7 +107,9 @@ export class ReviewsService {
         );
 
         if (!exists) {
-            throw new NotFoundException('Study item not found or access denied.');
+            throw new NotFoundException(
+                'Study item not found or access denied.',
+            );
         }
 
         const latest = await this.repository.findLatest(dto.studyItemId);

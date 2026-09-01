@@ -8,4 +8,8 @@ export class StorageConfigService {
     get uploadDirectory(): string {
         return this.config.get<string>('UPLOAD_DIRECTORY', 'uploads');
     }
+
+    get driver(): string {
+        return this.config.get<string>('STORAGE_DRIVER', 'local');
+    }
 }

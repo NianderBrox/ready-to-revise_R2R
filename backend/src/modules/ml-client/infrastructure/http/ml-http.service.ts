@@ -26,8 +26,6 @@ export class MlHttpService {
 
     private lastFailureAt: number | null = null;
 
-    private static readonly FAILURE_COOLDOWN_MS = 30000;
-
     constructor(
         private readonly http: HttpService,
         private readonly config: MlConfigService,
@@ -40,7 +38,7 @@ export class MlHttpService {
 
         if (
             this.lastFailureAt === null ||
-            Date.now() - this.lastFailureAt >= MlHttpService.FAILURE_COOLDOWN_MS
+            Date.now() - this.lastFailureAt >= this.config.failureCooldownMs
         ) {
             return true;
         }

@@ -28,9 +28,7 @@ function makeItem(overrides: Partial<DueQuestionRow> = {}): DueQuestionRow {
     };
 }
 
-function makeReview(
-    overrides: Partial<RecallReviewRow> = {},
-): RecallReviewRow {
+function makeReview(overrides: Partial<RecallReviewRow> = {}): RecallReviewRow {
     return {
         studyItemId: 'item-1',
         isCorrect: true,
@@ -294,9 +292,7 @@ describe('RecommendationsService (slipping-soon v2)', () => {
 
         expect(response.items[0].options).toEqual(['b1', 'b2']);
 
-        expect(
-            response.items[0].expectedForgetDate,
-        ).toBeTruthy();
+        expect(response.items[0].expectedForgetDate).toBeTruthy();
 
         expect(response.items[0].recallProbability).toBeCloseTo(0.31, 6);
     });

@@ -18,7 +18,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U r2r_user -d r2r_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-r2r_user} -d ${POSTGRES_DB:-r2r_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -61,9 +61,33 @@ services:
 
       JWT_SECRET: ${JWT_SECRET:-change-me-dev-secret}
 
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
 
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.6-flash}
+
       ML_SERVICE_URL: http://ml:8000
+
+      ML_MODEL_NAME: ${ML_MODEL_NAME:-gradient_boosting}
+
+      ML_TIMEOUT_MS: ${ML_TIMEOUT_MS:-2000}
+
+      ML_FAILURE_COOLDOWN_MS: ${ML_FAILURE_COOLDOWN_MS:-30000}
+
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+
+      STORAGE_DRIVER: ${STORAGE_DRIVER:-local}
+
+      UPLOAD_DIRECTORY: ${UPLOAD_DIRECTORY:-/app/uploads}
+
+      RECOMMENDATION_TARGET_RETENTION: ${RECOMMENDATION_TARGET_RETENTION:-0.9}
+
+      RECOMMENDATION_SLIDING_WINDOW_HOURS: ${RECOMMENDATION_SLIDING_WINDOW_HOURS:-48}
+
+      RECOMMENDATION_REFRACTORY_HOURS: ${RECOMMENDATION_REFRACTORY_HOURS:-20}
+
+      RECOMMENDATION_DAILY_CAP: ${RECOMMENDATION_DAILY_CAP:-20}
 
     ports:
       - "3000:3000"

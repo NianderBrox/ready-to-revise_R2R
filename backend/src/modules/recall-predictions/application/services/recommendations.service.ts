@@ -101,10 +101,7 @@ export class RecommendationsService {
 
                 userStats,
 
-                questionGlobalRate: this.globalRate(
-                    reviews,
-                    candidate.row.id,
-                ),
+                questionGlobalRate: this.globalRate(reviews, candidate.row.id),
 
                 now,
             }),
@@ -229,8 +226,7 @@ export class RecommendationsService {
                 (a, b) =>
                     a.expectedForgetDate.getTime() -
                         b.expectedForgetDate.getTime() ||
-                    (a.row.nextReviewAt?.getTime() ??
-                        Number.MAX_SAFE_INTEGER) -
+                    (a.row.nextReviewAt?.getTime() ?? Number.MAX_SAFE_INTEGER) -
                         (b.row.nextReviewAt?.getTime() ??
                             Number.MAX_SAFE_INTEGER),
             ),
@@ -300,8 +296,7 @@ export class RecommendationsService {
 
                 options: candidate.row.options,
 
-                expectedForgetDate:
-                    candidate.expectedForgetDate.toISOString(),
+                expectedForgetDate: candidate.expectedForgetDate.toISOString(),
 
                 recallProbability: null,
 
@@ -342,8 +337,7 @@ export class RecommendationsService {
 
                 options: candidate.row.options,
 
-                expectedForgetDate:
-                    candidate.expectedForgetDate.toISOString(),
+                expectedForgetDate: candidate.expectedForgetDate.toISOString(),
 
                 recallProbability: recommendation.recall_probability,
 
@@ -452,9 +446,7 @@ export class RecommendationsService {
 
     private get targetRetention(): number {
         const parsed = Number.parseFloat(
-            String(
-                this.config.get('RECOMMENDATION_TARGET_RETENTION') ?? '',
-            ),
+            String(this.config.get('RECOMMENDATION_TARGET_RETENTION') ?? ''),
         );
 
         return Number.isFinite(parsed) && parsed > 0 && parsed < 1
@@ -487,10 +479,7 @@ export class RecommendationsService {
     }
 
     private positiveIntEnv(key: string, fallback: number): number {
-        const parsed = Number.parseInt(
-            String(this.config.get(key) ?? ''),
-            10,
-        );
+        const parsed = Number.parseInt(String(this.config.get(key) ?? ''), 10);
 
         return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
     }

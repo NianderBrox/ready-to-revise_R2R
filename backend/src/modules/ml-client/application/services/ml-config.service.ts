@@ -5,6 +5,8 @@ import { ConfigService } from '@nestjs/config';
 export class MlConfigService {
     private static readonly DEFAULT_TIMEOUT_MS = 2000;
 
+    private static readonly DEFAULT_FAILURE_COOLDOWN_MS = 30000;
+
     constructor(private readonly config: ConfigService) {}
 
     get baseUrl(): string {
@@ -25,5 +27,15 @@ export class MlConfigService {
         return Number.isFinite(parsed) && parsed > 0
             ? parsed
             : MlConfigService.DEFAULT_TIMEOUT_MS;
+    }
+
+    get failureCooldownMs(): number {
+        const raw = this.config.get<string>('ML_FAILURE_COOLDOWN_MS');
+
+        const parsed = raw !== undefined ? Number(raw) : NaN;
+
+        return Number.isFinite(parsed) && parsed > 0
+            ? parsed
+            : MlConfigService.DEFAULT_FAILURE_COOLDOWN_MS;
     }
 }

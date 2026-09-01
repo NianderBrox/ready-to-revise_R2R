@@ -1,5 +1,9 @@
 # Ready to Revise (R2R)
 
+<p align="center">
+  <img src="android/app/src/main/assets/AppBanner4.png" alt="Ready to Revise banner" width="440" />
+</p>
+
 AI-powered spaced-repetition study app: upload study material, get AI-generated
 quizzes, and revise exactly what you're about to forget.
 
