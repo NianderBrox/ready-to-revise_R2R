@@ -17,21 +17,16 @@ services:
       # Training only — inference never touches the DB. Provide values from the
       # Render Postgres dashboard or leave to the postgres service below.
       - key: DB_HOST
-        sync: false
         value: localhost
       - key: DB_PORT
-        sync: false
         value: "5432"
       - key: DB_NAME
-        sync: false
         value: r2r_db
       - key: DB_USER
-        sync: false
         value: ml_readonly
       - key: DB_PASSWORD
         sync: false
       - key: DB_SCHEMA
-        sync: false
         value: ml
 
 databases:
