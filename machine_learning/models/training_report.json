@@ -1,123 +1,154 @@
 {
-  "generated_at": "2026-08-22T11:16:01.164170+00:00",
-  "dataset": "/home/nianderbrox/ready-to-revise_R2R/machine_learning/data/features/training_dataset.csv",
-  "rows": 106025,
-  "train_rows": 84820,
-  "test_rows": 21205,
-  "positive_rate": 0.514,
-  "tuned": {
-    "hist_gradient_boosting": {
-      "l2_regularization": 1.678543055695109,
-      "learning_rate": 0.04714401815063289,
-      "max_iter": 380,
-      "max_leaf_nodes": 36,
-      "min_samples_leaf": 11
-    }
+  "generated_at": "2026-09-03T10:47:19.597938+00:00",
+  "dataset": "F:\\R2R\\ready-to-revise_R2R\\machine_learning\\data\\features\\training_dataset.csv",
+  "rows": 105593,
+  "train_rows": 84474,
+  "test_rows": 21119,
+  "positive_rate": 0.4972,
+  "model_selection": {
+    "criterion": "mean_5_fold_cv_roc_auc",
+    "direction": "maximize",
+    "selected_model": "logistic_regression"
   },
-  "decision_threshold": 0.48,
+  "tuned": {},
+  "decision_threshold": 0.52,
   "models": {
     "logistic_regression": {
-      "accuracy": 0.7527,
-      "precision": 0.8035,
-      "recall": 0.6869,
-      "f1": 0.7406,
-      "roc_auc": 0.8408,
-      "log_loss": 0.467,
+      "accuracy": 0.7735,
+      "precision": 0.8198,
+      "recall": 0.6979,
+      "f1": 0.754,
+      "roc_auc": 0.8567,
+      "log_loss": 0.4448,
+      "brier_score": 0.1498,
       "confusion_matrix": [
         [
-          8474,
-          1831
+          9007,
+          1611
         ],
         [
-          3413,
-          7487
+          3172,
+          7329
         ]
       ],
-      "cv_roc_auc_mean": 0.8416,
-      "cv_roc_auc_std": 0.0019,
-      "cv_seconds": 7.3
+      "cv_roc_auc_mean": 0.8608,
+      "cv_roc_auc_std": 0.0022,
+      "cv_seconds": 14.7
     },
     "random_forest": {
-      "accuracy": 0.7502,
-      "precision": 0.8116,
-      "recall": 0.6693,
-      "f1": 0.7336,
-      "roc_auc": 0.8391,
-      "log_loss": 0.4656,
+      "accuracy": 0.7744,
+      "precision": 0.8337,
+      "recall": 0.6824,
+      "f1": 0.7505,
+      "roc_auc": 0.8555,
+      "log_loss": 0.4445,
+      "brier_score": 0.1497,
       "confusion_matrix": [
         [
-          8612,
-          1693
+          9189,
+          1429
         ],
         [
-          3605,
-          7295
+          3335,
+          7166
         ]
       ],
-      "cv_roc_auc_mean": 0.8399,
-      "cv_roc_auc_std": 0.0019,
-      "cv_seconds": 65.4
+      "cv_roc_auc_mean": 0.8586,
+      "cv_roc_auc_std": 0.0015,
+      "cv_seconds": 98.6
     },
     "gradient_boosting": {
-      "accuracy": 0.7516,
-      "precision": 0.8166,
-      "recall": 0.6665,
-      "f1": 0.7339,
-      "roc_auc": 0.8413,
-      "log_loss": 0.4642,
+      "accuracy": 0.7763,
+      "precision": 0.8402,
+      "recall": 0.6792,
+      "f1": 0.7512,
+      "roc_auc": 0.8568,
+      "log_loss": 0.4417,
+      "brier_score": 0.149,
       "confusion_matrix": [
         [
-          8673,
-          1632
+          9262,
+          1356
         ],
         [
-          3635,
-          7265
+          3369,
+          7132
         ]
       ],
-      "cv_roc_auc_mean": 0.8419,
-      "cv_roc_auc_std": 0.0019,
-      "cv_seconds": 227.5
+      "cv_roc_auc_mean": 0.8605,
+      "cv_roc_auc_std": 0.0017,
+      "cv_seconds": 432.4
     },
     "hist_gradient_boosting": {
-      "accuracy": 0.7523,
-      "precision": 0.813,
-      "recall": 0.6729,
-      "f1": 0.7364,
-      "roc_auc": 0.839,
-      "log_loss": 0.4657,
+      "accuracy": 0.7735,
+      "precision": 0.8299,
+      "recall": 0.6849,
+      "f1": 0.7505,
+      "roc_auc": 0.8546,
+      "log_loss": 0.4439,
+      "brier_score": 0.1502,
       "confusion_matrix": [
         [
-          8618,
-          1687
+          9144,
+          1474
         ],
         [
-          3565,
-          7335
+          3309,
+          7192
         ]
       ],
-      "cv_roc_auc_mean": 0.8401,
-      "cv_roc_auc_std": 0.0021,
-      "cv_seconds": 17.3
+      "cv_roc_auc_mean": 0.8578,
+      "cv_roc_auc_std": 0.0016,
+      "cv_seconds": 49.2
     }
   },
-  "best_model": "gradient_boosting",
+  "best_model": "logistic_regression",
   "calibrated_best": {
-    "accuracy": 0.7511,
-    "precision": 0.8025,
-    "recall": 0.6843,
-    "f1": 0.7387,
-    "roc_auc": 0.8413,
-    "log_loss": 0.4649,
+    "accuracy": 0.7747,
+    "precision": 0.8477,
+    "recall": 0.6665,
+    "f1": 0.7463,
+    "roc_auc": 0.8567,
+    "log_loss": 0.4414,
+    "brier_score": 0.1492,
     "confusion_matrix": [
       [
-        8469,
-        1836
+        9361,
+        1257
       ],
       [
-        3441,
-        7459
+        3502,
+        6999
       ]
-    ]
+    ],
+    "calibrated_log_loss": 0.4414,
+    "calibration_curve": {
+      "mean_predicted_probability": [
+        0.0735,
+        0.1522,
+        0.2523,
+        0.3491,
+        0.4562,
+        0.5352,
+        0.6762,
+        0.7269,
+        0.8428,
+        0.9935
+      ],
+      "fraction_of_positives": [
+        0.0698,
+        0.1561,
+        0.2571,
+        0.3652,
+        0.4448,
+        0.5205,
+        0.6512,
+        0.714,
+        0.8333,
+        0.9922
+      ]
+    },
+    "calibration_seconds": 7.1,
+    "base_model": "logistic_regression"
   }
 }

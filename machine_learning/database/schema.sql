@@ -117,6 +117,10 @@ CREATE TABLE question_reviews (
     -- User-selected confidence
     confidence confidence_level_enum NOT NULL,
 
+    -- Continuous inferred confidence score (0-1), distinct from discrete enum
+    confidence_score REAL NOT NULL
+        CHECK (confidence_score BETWEEN 0 AND 1),
+
     response_time_seconds Float NOT NULL
         CHECK (response_time_seconds >= 0),
 

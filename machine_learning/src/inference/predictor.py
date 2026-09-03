@@ -20,7 +20,7 @@ class ModelPredictor:
 
     def __init__(
         self,
-        model_name: str = "gradient_boosting",
+        model_name: str = "calibrated_best",
     ):
         self.model_name = model_name
 

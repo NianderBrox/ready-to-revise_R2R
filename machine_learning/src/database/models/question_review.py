@@ -89,6 +89,8 @@ class QuestionReview(Base):
         )
     )
 
+    confidence_score: Mapped[float] = mapped_column(Float)
+
     response_time_seconds: Mapped[float] = mapped_column(Float)
 
     hesitation_seconds: Mapped[float] = mapped_column(Float)

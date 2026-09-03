@@ -30,16 +30,6 @@ from src.feature_engineering.validators import validate_features
 
 def build_features(df: pd.DataFrame) -> pd.DataFrame:
 
-
-    #remove once simulator gives confidence_score, other features to be added as well
-    CONFIDENCE_SCORE_MAP = {
-        "LOW": 0.25,
-        "MEDIUM": 0.60,
-        "HIGH": 0.90,
-    }
-
-    df["confidence_score"] = df["confidence"].map(CONFIDENCE_SCORE_MAP)
-
     DIFFICULTY_SCORE_MAP = {
         "EASY": 1,
         "MEDIUM": 2,

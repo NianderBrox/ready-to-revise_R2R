@@ -1,5 +1,3 @@
-
-
 from __future__ import annotations
 
 import json
@@ -9,7 +7,8 @@ from time import time
 import joblib
 import numpy as np
 from scipy.stats import randint, uniform
-from sklearn.calibration import CalibratedClassifierCV
+
+from sklearn.calibration import CalibratedClassifierCV, calibration_curve
 from sklearn.ensemble import (
     GradientBoostingClassifier,
     HistGradientBoostingClassifier,
@@ -18,6 +17,7 @@ from sklearn.ensemble import (
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     accuracy_score,
+    brier_score_loss,
     confusion_matrix,
     f1_score,
     log_loss,
@@ -43,6 +43,7 @@ from src.utils.config import (
     TEST_SIZE,
 )
 
+
 DATASET_PATH = FEATURE_DATA_DIR / "training_dataset.csv"
 
 CV_FOLDS = 5
@@ -53,11 +54,19 @@ TUNE_FOLDS = 3
 
 TUNE_SUBSAMPLE = 100_000
 
+CALIBRATION_FOLDS = 3
+
+
+# MODEL FACTORIES
+
 
 def _logistic_regression() -> Pipeline:
     return Pipeline(
         steps=[
-            ("preprocess", build_preprocessor(scale_numerical=True)),
+            (
+                "preprocess",
+                build_preprocessor(scale_numerical=True),
+            ),
             (
                 "model",
                 LogisticRegression(
@@ -82,8 +91,14 @@ def _random_forest(**overrides) -> Pipeline:
 
     return Pipeline(
         steps=[
-            ("preprocess", build_preprocessor(scale_numerical=False)),
-            ("model", RandomForestClassifier(**config)),
+            (
+                "preprocess",
+                build_preprocessor(scale_numerical=False),
+            ),
+            (
+                "model",
+                RandomForestClassifier(**config),
+            ),
         ]
     )
 
@@ -101,8 +116,14 @@ def _gradient_boosting(**overrides) -> Pipeline:
 
     return Pipeline(
         steps=[
-            ("preprocess", build_preprocessor(scale_numerical=False)),
-            ("model", GradientBoostingClassifier(**config)),
+            (
+                "preprocess",
+                build_preprocessor(scale_numerical=False),
+            ),
+            (
+                "model",
+                GradientBoostingClassifier(**config),
+            ),
         ]
     )
 
@@ -121,8 +142,14 @@ def _hist_gradient_boosting(**overrides) -> Pipeline:
 
     return Pipeline(
         steps=[
-            ("preprocess", build_preprocessor(scale_numerical=False)),
-            ("model", HistGradientBoostingClassifier(**config)),
+            (
+                "preprocess",
+                build_preprocessor(scale_numerical=False),
+            ),
+            (
+                "model",
+                HistGradientBoostingClassifier(**config),
+            ),
         ]
     )
 
@@ -133,6 +160,11 @@ MODEL_FACTORIES = {
     "gradient_boosting": _gradient_boosting,
     "hist_gradient_boosting": _hist_gradient_boosting,
 }
+
+
+
+# HYPERPARAMETER SEARCH
+
 
 PARAM_DISTRIBUTIONS = {
     "hist_gradient_boosting": {
@@ -145,23 +177,90 @@ PARAM_DISTRIBUTIONS = {
 }
 
 
+
+# METRICS
+
 def evaluate_predictions(
     y_true,
     y_pred,
     y_proba,
 ) -> dict:
+
+
     return {
-        "accuracy": round(float(accuracy_score(y_true, y_pred)), 4),
-        "precision": round(float(precision_score(y_true, y_pred)), 4),
-        "recall": round(float(recall_score(y_true, y_pred)), 4),
-        "f1": round(float(f1_score(y_true, y_pred)), 4),
-        "roc_auc": round(float(roc_auc_score(y_true, y_proba)), 4),
-        "log_loss": round(float(log_loss(y_true, y_proba)), 4),
+        "accuracy": round(
+            float(accuracy_score(y_true, y_pred)),
+            4,
+        ),
+        "precision": round(
+            float(precision_score(y_true, y_pred)),
+            4,
+        ),
+        "recall": round(
+            float(recall_score(y_true, y_pred)),
+            4,
+        ),
+        "f1": round(
+            float(f1_score(y_true, y_pred)),
+            4,
+        ),
+        "roc_auc": round(
+            float(roc_auc_score(y_true, y_proba)),
+            4,
+        ),
+        "log_loss": round(
+            float(log_loss(y_true, y_proba)),
+            4,
+        ),
+        "brier_score": round(
+            float(brier_score_loss(y_true, y_proba)),
+            4,
+        ),
         "confusion_matrix": confusion_matrix(
             y_true,
             y_pred,
         ).tolist(),
     }
+
+
+def calibration_metrics(
+    y_true,
+    y_proba,
+    n_bins: int = 10,
+) -> dict:
+
+
+    fraction_positive, mean_predicted = calibration_curve(
+        y_true,
+        y_proba,
+        n_bins=n_bins,
+        strategy="uniform",
+    )
+
+    return {
+        "brier_score": round(
+            float(brier_score_loss(y_true, y_proba)),
+            4,
+        ),
+        "log_loss": round(
+            float(log_loss(y_true, y_proba)),
+            4,
+        ),
+        "calibration_curve": {
+            "mean_predicted_probability": [
+                round(float(x), 4)
+                for x in mean_predicted
+            ],
+            "fraction_of_positives": [
+                round(float(x), 4)
+                for x in fraction_positive
+            ],
+        },
+    }
+
+
+
+# STRATIFIED SUBSAMPLE
 
 
 def stratified_subsample(
@@ -185,12 +284,15 @@ def stratified_subsample(
     return X_sub, y_sub
 
 
+
+# HYPERPARAMETER TUNING
+
+
 def tune_model(
     name: str,
     X_train,
     y_train,
 ):
-
 
     X_sub, y_sub = stratified_subsample(
         X_train,
@@ -236,6 +338,10 @@ def tune_model(
     return MODEL_FACTORIES[name](**clean_params), clean_params
 
 
+
+# DECISION THRESHOLD
+
+
 def optimize_threshold(
     pipeline,
     X_train,
@@ -255,31 +361,53 @@ def optimize_threshold(
         n_jobs=-1,
     )[:, 1]
 
-    thresholds = np.arange(0.05, 0.96, 0.01)
+    thresholds = np.arange(
+        0.05,
+        0.96,
+        0.01,
+    )
 
     accuracies = [
-        ((oof_proba >= t).astype(bool) == y_train).mean()
-        for t in thresholds
+        (
+            (oof_proba >= threshold).astype(bool)
+            == y_train
+        ).mean()
+        for threshold in thresholds
     ]
 
-    best = float(thresholds[int(np.argmax(accuracies))])
+    best = float(
+        thresholds[int(np.argmax(accuracies))]
+    )
 
     print(f"Best threshold {best:.2f}")
 
     return best
 
 
+# MAIN TRAINING
+
+
 def run_training(
     dataset_path=DATASET_PATH,
     tune: bool = False,
 ) -> dict:
-    print(f"Loading dataset: {dataset_path}")
+
+    print(
+        f"Loading dataset: {dataset_path}"
+    )
 
     df = load_dataset(dataset_path)
 
     X, y = split_xy(df)
 
-    print(f"Rows: {len(X)} | Features: {X.shape[1]}")
+    print(
+        f"Rows: {len(X)} | "
+        f"Features: {X.shape[1]}"
+    )
+
+
+    # TRAIN / TEST SPLIT
+
 
     X_train, X_test, y_train, y_test = train_test_split(
         X,
@@ -290,9 +418,14 @@ def run_training(
     )
 
     print(
-        f"Train: {len(X_train)} | Test: {len(X_test)} "
-        f"| Positive rate: {y.mean():.3f}"
+        f"Train: {len(X_train)} | "
+        f"Test: {len(X_test)} | "
+        f"Positive rate: {y.mean():.3f}"
     )
+
+
+    # CROSS VALIDATION
+
 
     cv = StratifiedKFold(
         n_splits=CV_FOLDS,
@@ -302,19 +435,32 @@ def run_training(
 
     results = {}
 
-    fitted_models = {}
-
     tuned_params = {}
 
+    model_candidates = {}
+
+
+    # MODEL EVALUATION
+
     for name, factory in MODEL_FACTORIES.items():
+
         print(f"\n=== {name} ===")
 
         if tune and name in PARAM_DISTRIBUTIONS:
-            pipeline, params = tune_model(name, X_train, y_train)
+
+            pipeline, params = tune_model(
+                name,
+                X_train,
+                y_train,
+            )
 
             tuned_params[name] = params
+
         else:
+
             pipeline = factory()
+
+        model_candidates[name] = pipeline
 
         started = time()
 
@@ -327,105 +473,354 @@ def run_training(
             n_jobs=-1,
         )
 
-        elapsed = round(time() - started, 1)
-
-        print(
-            f"CV ROC-AUC: {scores.mean():.4f} "
-            f"(+/- {scores.std():.4f}) in {elapsed}s"
+        elapsed = round(
+            time() - started,
+            1,
         )
 
-        pipeline.fit(X_train, y_train)
+        print(
+            f"CV ROC-AUC: "
+            f"{scores.mean():.4f} "
+            f"(+/- {scores.std():.4f}) "
+            f"in {elapsed}s"
+        )
 
-        proba = pipeline.predict_proba(X_test)[:, 1]
+        # Fit only for independent test evaluation.
+        pipeline.fit(
+            X_train,
+            y_train,
+        )
 
-        pred = (proba >= 0.5).astype(bool)
+        proba = pipeline.predict_proba(
+            X_test
+        )[:, 1]
 
-        metrics = evaluate_predictions(y_test, pred, proba)
+        pred = (
+            proba >= 0.5
+        ).astype(bool)
 
-        metrics["cv_roc_auc_mean"] = round(float(scores.mean()), 4)
-        metrics["cv_roc_auc_std"] = round(float(scores.std()), 4)
+        metrics = evaluate_predictions(
+            y_test,
+            pred,
+            proba,
+        )
+
+        metrics["cv_roc_auc_mean"] = round(
+            float(scores.mean()),
+            4,
+        )
+
+        metrics["cv_roc_auc_std"] = round(
+            float(scores.std()),
+            4,
+        )
+
         metrics["cv_seconds"] = elapsed
-
-        print(metrics)
 
         results[name] = metrics
 
-        fitted_models[name] = pipeline
+        print(metrics)
+
+
 
     best_name = max(
         results,
-        key=lambda name: results[name]["cv_roc_auc_mean"],
+        key=lambda name:
+        results[name]["cv_roc_auc_mean"],
     )
 
-    best_pipeline = fitted_models[best_name]
+    print(
+        f"\nSelected base model: {best_name}"
+    )
 
-    threshold = optimize_threshold(best_pipeline, X_train, y_train, cv)
+    print(
+        "Selection criterion: "
+        "highest mean 5-fold CV ROC-AUC"
+    )
 
-    print(f"\nCalibrating {best_name} (isotonic)")
+    print(
+        f"CV ROC-AUC: "
+        f"{results[best_name]['cv_roc_auc_mean']:.4f} "
+        f"+/- "
+        f"{results[best_name]['cv_roc_auc_std']:.4f}"
+    )
+
+ 
+
+    if best_name in tuned_params:
+
+        best_pipeline, _ = tune_model(
+            best_name,
+            X_train,
+            y_train,
+        )
+
+    else:
+
+        best_pipeline = MODEL_FACTORIES[
+            best_name
+        ]()
+
+    # --------------------------------------------------------
+    # DECISION THRESHOLD
+    # --------------------------------------------------------
+
+    threshold = optimize_threshold(
+        best_pipeline,
+        X_train,
+        y_train,
+        cv,
+    )
+
+
+    # ISOTONIC CALIBRATION
+
+
+    print(
+        f"\nCalibrating {best_name} "
+        f"using isotonic regression"
+    )
 
     calibrated = CalibratedClassifierCV(
         estimator=best_pipeline,
         method="isotonic",
         cv=StratifiedKFold(
-            n_splits=3,
+            n_splits=CALIBRATION_FOLDS,
             shuffle=True,
             random_state=RANDOM_SEED,
         ),
     )
 
-    calibrated.fit(X_train, y_train)
+    started = time()
 
-    cal_proba = calibrated.predict_proba(X_test)[:, 1]
+    calibrated.fit(
+        X_train,
+        y_train,
+    )
+
+    calibration_seconds = round(
+        time() - started,
+        1,
+    )
+
+
+    # CALIBRATED TEST PROBABILITIES
+
+    cal_proba = calibrated.predict_proba(
+        X_test
+    )[:, 1]
+
+    cal_pred = (
+        cal_proba >= threshold
+    ).astype(bool)
 
     cal_metrics = evaluate_predictions(
         y_test,
-        (cal_proba >= threshold).astype(bool),
+        cal_pred,
         cal_proba,
     )
 
-    MODEL_DIR.mkdir(parents=True, exist_ok=True)
+    cal_probability_metrics = calibration_metrics(
+        y_test,
+        cal_proba,
+        n_bins=10,
+    )
 
-    for name, pipeline in fitted_models.items():
-        path = MODEL_DIR / f"{name}.joblib"
+    # Add calibration metrics explicitly.
+    cal_metrics["brier_score"] = (
+        cal_probability_metrics["brier_score"]
+    )
 
-        joblib.dump(pipeline, path)
+    cal_metrics["calibrated_log_loss"] = (
+        cal_probability_metrics["log_loss"]
+    )
 
-        print(f"Saved {path}")
+    cal_metrics["calibration_curve"] = (
+        cal_probability_metrics["calibration_curve"]
+    )
 
-    calibrated_path = MODEL_DIR / "calibrated_best.joblib"
+    cal_metrics["calibration_seconds"] = (
+        calibration_seconds
+    )
 
-    joblib.dump(calibrated, calibrated_path)
+    cal_metrics["base_model"] = best_name
 
-    print(f"Saved {calibrated_path}")
+    print(
+        "\n=== CALIBRATED BEST MODEL ==="
+    )
+
+    print(
+        f"Base model: {best_name}"
+    )
+
+    print(
+        f"Accuracy: "
+        f"{cal_metrics['accuracy']:.4f}"
+    )
+
+    print(
+        f"Precision: "
+        f"{cal_metrics['precision']:.4f}"
+    )
+
+    print(
+        f"Recall: "
+        f"{cal_metrics['recall']:.4f}"
+    )
+
+    print(
+        f"F1: "
+        f"{cal_metrics['f1']:.4f}"
+    )
+
+    print(
+        f"ROC-AUC: "
+        f"{cal_metrics['roc_auc']:.4f}"
+    )
+
+    print(
+        f"Log Loss: "
+        f"{cal_metrics['log_loss']:.4f}"
+    )
+
+    print(
+        f"Brier Score: "
+        f"{cal_metrics['brier_score']:.4f}"
+    )
+
+    print(
+        f"Decision Threshold: "
+        f"{threshold:.2f}"
+    )
+
+ 
+
+    MODEL_DIR.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    # Save independently fitted base models.
+    for name, pipeline in model_candidates.items():
+
+        path = (
+            MODEL_DIR
+            / f"{name}.joblib"
+        )
+
+        joblib.dump(
+            pipeline,
+            path,
+        )
+
+        print(
+            f"Saved {path}"
+        )
+
+    # Save calibrated best model.
+    calibrated_path = (
+        MODEL_DIR
+        / "calibrated_best.joblib"
+    )
+
+    joblib.dump(
+        calibrated,
+        calibrated_path,
+    )
+
+    print(
+        f"Saved {calibrated_path}"
+    )
+
+    # TRAINING REPORT
 
     report = {
-        "generated_at": datetime.now(UTC).isoformat(),
-        "dataset": str(dataset_path),
+        "generated_at": datetime.now(
+            UTC
+        ).isoformat(),
+
+        "dataset": str(
+            dataset_path
+        ),
+
         "rows": len(df),
-        "train_rows": len(X_train),
-        "test_rows": len(X_test),
-        "positive_rate": round(float(y.mean()), 4),
+
+        "train_rows": len(
+            X_train
+        ),
+
+        "test_rows": len(
+            X_test
+        ),
+
+        "positive_rate": round(
+            float(y.mean()),
+            4,
+        ),
+
+        "model_selection": {
+            "criterion": (
+                "mean_5_fold_cv_roc_auc"
+            ),
+            "direction": "maximize",
+            "selected_model": best_name,
+        },
+
         "tuned": tuned_params,
-        "decision_threshold": round(threshold, 2),
+
+        "decision_threshold": round(
+            threshold,
+            2,
+        ),
+
         "models": results,
+
         "best_model": best_name,
+
         "calibrated_best": cal_metrics,
     }
 
-    metrics_path = MODEL_DIR / "training_report.json"
+    metrics_path = (
+        MODEL_DIR
+        / "training_report.json"
+    )
 
-    with open(metrics_path, "w") as handle:
-        json.dump(report, handle, indent=2)
+    with open(
+        metrics_path,
+        "w",
+        encoding="utf-8",
+    ) as handle:
 
-    print(f"\nBest model: {best_name} @ threshold {threshold:.2f}")
+        json.dump(
+            report,
+            handle,
+            indent=2,
+        )
 
-    print(f"Report saved: {metrics_path}")
+    print(
+        f"\nBest model: "
+        f"{best_name} "
+        f"@ threshold "
+        f"{threshold:.2f}"
+    )
+
+    print(
+        f"Report saved: "
+        f"{metrics_path}"
+    )
 
     return report
 
 
-def main(tune: bool = False) -> None:
-    run_training(tune=tune)
+
+
+def main(
+    tune: bool = False,
+) -> None:
+
+    run_training(
+        tune=tune
+    )
 
 
 if __name__ == "__main__":
