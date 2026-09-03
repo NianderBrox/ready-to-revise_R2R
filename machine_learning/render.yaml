@@ -11,7 +11,7 @@ services:
     healthCheckPath: /health
     envVars:
       - key: MODEL_NAME
-        value: gradient_boosting
+        value: calibrated_best
       - key: ML_TIMEOUT_MS
         value: 2000
       # Training only — inference never touches the DB. Provide values from the

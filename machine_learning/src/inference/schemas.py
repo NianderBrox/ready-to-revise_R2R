@@ -78,11 +78,12 @@ class ReviewFeatures(BaseModel):
 
 class PredictRequest(BaseModel):
     model_name: Literal[
+        "calibrated_best",
         "gradient_boosting",
         "hist_gradient_boosting",
         "random_forest",
         "logistic_regression",
-    ] = "gradient_boosting"
+    ] = "calibrated_best"
 
     features: ReviewFeatures
 
@@ -105,11 +106,12 @@ class RecommendRequest(BaseModel):
     top_k: int = Field(default=10, ge=1, le=100)
 
     model_name: Literal[
+        "calibrated_best",
         "gradient_boosting",
         "hist_gradient_boosting",
         "random_forest",
         "logistic_regression",
-    ] = "gradient_boosting"
+    ] = "calibrated_best"
 
 
 class Recommendation(BaseModel):
@@ -122,6 +124,27 @@ class Recommendation(BaseModel):
 class RecommendResponse(BaseModel):
     recommendations: list[Recommendation]
     model_name: str
+
+
+class ScheduleReviewRequest(BaseModel):
+    features: ReviewFeatures
+    correct: bool
+    confidence: str = Field(pattern="^(LOW|MEDIUM|HIGH)$")
+    fsrs_state: int | None = None
+    fsrs_step: int | None = None
+    fsrs_stability: float | None = None
+    fsrs_difficulty: float | None = None
+    last_review_at: str | None = None
+
+
+class ScheduleReviewResponse(BaseModel):
+    interval_days: float
+    next_review_at: str
+    recall_probability: float
+    fsrs_state: int
+    fsrs_step: int | None
+    fsrs_stability: float
+    fsrs_difficulty: float
 
 
 class HealthResponse(BaseModel):

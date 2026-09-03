@@ -75,7 +75,7 @@ def test_predict_returns_valid_probability(client, sample_features):
 
     assert isinstance(body["predicted_correct"], bool)
 
-    assert body["model_name"] == "gradient_boosting"
+    assert body["model_name"] == "calibrated_best"
 
 
 def test_predict_rejects_invalid_difficulty(client, sample_features):
@@ -175,7 +175,7 @@ def test_recommend_orders_by_lowest_recall(client, sample_features):
 
     assert top["question_id"] == "hard-q"
 
-    assert top["recall_probability"] < 0.5
+    assert top["recall_probability"] == min(probabilities)
 
     expected_band = (
         "high"

@@ -9,7 +9,6 @@ from uuid import UUID, uuid4
 from fsrs import Card
 
 from src.data_generation.config import (
-    CONFIDENCE_SCORE_MAP,
     DEFAULT_AVERAGE_CONFIDENCE,
     DEFAULT_AVERAGE_HESITATION,
     DEFAULT_AVERAGE_RESPONSE_TIME,
@@ -127,6 +126,7 @@ class ReviewEngine:
             "previous_review_time": previous_review_time,
             "correct": outcome.correct,
             "confidence": confidence,
+            "confidence_score": outcome.confidence_score,
             "response_time_seconds": response_time,
             "hesitation_seconds": hesitation,
             "answer_changes": outcome.answer_changes,
@@ -151,7 +151,7 @@ class ReviewEngine:
 
         history.update(
             correct=outcome.correct,
-            confidence_score=CONFIDENCE_SCORE_MAP[confidence],
+            confidence_score=outcome.confidence_score,
             response_time_seconds=response_time,
             hesitation_seconds=hesitation,
             review_time=naive_review_time,
