@@ -10,6 +10,7 @@ interface RecommendationsApi {
     @GET("api/v1/recommendations")
     suspend fun getRecommendations(
         @Query("limit") limit: Int? = null,
-        @Query("subjectId") subjectId: String? = null
+        @Query("subjectId") subjectId: String? = null,
+        @Query("dueBefore") dueBefore: String? = null
     ): BaseResponseDto<RecommendationsDto>
 }

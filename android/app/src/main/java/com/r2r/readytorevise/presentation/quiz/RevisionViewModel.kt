@@ -2,6 +2,7 @@ package com.r2r.readytorevise.presentation.quiz
 
 import android.os.SystemClock
 import androidx.lifecycle.viewModelScope
+import com.r2r.readytorevise.data.remote.dueBeforeTodayISO
 import com.r2r.readytorevise.data.remote.dto.CreateReviewRequestDto
 import com.r2r.readytorevise.data.remote.dto.SelfGradeReviewDto
 import com.r2r.readytorevise.domain.repository.RecommendationsRepository
@@ -51,8 +52,11 @@ class RevisionViewModel(
         }
 
         viewModelScope.launch {
-            val result =
-                recommendationsRepository.getRecommendations(limit = SESSION_LIMIT)
+            val dueBefore = dueBeforeTodayISO()
+            val result = recommendationsRepository.getRecommendations(
+                limit = SESSION_LIMIT,
+                dueBefore = dueBefore,
+            )
 
             val payload = result.getOrNull()
 
@@ -79,13 +83,13 @@ class RevisionViewModel(
                     question = item.title?.takeIf { it.isNotBlank() }
                         ?: "Untitled question",
                     options = options,
-                    expectedForgetDate = item.expectedForgetDate,
+                    nextReviewAt = item.nextReviewAt,
                     mediaDocumentId = item.mediaDocumentId,
                 )
             }.filter { it.options.isNotEmpty() }
 
             if (questions.isEmpty()) {
-                resolveEmptyState(payload.meta?.restingNow ?: 0)
+                resolveEmptyState()
                 return@launch
             }
 
@@ -111,18 +115,7 @@ class RevisionViewModel(
         }
     }
 
-    private suspend fun resolveEmptyState(restingNow: Int) {
-        if (restingNow > 0) {
-            updateState {
-                copy(
-                    loading = false,
-                    error = "Session complete — $restingNow question" +
-                        "${if (restingNow == 1) "" else "s"} return tomorrow.",
-                )
-            }
-            return
-        }
-
+    private suspend fun resolveEmptyState() {
         val anyResult = studyItemsRepository.getStudyItems(type = "QUESTION")
 
         val hasAny = anyResult.getOrNull()?.isNotEmpty() == true
@@ -131,7 +124,7 @@ class RevisionViewModel(
             copy(
                 loading = false,
                 error = if (hasAny) {
-                    "All caught up!"
+                    "All caught up! Nothing is due for review today."
                 } else {
                     "No questions yet. Upload a document to generate some!"
                 },
@@ -214,17 +207,20 @@ class RevisionViewModel(
         viewModelScope.launch {
             val finishNow = SystemClock.elapsedRealtime()
 
+            val sessionDurationMinutes =
+                ((finishNow - sessionStartedAtMs) / 60_000).toInt()
+
             var answeredOk = 0
 
             var marksOk = 0
 
             var failures = 0
 
-            for (question in state.questions) {
+            state.questions.forEachIndexed { index, question ->
                 val selection = state.selections[question.id] ?: -1
 
                 if (selection == -1 || state.memorizedIds.contains(question.id)) {
-                    continue
+                    return@forEachIndexed
                 }
 
                 val timing = trackers[question.id]
@@ -237,6 +233,8 @@ class RevisionViewModel(
                         ?.let { elapsedSince(timing.startedAtMs, it) },
                     answerChanges = timing?.answerChanges ?: 0,
                     sessionId = sessionId,
+                    sessionDurationMinutes = sessionDurationMinutes,
+                    questionPositionInSession = index + 1,
                 )
 
                 reviewsRepository.submit(request)
@@ -253,9 +251,15 @@ class RevisionViewModel(
                     .onFailure { failures += 1 }
             }
 
-            for (id in state.memorizedIds.sortedByDescending { it }) {
+            state.questions.forEachIndexed { index, question ->
+                val id = question.id
+
                 if (state.selections[id] != null && state.selections[id] != -1) {
-                    continue
+                    return@forEachIndexed
+                }
+
+                if (!state.memorizedIds.contains(id)) {
+                    return@forEachIndexed
                 }
 
                 val timing = trackers[id]
@@ -264,6 +268,8 @@ class RevisionViewModel(
                     studyItemId = id,
                     responseTimeMs = elapsedSince(timing?.startedAtMs, finishNow),
                     sessionId = sessionId,
+                    sessionDurationMinutes = sessionDurationMinutes,
+                    questionPositionInSession = index + 1,
                 )
 
                 reviewsRepository.selfGrade(request)

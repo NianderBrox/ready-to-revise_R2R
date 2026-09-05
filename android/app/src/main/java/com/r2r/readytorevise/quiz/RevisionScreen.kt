@@ -545,8 +545,6 @@ private fun QuestionArea(
 
                     Spacer(modifier = Modifier.weight(1f))
 
-                    ForgetDateChip(dateIso = question.expectedForgetDate)
-
                     ConfidenceChip(confidence = state.confidenceByItem[question.id])
                 }
 
@@ -720,35 +718,6 @@ private fun MemorizedChip() {
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
             .background(AccentGreen)
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-    )
-}
-
-@Composable
-private fun ForgetDateChip(dateIso: String?) {
-    if (dateIso == null) {
-        return
-    }
-
-    val weekday = remember(dateIso) {
-        runCatching {
-            java.time.Instant.parse(dateIso)
-                .atZone(java.time.ZoneId.systemDefault())
-                .dayOfWeek
-                .getDisplayName(
-                    java.time.format.TextStyle.SHORT,
-                    java.util.Locale.getDefault(),
-                )
-        }.getOrNull()
-    } ?: return
-
-    Text(
-        text = "Forgotten by $weekday",
-        fontSize = 11.sp,
-        color = TextMuted,
-        modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(Color(0xFF1E293B))
             .padding(horizontal = 8.dp, vertical = 4.dp),
     )
 }

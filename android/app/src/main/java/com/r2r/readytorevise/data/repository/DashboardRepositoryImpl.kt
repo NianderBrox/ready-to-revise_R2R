@@ -10,7 +10,9 @@ class DashboardRepositoryImpl(
     private val tokenManager: TokenManager,
 ) : DashboardRepository {
 
-    override suspend fun getDashboard(): Result<DashboardResponseDto> {
-        return safeCall(tokenManager) { dashboardApi.getDashboard().data }
+    override suspend fun getDashboard(dueBefore: String?): Result<DashboardResponseDto> {
+        return safeCall(tokenManager) {
+            dashboardApi.getDashboard(dueBefore).data
+        }
     }
 }

@@ -8,21 +8,12 @@ data class RecommendationItemDto(
     val title: String? = null,
     val mediaDocumentId: String? = null,
     val options: List<String>? = null,
-    val expectedForgetDate: String? = null,
-    val recallProbability: Double? = null,
-    val priority: String? = null,
+    val nextReviewAt: String? = null,
     val rank: Int
-)
-
-@Serializable
-data class RecommendationMetaDto(
-    val restingNow: Int = 0,
-    val upcomingLater: Int = 0
 )
 
 @Serializable
 data class RecommendationsDto(
     val source: String,
-    val items: List<RecommendationItemDto>,
-    val meta: RecommendationMetaDto? = null
+    val items: List<RecommendationItemDto>
 )

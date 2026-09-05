@@ -6,5 +6,7 @@ import kotlinx.serialization.Serializable
 data class SelfGradeReviewDto(
     val studyItemId: String,
     val responseTimeMs: Int? = null,
-    val sessionId: String? = null
+    val sessionId: String? = null,
+    val sessionDurationMinutes: Int? = null,
+    val questionPositionInSession: Int? = null,
 )

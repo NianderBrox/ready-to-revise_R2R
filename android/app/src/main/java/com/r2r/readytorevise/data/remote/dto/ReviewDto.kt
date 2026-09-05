@@ -7,7 +7,7 @@ data class ReviewDto(
     val id: String,
     val studyItemId: String,
     val result: String,
-    val intervalDays: Int,
+    val intervalDays: Double,
     val reviewedAt: String,
     val nextReviewAt: String,
     val isCorrect: Boolean? = null,

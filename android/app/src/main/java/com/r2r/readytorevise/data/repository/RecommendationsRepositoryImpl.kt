@@ -10,7 +10,12 @@ class RecommendationsRepositoryImpl(
     private val tokenManager: TokenManager,
 ) : RecommendationsRepository {
 
-    override suspend fun getRecommendations(limit: Int?): Result<RecommendationsDto> {
-        return safeCall(tokenManager) { recommendationsApi.getRecommendations(limit).data }
+    override suspend fun getRecommendations(
+        limit: Int?,
+        dueBefore: String?,
+    ): Result<RecommendationsDto> {
+        return safeCall(tokenManager) {
+            recommendationsApi.getRecommendations(limit, null, dueBefore).data
+        }
     }
 }

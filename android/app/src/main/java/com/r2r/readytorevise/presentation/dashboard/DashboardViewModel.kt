@@ -1,6 +1,7 @@
 package com.r2r.readytorevise.presentation.dashboard
 
 import androidx.lifecycle.viewModelScope
+import com.r2r.readytorevise.data.remote.dueBeforeTodayISO
 import com.r2r.readytorevise.domain.repository.AuthRepository
 import com.r2r.readytorevise.domain.repository.DashboardRepository
 import com.r2r.readytorevise.domain.repository.RecommendationsRepository
@@ -31,11 +32,13 @@ class DashboardViewModel(
 
         viewModelScope.launch {
             coroutineScope {
+                val dueBefore = dueBeforeTodayISO()
+
                 val dashboardDeferred = async {
-                    dashboardRepository.getDashboard()
+                    dashboardRepository.getDashboard(dueBefore)
                 }
                 val recommendationsDeferred = async {
-                    recommendationsRepository.getRecommendations(limit = 5)
+                    recommendationsRepository.getRecommendations(limit = 5, dueBefore = dueBefore)
                 }
 
                 val dashboardResult = dashboardDeferred.await()

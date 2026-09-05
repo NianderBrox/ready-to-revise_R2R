@@ -9,5 +9,7 @@ data class CreateReviewRequestDto(
     val responseTimeMs: Int? = null,
     val hesitationMs: Int? = null,
     val answerChanges: Int? = null,
-    val sessionId: String? = null
+    val sessionId: String? = null,
+    val sessionDurationMinutes: Int? = null,
+    val questionPositionInSession: Int? = null,
 )

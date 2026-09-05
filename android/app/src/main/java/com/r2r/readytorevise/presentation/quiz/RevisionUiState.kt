@@ -6,7 +6,7 @@ data class QuizQuestion(
     val id: String,
     val question: String,
     val options: List<String>,
-    val expectedForgetDate: String? = null,
+    val nextReviewAt: String? = null,
     val mediaDocumentId: String? = null,
 )
 
