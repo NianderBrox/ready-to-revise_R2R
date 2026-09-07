@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import json
+import shutil
 from datetime import UTC, datetime
 from time import time
 
 import joblib
 import numpy as np
 from scipy.stats import randint, uniform
-
 from sklearn.calibration import CalibratedClassifierCV, calibration_curve
 from sklearn.ensemble import (
     GradientBoostingClassifier,
@@ -43,7 +43,6 @@ from src.utils.config import (
     TEST_SIZE,
 )
 
-
 DATASET_PATH = FEATURE_DATA_DIR / "training_dataset.csv"
 
 CV_FOLDS = 5
@@ -55,6 +54,11 @@ TUNE_FOLDS = 3
 TUNE_SUBSAMPLE = 100_000
 
 CALIBRATION_FOLDS = 3
+
+# When --keep-incumbent is used, the previously serving calibrated model is
+# preserved under this name so the eval gate can always compare candidate vs
+# incumbent before the new one goes live.
+INCUMBENT_NAME = "calibrated_best_incumbent"
 
 
 # MODEL FACTORIES
@@ -390,6 +394,7 @@ def optimize_threshold(
 def run_training(
     dataset_path=DATASET_PATH,
     tune: bool = False,
+    keep_incumbent: bool = False,
 ) -> dict:
 
     print(
@@ -699,6 +704,27 @@ def run_training(
         parents=True,
         exist_ok=True,
     )
+
+    if keep_incumbent:
+        incumbent_path = (
+            MODEL_DIR
+            / f"{INCUMBENT_NAME}.joblib"
+        )
+
+        calibrated_path = (
+            MODEL_DIR
+            / "calibrated_best.joblib"
+        )
+
+        if calibrated_path.exists() and not incumbent_path.exists():
+            shutil.copy2(
+                calibrated_path,
+                incumbent_path,
+            )
+
+            print(
+                f"Kept incumbent: {incumbent_path}"
+            )
 
     # Save independently fitted base models.
     for name, pipeline in model_candidates.items():

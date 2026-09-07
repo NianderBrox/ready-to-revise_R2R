@@ -204,3 +204,33 @@ def test_recommend_respects_top_k(client, sample_features):
     ranks = [r["rank"] for r in body["recommendations"]]
 
     assert ranks == [1, 2]
+
+
+def test_schedule_review_respects_model_name(client, sample_features):
+    schedule = {
+        "features": sample_features,
+        "correct": True,
+        "confidence": "HIGH",
+        "fsrs_state": 2,
+        "fsrs_step": 3,
+        "fsrs_stability": 8.3,
+        "fsrs_difficulty": 1,
+    }
+
+    calibrated = client.post("/schedule-review", json={**schedule, "model_name": "calibrated_best"}).json()
+    gradient = client.post("/schedule-review", json={**schedule, "model_name": "gradient_boosting"}).json()
+
+    assert 0.0 <= calibrated["recall_probability"] <= 1.0
+    assert 0.0 <= gradient["recall_probability"] <= 1.0
+    assert calibrated["recall_probability"] != gradient["recall_probability"]
+
+    rejected = client.post(
+        "/schedule-review",
+        json={**schedule, "model_name": "does_not_exist"},
+    )
+
+    assert rejected.status_code == 422
+
+    defaulted = client.post("/schedule-review", json=schedule).json()
+
+    assert 0.0 <= defaulted["recall_probability"] <= 1.0

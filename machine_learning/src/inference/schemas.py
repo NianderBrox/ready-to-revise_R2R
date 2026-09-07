@@ -127,6 +127,14 @@ class RecommendResponse(BaseModel):
 
 
 class ScheduleReviewRequest(BaseModel):
+    model_name: Literal[
+        "calibrated_best",
+        "gradient_boosting",
+        "hist_gradient_boosting",
+        "random_forest",
+        "logistic_regression",
+    ] = "calibrated_best"
+
     features: ReviewFeatures
     correct: bool
     confidence: str = Field(pattern="^(LOW|MEDIUM|HIGH)$")

@@ -1,5 +1,3 @@
-
-
 from __future__ import annotations
 
 import os
@@ -171,7 +169,7 @@ def _restore_card(
 def schedule_review_endpoint(
     request: ScheduleReviewRequest,
 ) -> ScheduleReviewResponse:
-    predictor = get_predictor(DEFAULT_MODEL)
+    predictor = get_predictor(request.model_name)
 
     recall_probability = float(
         predictor.predict_proba([request.features.model_dump()])[0]

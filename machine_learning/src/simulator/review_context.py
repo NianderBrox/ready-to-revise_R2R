@@ -7,8 +7,6 @@ from dataclasses import dataclass
 class ReviewContext:
 
     # Historical information available BEFORE a review starts.
-
-
     success_rate: float
 
     average_confidence: float

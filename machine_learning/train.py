@@ -23,9 +23,23 @@ def main() -> None:
         help="Run hyperparameter search for the boosting models.",
     )
 
+    parser.add_argument(
+        "--keep-incumbent",
+        action="store_true",
+        help=(
+            "Preserve the currently serving calibrated_best.joblib as "
+            "calibrated_best_incumbent.joblib before training overwrites "
+            "it (required by the eval gate)."
+        ),
+    )
+
     args = parser.parse_args()
 
-    report = run_training(args.dataset, tune=args.tune)
+    report = run_training(
+        args.dataset,
+        tune=args.tune,
+        keep_incumbent=args.keep_incumbent,
+    )
 
     print(report["best_model"])
 
