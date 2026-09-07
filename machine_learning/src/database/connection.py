@@ -18,5 +18,8 @@ engine = create_engine(
     url,
     future=True,
     pool_pre_ping=True,
-    connect_args={"options": f"-csearch_path={search_path},public"},
+    connect_args={
+        "options": f"-csearch_path={search_path},public",
+        "sslmode": "require",
+    },
 )
