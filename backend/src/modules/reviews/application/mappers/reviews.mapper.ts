@@ -12,6 +12,11 @@ export class ReviewsMapper {
             nextReviewAt: review.nextReviewAt,
             isCorrect: review.isCorrect ?? undefined,
             confidenceScore: review.confidenceScore ?? undefined,
+            recallProbability: review.recallProbability ?? undefined,
+            fsrsState: review.fsrsState ?? undefined,
+            fsrsStep: review.fsrsStep ?? undefined,
+            fsrsStability: review.fsrsStability ?? undefined,
+            fsrsDifficulty: review.fsrsDifficulty ?? undefined,
             createdAt: review.createdAt,
             updatedAt: review.updatedAt,
         };

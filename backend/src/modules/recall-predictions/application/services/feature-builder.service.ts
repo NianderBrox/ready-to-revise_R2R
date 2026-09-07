@@ -38,6 +38,8 @@ export class FeatureBuilderService {
         userStats: UserHistoryStats;
         questionGlobalRate: number | null;
         now: Date;
+        sessionDurationMinutes?: number | null;
+        questionPositionInSession?: number | null;
     }): ReviewFeatures {
         const { item, reviews, userStats, now } = input;
 
@@ -88,9 +90,9 @@ export class FeatureBuilderService {
 
             character_count: questionText.length,
 
-            session_duration_minutes: 0,
+            session_duration_minutes: input.sessionDurationMinutes ?? 0,
 
-            question_position_in_session: 1,
+            question_position_in_session: input.questionPositionInSession ?? 1,
 
             days_since_last_session: last
                 ? (now.getTime() - last.createdAt.getTime()) / MS_PER_DAY

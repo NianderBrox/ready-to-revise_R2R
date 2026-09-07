@@ -13,6 +13,8 @@ export class CreateStudyItemCommandMapper {
             type: dto.type,
             difficulty: dto.difficulty,
             topicId: dto.topicId,
+            options: dto.options,
+            correctAnswerIndex: dto.correctAnswerIndex,
         };
     }
 }

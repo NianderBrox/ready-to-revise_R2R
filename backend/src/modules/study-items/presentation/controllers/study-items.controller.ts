@@ -13,8 +13,8 @@ import {
 import { CurrentUser } from '../../../../common/decorators/current-user.decorator';
 import type { CurrentUserData } from '../../../../common/interfaces/current-user-data.interface';
 import { JwtAuthGuard } from '../../../auth/infrastructure/guards/jwt-auth.guard';
-import { CreateStudyItemCommand } from '../../application/commands/create-study-item.command';
 import { StudyItemsService } from '../../application/services/study-items.service';
+import { CreateStudyItemCommandMapper } from '../../application/mappers/create-study-item-command.mapper';
 import { CreateStudyItemDto } from '../dto/create-study-item.dto';
 import { UpdateStudyItemDto } from '../dto/update-study-item.dto';
 
@@ -28,16 +28,7 @@ export class StudyItemsController {
         @CurrentUser() user: CurrentUserData,
         @Body() dto: CreateStudyItemDto,
     ) {
-        const command: CreateStudyItemCommand = {
-            userId: user.userId,
-            title: dto.title,
-            content: dto.content,
-            type: dto.type,
-            difficulty: dto.difficulty,
-            topicId: dto.topicId,
-            options: dto.options,
-            correctAnswerIndex: dto.correctAnswerIndex,
-        };
+        const command = CreateStudyItemCommandMapper.fromDto(user.userId, dto);
 
         return this.studyItemsService.create(command);
     }

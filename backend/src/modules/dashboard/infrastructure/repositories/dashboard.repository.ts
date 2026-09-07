@@ -1,15 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../prisma/prisma.service';
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
 @Injectable()
 export class DashboardRepository {
     constructor(private readonly prisma: PrismaService) {}
 
-    async getDashboardStats(userId: string) {
-        const now = new Date();
+    async getDashboardStats(userId: string, dueBefore?: Date) {
+        const now = dueBefore ?? new Date();
 
-        const startOfToday = new Date(now);
-        startOfToday.setHours(0, 0, 0, 0);
+        const startOfToday = dueBefore
+            ? new Date(dueBefore.getTime() - MS_PER_DAY)
+            : new Date(now);
+
+        if (!dueBefore) {
+            startOfToday.setHours(0, 0, 0, 0);
+        }
 
         const [
             user,

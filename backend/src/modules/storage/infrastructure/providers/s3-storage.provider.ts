@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import {
+    Injectable,
+    Logger,
+    OnModuleDestroy,
+    ServiceUnavailableException,
+} from '@nestjs/common';
 import {
     DeleteObjectCommand,
     GetObjectCommand,
@@ -50,19 +55,43 @@ export class S3StorageProvider implements StorageProvider, OnModuleDestroy {
 
         const key = this.objectKey(documentId, extension);
 
-        await this.client.send(
-            new PutObjectCommand({
-                Bucket: this.config.bucket,
+        try {
+            await this.client.send(
+                new PutObjectCommand({
+                    Bucket: this.config.bucket,
 
-                Key: key,
+                    Key: key,
 
-                Body: file,
+                    Body: file,
 
-                ContentType: mimeType,
-            }),
-        );
+                    ContentType: mimeType,
+                }),
+            );
+        } catch (error) {
+            this.logger.error(`S3 PUT failed for ${key}: ${String(error)}`);
+
+            throw this.describeS3Error(error, 'PUT');
+        }
 
         return key;
+    }
+
+    private describeS3Error(
+        error: unknown,
+        operation: string,
+    ): ServiceUnavailableException {
+        const name = (error as { name?: string })?.name ?? 'S3Error';
+
+        const status = (error as { $metadata?: { httpStatusCode?: number } })
+            ?.$metadata?.httpStatusCode;
+
+        const message =
+            (error as Error)?.message?.split('\n')[0] ?? String(error);
+
+        return new ServiceUnavailableException(
+            `Storage ${operation} failed (${name}` +
+                `${status ? `, HTTP ${status}` : ''}): ${message}`,
+        );
     }
 
     async read(storageKey: string): Promise<Buffer> {

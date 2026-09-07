@@ -7,25 +7,13 @@ export interface RecommendationItemDto {
 
     options: string[] | null;
 
-    expectedForgetDate: string | null;
-
-    recallProbability: number | null;
-
-    priority: 'high' | 'medium' | 'low' | null;
+    nextReviewAt: string | null;
 
     rank: number;
 }
 
-export interface RecommendationItemMetaDto {
-    restingNow: number;
-
-    upcomingLater: number;
-}
-
 export interface RecommendationsResponseDto {
-    source: 'ml' | 'scheduler';
+    source: 'scheduler';
 
     items: RecommendationItemDto[];
-
-    meta?: RecommendationItemMetaDto;
 }

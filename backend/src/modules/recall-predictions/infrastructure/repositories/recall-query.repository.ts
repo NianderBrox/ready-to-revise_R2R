@@ -13,6 +13,7 @@ export class RecallQueryRepository {
     async findDueQuestions(
         userId: string,
         subjectId?: string,
+        dueBefore?: Date,
     ): Promise<DueQuestionRow[]> {
         const items = await this.prisma.studyItem.findMany({
             where: {
@@ -20,7 +21,7 @@ export class RecallQueryRepository {
 
                 type: 'QUESTION',
 
-                nextReviewAt: { lte: new Date() },
+                nextReviewAt: { lte: dueBefore ?? new Date() },
 
                 ...(subjectId !== undefined
                     ? {
@@ -46,45 +47,6 @@ export class RecallQueryRepository {
             orderBy: {
                 nextReviewAt: 'asc',
             },
-
-            take: MAX_CANDIDATES,
-        });
-
-        return items.map((item) => this.toRow(item));
-    }
-
-    async findCandidateQuestions(
-        userId: string,
-        subjectId?: string,
-    ): Promise<DueQuestionRow[]> {
-        const items = await this.prisma.studyItem.findMany({
-            where: {
-                userId,
-
-                type: 'QUESTION',
-
-                ...(subjectId !== undefined
-                    ? {
-                          topic: {
-                              chapter: { subjectId },
-                          },
-                      }
-                    : {}),
-            },
-
-            include: {
-                topic: {
-                    include: {
-                        chapter: {
-                            include: {
-                                subject: true,
-                            },
-                        },
-                    },
-                },
-            },
-
-            orderBy: [{ nextReviewAt: 'asc' }, { createdAt: 'asc' }],
 
             take: MAX_CANDIDATES,
         });
@@ -183,14 +145,17 @@ export class RecallQueryRepository {
         });
     }
 
-    async countUserDueQuestions(userId: string): Promise<number> {
+    async countUserDueQuestions(
+        userId: string,
+        dueBefore?: Date,
+    ): Promise<number> {
         return this.prisma.studyItem.count({
             where: {
                 userId,
 
                 type: 'QUESTION',
 
-                nextReviewAt: { lte: new Date() },
+                nextReviewAt: { lte: dueBefore ?? new Date() },
             },
         });
     }

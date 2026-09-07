@@ -16,7 +16,7 @@ export class MlConfigService {
     }
 
     get modelName(): string {
-        return this.config.get<string>('ML_MODEL_NAME') ?? 'gradient_boosting';
+        return this.config.get<string>('ML_MODEL_NAME') ?? 'calibrated_best';
     }
 
     get timeoutMs(): number {

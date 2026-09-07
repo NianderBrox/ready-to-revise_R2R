@@ -9,6 +9,16 @@ export interface CreateReviewData {
 
     nextReviewAt: Date;
 
+    recallProbability?: number | null;
+
+    fsrsState?: number | null;
+
+    fsrsStep?: number | null;
+
+    fsrsStability?: number | null;
+
+    fsrsDifficulty?: number | null;
+
     selectedOptionIndex: number | null;
 
     isCorrect: boolean | null;
@@ -22,4 +32,8 @@ export interface CreateReviewData {
     answerChanges?: number | null;
 
     sessionId?: string | null;
+
+    sessionDurationMinutes?: number | null;
+
+    questionPositionInSession?: number | null;
 }

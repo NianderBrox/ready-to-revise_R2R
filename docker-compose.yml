@@ -38,9 +38,6 @@ services:
     ports:
       - "127.0.0.1:${ML_PORT:-8000}:8000"
 
-    volumes:
-      - ml_models:/app/models
-
   backend:
     build:
       context: ./backend
@@ -69,7 +66,7 @@ services:
 
       ML_SERVICE_URL: http://ml:8000
 
-      ML_MODEL_NAME: ${ML_MODEL_NAME:-gradient_boosting}
+      ML_MODEL_NAME: ${ML_MODEL_NAME:-calibrated_best}
 
       ML_TIMEOUT_MS: ${ML_TIMEOUT_MS:-2000}
 
@@ -81,12 +78,6 @@ services:
 
       UPLOAD_DIRECTORY: ${UPLOAD_DIRECTORY:-/app/uploads}
 
-      RECOMMENDATION_TARGET_RETENTION: ${RECOMMENDATION_TARGET_RETENTION:-0.9}
-
-      RECOMMENDATION_SLIDING_WINDOW_HOURS: ${RECOMMENDATION_SLIDING_WINDOW_HOURS:-48}
-
-      RECOMMENDATION_REFRACTORY_HOURS: ${RECOMMENDATION_REFRACTORY_HOURS:-20}
-
       RECOMMENDATION_DAILY_CAP: ${RECOMMENDATION_DAILY_CAP:-20}
 
     ports:
@@ -94,4 +85,3 @@ services:
 
 volumes:
   postgres_data:
-  ml_models:

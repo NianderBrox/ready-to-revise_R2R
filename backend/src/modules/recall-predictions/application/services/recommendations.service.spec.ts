@@ -1,13 +1,7 @@
 import { RecommendationsService } from './recommendations.service';
-import { FeatureBuilderService } from './feature-builder.service';
 import { RecallQueryRepository } from '../../infrastructure/repositories/recall-query.repository';
-import { MlHttpService } from '../../../ml-client/infrastructure/http/ml-http.service';
-import { MlConfigService } from '../../../ml-client/application/services/ml-config.service';
 import { ConfigService } from '@nestjs/config';
-import {
-    DueQuestionRow,
-    RecallReviewRow,
-} from '../../domain/interfaces/recall-data.interfaces';
+import { DueQuestionRow } from '../../domain/interfaces/recall-data.interfaces';
 
 const HOUR = 60 * 60 * 1000;
 
@@ -21,6 +15,7 @@ function makeItem(overrides: Partial<DueQuestionRow> = {}): DueQuestionRow {
         difficulty: 'MEDIUM',
         nextReviewAt: new Date(Date.now() - 2 * DAY),
         createdAt: new Date(Date.now() - 3 * DAY),
+        mediaDocumentId: null,
         options: ['A', 'B', 'C', 'D'],
         topicName: 'T',
         subjectName: 'S',
@@ -28,92 +23,55 @@ function makeItem(overrides: Partial<DueQuestionRow> = {}): DueQuestionRow {
     };
 }
 
-function makeReview(overrides: Partial<RecallReviewRow> = {}): RecallReviewRow {
-    return {
-        studyItemId: 'item-1',
-        isCorrect: true,
-        confidenceScore: 0.8,
-        responseTimeMs: 10000,
-        hesitationMs: 500,
-        answerChanges: 0,
-        createdAt: new Date(Date.now() - 2 * DAY),
-        ...overrides,
-    };
-}
-
 function setup(
     repoOverride: {
-        findCandidateQuestions?: jest.Mock;
-        findReviewsForItems?: jest.Mock;
-        findUserReviewRows?: jest.Mock;
-    } = {},
-    mlOverride: {
-        isAvailable?: boolean;
-        recommend?: jest.Mock;
+        findDueQuestions?: jest.Mock;
+        countUserDueQuestions?: jest.Mock;
     } = {},
 ) {
-    const findCandidateQuestions =
-        repoOverride.findCandidateQuestions ?? jest.fn().mockResolvedValue([]);
+    const findDueQuestions =
+        repoOverride.findDueQuestions ?? jest.fn().mockResolvedValue([]);
 
-    const findReviewsForItems =
-        repoOverride.findReviewsForItems ?? jest.fn().mockResolvedValue([]);
-
-    const findUserReviewRows =
-        repoOverride.findUserReviewRows ?? jest.fn().mockResolvedValue([]);
+    const countUserDueQuestions =
+        repoOverride.countUserDueQuestions ?? jest.fn().mockResolvedValue(0);
 
     const repository = {
-        findDueQuestions: jest.fn(),
-        findCandidateQuestions,
-        findReviewsForItems,
-        findUserReviewRows,
+        findDueQuestions,
+        countUserDueQuestions,
     } as unknown as RecallQueryRepository;
-
-    const recommend = mlOverride.recommend ?? jest.fn();
-
-    const ml = {
-        isAvailable: mlOverride.isAvailable ?? true,
-        recommend,
-        markUnavailable: jest.fn(),
-    } as unknown as MlHttpService;
-
-    const mlConfig = {
-        modelName: 'gradient_boosting',
-    } as unknown as MlConfigService;
 
     const config = {
         get: () => undefined,
     } as unknown as ConfigService;
 
-    const service = new RecommendationsService(
-        repository,
-        new FeatureBuilderService(),
-        ml,
-        mlConfig,
-        config,
-    );
+    const service = new RecommendationsService(repository, config);
 
-    return { service, findCandidateQuestions, findReviewsForItems, recommend };
+    return { service, findDueQuestions, countUserDueQuestions };
 }
 
-describe('RecommendationsService (slipping-soon v2)', () => {
-    it('serves never-reviewed items on day one with nominal forget-date and options', async () => {
-        const createdTenHoursAgo = new Date(Date.now() - 10 * HOUR);
+describe('RecommendationsService (due-today)', () => {
+    it('returns only due questions with options and nextReviewAt', async () => {
+        const dueAt = new Date(Date.now() - 2 * DAY);
 
         const item = makeItem({
             id: 'fresh',
-            createdAt: createdTenHoursAgo,
-            nextReviewAt: new Date(createdTenHoursAgo.getTime() + DAY),
+            nextReviewAt: dueAt,
             options: ['Paris', 'Lyon', 'Mars', 'Venus'],
         });
 
-        const { service, recommend } = setup({
-            findCandidateQuestions: jest.fn().mockResolvedValue([item]),
-            findReviewsForItems: jest.fn().mockResolvedValue([]),
+        const { service, findDueQuestions } = setup({
+            findDueQuestions: jest.fn().mockResolvedValue([item]),
         });
 
         const response = await service.getRecommendations('user-1', 20);
 
-        expect(recommend).not.toHaveBeenCalledTimes(0);
+        expect(findDueQuestions).toHaveBeenCalledWith(
+            'user-1',
+            undefined,
+            undefined,
+        );
+
+        expect(response.source).toBe('scheduler');
 
         expect(response.items).toHaveLength(1);
 
@@ -126,105 +84,61 @@ describe('RecommendationsService (slipping-soon v2)', () => {
             'Venus',
         ]);
 
-        const expected = createdTenHoursAgo.getTime() + DAY;
+        expect(response.items[0].nextReviewAt).toBe(dueAt.toISOString());
 
-        expect(
-            Math.abs(
-                new Date(response.items[0].expectedForgetDate!).getTime() -
-                    expected,
-            ),
-        ).toBeLessThan(HOUR);
+        expect(response.items[0].rank).toBe(1);
     });
 
-    it('excludes items reviewed inside the refractory window', async () => {
-        const twoHoursAgo = new Date(Date.now() - 2 * HOUR);
+    it('passes the subject filter and dueBefore boundary through', async () => {
+        const { service, findDueQuestions } = setup();
 
-        const item = makeItem({
-            id: 'resting',
-            nextReviewAt: new Date(twoHoursAgo.getTime() + 2 * DAY),
-        });
+        const dueBefore = new Date(Date.now() + HOUR);
 
-        const review = makeReview({
-            studyItemId: 'resting',
-            createdAt: twoHoursAgo,
-        });
+        await service.getRecommendations('user-1', 10, 'subject-1', dueBefore);
 
-        const { service, recommend } = setup({
-            findCandidateQuestions: jest.fn().mockResolvedValue([item]),
-            findReviewsForItems: jest.fn().mockResolvedValue([review]),
-        });
-
-        const response = await service.getRecommendations('user-1', 20);
-
-        expect(recommend).not.toHaveBeenCalled();
-
-        expect(response.items).toEqual([]);
+        expect(findDueQuestions).toHaveBeenCalledWith(
+            'user-1',
+            'subject-1',
+            dueBefore,
+        );
     });
 
-    it('includes reviewed items whose forget-date falls inside the window', async () => {
-        const twentyFiveHoursAgo = new Date(Date.now() - 25 * HOUR);
-
-        const item = makeItem({
-            id: 'due-ish',
-            nextReviewAt: new Date(twentyFiveHoursAgo.getTime() + 2 * DAY),
-        });
-
-        const review = makeReview({
-            studyItemId: 'due-ish',
-            createdAt: twentyFiveHoursAgo,
-        });
+    it('orders by ascending nextReviewAt (most overdue first)', async () => {
+        const rows = [
+            makeItem({
+                id: 'overdue',
+                nextReviewAt: new Date(Date.now() - 3 * DAY),
+            }),
+            makeItem({
+                id: 'due-now',
+                nextReviewAt: new Date(Date.now() - HOUR),
+            }),
+        ];
 
         const { service } = setup({
-            findCandidateQuestions: jest.fn().mockResolvedValue([item]),
-            findReviewsForItems: jest.fn().mockResolvedValue([review]),
+            findDueQuestions: jest.fn().mockResolvedValue(rows),
         });
 
-        const response = await service.getRecommendations('user-1', 20);
+        const response = await service.getRecommendations('user-1', 10);
 
-        expect(response.items).toHaveLength(1);
+        expect(response.items.map((item) => item.studyItemId)).toEqual([
+            'overdue',
+            'due-now',
+        ]);
 
-        expect(response.items[0].expectedForgetDate).toBeTruthy();
+        expect(response.items.map((item) => item.rank)).toEqual([1, 2]);
     });
 
-    it('excludes healthy items whose forget-date lies beyond the window', async () => {
-        const threeDaysAgo = new Date(Date.now() - 3 * DAY);
-
-        const item = makeItem({
-            id: 'healthy',
-            nextReviewAt: new Date(threeDaysAgo.getTime() + 7 * DAY),
-        });
-
-        const review = makeReview({
-            studyItemId: 'healthy',
-            createdAt: threeDaysAgo,
-        });
-
-        const { service, recommend } = setup({
-            findCandidateQuestions: jest.fn().mockResolvedValue([item]),
-            findReviewsForItems: jest.fn().mockResolvedValue([review]),
-        });
-
-        const response = await service.getRecommendations('user-1', 20);
-
-        expect(recommend).not.toHaveBeenCalled();
-
-        expect(response.items).toEqual([]);
-    });
-
-    it('orders by earliest forget-date and respects the requested limit', async () => {
-        const base = Date.now() - 10 * HOUR;
-
-        const rows = [30, 20, 10].map((hoursAgo, index) =>
+    it('respects the requested limit', async () => {
+        const rows = [10, 20, 30].map((hoursAgo, index) =>
             makeItem({
                 id: `item-${index}`,
-                createdAt: new Date(base - hoursAgo * HOUR),
-                nextReviewAt: new Date(base - hoursAgo * HOUR + DAY),
+                nextReviewAt: new Date(Date.now() - hoursAgo * HOUR),
             }),
         );
 
         const { service } = setup({
-            findCandidateQuestions: jest.fn().mockResolvedValue(rows),
-            findReviewsForItems: jest.fn().mockResolvedValue([]),
+            findDueQuestions: jest.fn().mockResolvedValue(rows),
         });
 
         const response = await service.getRecommendations('user-1', 2);
@@ -235,164 +149,75 @@ describe('RecommendationsService (slipping-soon v2)', () => {
         ]);
     });
 
-    it('maps ML ranking and preserves options and forget-dates', async () => {
-        const tenHoursAgo = new Date(Date.now() - 10 * HOUR);
-
-        const rows = [
+    it('clamps the limit to the daily cap', async () => {
+        const rows = Array.from({ length: 30 }, (_, index) =>
             makeItem({
-                id: 'alpha',
-                createdAt: tenHoursAgo,
-                nextReviewAt: new Date(tenHoursAgo.getTime() + DAY),
-                options: ['a1', 'a2'],
+                id: `item-${index}`,
+                nextReviewAt: new Date(Date.now() - 100 * HOUR),
             }),
-            makeItem({
-                id: 'beta',
-                createdAt: new Date(Date.now() - 12 * HOUR),
-                nextReviewAt: new Date(Date.now() - 12 * HOUR + DAY),
-                options: ['b1', 'b2'],
-            }),
-        ];
-
-        const { service, recommend } = setup(
-            {
-                findCandidateQuestions: jest.fn().mockResolvedValue(rows),
-                findReviewsForItems: jest.fn().mockResolvedValue([]),
-            },
-            {
-                recommend: jest.fn().mockResolvedValue({
-                    model_name: 'gradient_boosting',
-                    recommendations: [
-                        {
-                            rank: 1,
-                            question_id: 'beta',
-                            recall_probability: 0.31,
-                            priority: 'high',
-                        },
-                        {
-                            rank: 2,
-                            question_id: 'alpha',
-                            recall_probability: 0.62,
-                            priority: 'medium',
-                        },
-                    ],
-                }),
-            },
         );
 
-        const response = await service.getRecommendations('user-1', 20);
-
-        expect(response.source).toBe('ml');
-
-        expect(recommend).toHaveBeenCalledTimes(1);
-
-        expect(response.items.map((item) => item.studyItemId)).toEqual([
-            'beta',
-            'alpha',
-        ]);
-
-        expect(response.items[0].options).toEqual(['b1', 'b2']);
-
-        expect(response.items[0].expectedForgetDate).toBeTruthy();
-
-        expect(response.items[0].recallProbability).toBeCloseTo(0.31, 6);
-    });
-
-    it('falls back to forgetting-date order when the ML call throws', async () => {
-        const thirtyHoursAgo = new Date(Date.now() - 30 * HOUR);
-
-        const rows = [
-            makeItem({
-                id: 'slower',
-                createdAt: new Date(Date.now() - 14 * HOUR),
-                nextReviewAt: new Date(Date.now() - 14 * HOUR + DAY),
-            }),
-            makeItem({
-                id: 'slipperier',
-                nextReviewAt: new Date(thirtyHoursAgo.getTime() + 1.2 * DAY),
-            }),
-        ];
-
-        const review = makeReview({
-            studyItemId: 'slipperier',
-            createdAt: thirtyHoursAgo,
+        const { service } = setup({
+            findDueQuestions: jest.fn().mockResolvedValue(rows),
         });
 
-        const { service } = setup(
-            {
-                findCandidateQuestions: jest.fn().mockResolvedValue(rows),
-                findReviewsForItems: jest.fn().mockResolvedValue([review]),
-            },
-            {
-                recommend: jest
-                    .fn()
-                    .mockRejectedValue(new Error('timeout of 2000ms exceeded')),
-            },
-        );
+        const response = await service.getRecommendations('user-1', 1000);
 
-        const response = await service.getRecommendations('user-1', 5);
-
-        expect(response.source).toBe('scheduler');
-
-        expect(response.items.map((item) => item.studyItemId)).toEqual([
-            'slipperier',
-            'slower',
-        ]);
-
-        expect(response.items[0].recallProbability).toBeNull();
-
-        expect(response.items[0].priority).toBe('high');
+        expect(response.items).toHaveLength(20);
     });
 
-    it('skips ML entirely when flagged unavailable', async () => {
-        const item = makeItem({ id: 'only' });
-
-        const { service, recommend } = setup(
-            { findCandidateQuestions: jest.fn().mockResolvedValue([item]) },
-            { isAvailable: false },
-        );
-
-        const response = await service.getRecommendations('user-1', 5);
-
-        expect(recommend).not.toHaveBeenCalled();
-
-        expect(response.source).toBe('scheduler');
-
-        expect(response.items[0].studyItemId).toBe('only');
-    });
-
-    it('short-circuits with an empty list when no questions exist', async () => {
-        const { service, recommend } = setup();
+    it('returns an empty list when nothing is due', async () => {
+        const { service } = setup();
 
         const response = await service.getRecommendations('user-1', 10);
-
-        expect(recommend).not.toHaveBeenCalled();
 
         expect(response.items).toEqual([]);
     });
 
-    it('counts slipping-soon candidates for the dashboard', async () => {
+    it('exposes the most overdue due question as the at-risk top', async () => {
         const rows = [
             makeItem({
-                id: 'in-window',
-                createdAt: new Date(Date.now() - 10 * HOUR),
-                nextReviewAt: new Date(Date.now() - 10 * HOUR + DAY),
+                id: 'overdue',
+                nextReviewAt: new Date(Date.now() - 3 * DAY),
             }),
             makeItem({
-                id: 'healthy',
-                nextReviewAt: new Date(Date.now() + 4 * DAY),
+                id: 'due-now',
+                nextReviewAt: new Date(Date.now() - HOUR),
             }),
         ];
 
-        const review = makeReview({
-            studyItemId: 'healthy',
-            createdAt: new Date(Date.now() - 3 * DAY),
-        });
-
         const { service } = setup({
-            findCandidateQuestions: jest.fn().mockResolvedValue(rows),
-            findReviewsForItems: jest.fn().mockResolvedValue([review]),
+            findDueQuestions: jest.fn().mockResolvedValue(rows),
         });
 
-        expect(await service.countSlippingSoon('user-1')).toBe(1);
+        const top = await service.getAtRiskTop('user-1');
+
+        expect(top?.studyItemId).toBe('overdue');
+    });
+
+    it('returns null at-risk top when nothing is due', async () => {
+        const { service } = setup();
+
+        expect(await service.getAtRiskTop('user-1')).toBeNull();
+    });
+
+    it('counts due questions for the dashboard', async () => {
+        const { service, countUserDueQuestions } = setup({
+            countUserDueQuestions: jest.fn().mockResolvedValue(3),
+        });
+
+        expect(await service.countSlippingSoon('user-1')).toBe(3);
+
+        expect(countUserDueQuestions).toHaveBeenCalledWith('user-1', undefined);
+    });
+
+    it('passes dueBefore through to the due count', async () => {
+        const { service, countUserDueQuestions } = setup();
+
+        const dueBefore = new Date(Date.now() + DAY);
+
+        await service.countSlippingSoon('user-1', dueBefore);
+
+        expect(countUserDueQuestions).toHaveBeenCalledWith('user-1', dueBefore);
     });
 });

@@ -27,4 +27,14 @@ export class CreateReviewDto {
     @IsOptional()
     @IsUUID()
     sessionId?: string;
+
+    @IsOptional()
+    @IsInt()
+    @Min(0)
+    sessionDurationMinutes?: number;
+
+    @IsOptional()
+    @IsInt()
+    @Min(1)
+    questionPositionInSession?: number;
 }

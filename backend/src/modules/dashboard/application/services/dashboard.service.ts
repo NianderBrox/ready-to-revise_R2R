@@ -1,19 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { DashboardResponseDto } from '../../presentation/dto/dashboard-response.dto';
 import { DashboardRepository } from '../../infrastructure/repositories/dashboard.repository';
-import { MlHttpService } from '../../../ml-client/infrastructure/http/ml-http.service';
 import { RecommendationsService } from '../../../recall-predictions/application/services/recommendations.service';
 
 @Injectable()
 export class DashboardService {
     constructor(
         private readonly repository: DashboardRepository,
-        private readonly mlHttp: MlHttpService,
         private readonly recommendationsService: RecommendationsService,
     ) {}
 
-    async getDashboard(userId: string): Promise<DashboardResponseDto> {
-        const stats = await this.repository.getDashboardStats(userId);
+    async getDashboard(
+        userId: string,
+        dueBefore?: Date,
+    ): Promise<DashboardResponseDto> {
+        const stats = await this.repository.getDashboardStats(
+            userId,
+            dueBefore,
+        );
 
         return {
             user: {
@@ -33,7 +37,7 @@ export class DashboardService {
                 dueToday: stats.dueToday,
                 upcoming: stats.upcomingReviews,
                 completedToday: stats.completedToday,
-                slippingSoon: await this.slippingSoonCount(userId),
+                slippingSoon: await this.slippingSoonCount(userId, dueBefore),
             },
 
             progress: {
@@ -44,26 +48,34 @@ export class DashboardService {
             recentActivity: [],
 
             ai: {
-                suggestion: await this.atRiskSuggestion(userId),
+                suggestion: await this.atRiskSuggestion(userId, dueBefore),
             },
         };
     }
 
-    private async slippingSoonCount(userId: string): Promise<number> {
+    private async slippingSoonCount(
+        userId: string,
+        dueBefore?: Date,
+    ): Promise<number> {
         try {
-            return await this.recommendationsService.countSlippingSoon(userId);
+            return await this.recommendationsService.countSlippingSoon(
+                userId,
+                dueBefore,
+            );
         } catch {
             return 0;
         }
     }
 
-    private async atRiskSuggestion(userId: string): Promise<string | null> {
-        if (!this.mlHttp.isAvailable) {
-            return null;
-        }
-
+    private async atRiskSuggestion(
+        userId: string,
+        dueBefore?: Date,
+    ): Promise<string | null> {
         try {
-            const top = await this.recommendationsService.getAtRiskTop(userId);
+            const top = await this.recommendationsService.getAtRiskTop(
+                userId,
+                dueBefore,
+            );
 
             if (!top) {
                 return null;
@@ -71,12 +83,7 @@ export class DashboardService {
 
             const label = top.title ?? 'a question';
 
-            const probability =
-                top.recallProbability !== null
-                    ? ` (recall ${(top.recallProbability * 100).toFixed(0)}%)`
-                    : '';
-
-            return `Revise "${label}" next${probability}.`;
+            return `Revise "${label}" next.`;
         } catch {
             return null;
         }

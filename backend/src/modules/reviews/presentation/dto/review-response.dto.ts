@@ -17,6 +17,16 @@ export class ReviewResponseDto {
 
     confidenceScore?: number;
 
+    recallProbability?: number;
+
+    fsrsState?: number;
+
+    fsrsStep?: number;
+
+    fsrsStability?: number;
+
+    fsrsDifficulty?: number;
+
     createdAt!: Date;
 
     updatedAt!: Date;

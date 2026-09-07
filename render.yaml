@@ -76,15 +76,6 @@ services:
         value: r2r
 
       # Recommendation tuning
-      - key: RECOMMENDATION_TARGET_RETENTION
-        value: "0.9"
-
-      - key: RECOMMENDATION_SLIDING_WINDOW_HOURS
-        value: "48"
-
-      - key: RECOMMENDATION_REFRACTORY_HOURS
-        value: "20"
-
       - key: RECOMMENDATION_DAILY_CAP
         value: "20"
 

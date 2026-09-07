@@ -6,6 +6,15 @@ import pandas as pd
 
 from src.database.connection import engine
 
+# baseline pulls recall_probability from the shared view
+SCHEDULES_QUERY = """
+SELECT
+    id AS review_id,
+    recall_probability
+FROM ml.question_reviews
+WHERE recall_probability IS NOT NULL
+"""
+
 
 def load_fsrs_predictions() -> pd.DataFrame:
     return pd.read_sql(SCHEDULES_QUERY, engine)

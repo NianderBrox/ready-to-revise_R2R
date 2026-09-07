@@ -53,7 +53,14 @@ echo "== applying migrations =="
     npx prisma migrate deploy
 )
 
+echo "== creating ml_readonly role + grants =="
+docker exec -i r2r-postgres psql -U r2r_user -d r2r_db -v ON_ERROR_STOP=1 \
+    -f - < backend/scripts/create_ml_readonly.sql || {
+    echo "WARN: could not apply create_ml_readonly.sql (role may already exist)"
+}
+
 echo ""
 echo "== READY =="
 echo "postgres : localhost:5433 (r2r_user/r2r_password/r2r_db)"
+echo "ml_readonly: ml_readonly / CHANGE_ME_BEFORE_USE (change in ML .env)"
 echo "backend  : cd backend && cp .env.example .env  # fill secrets, then npm run start:dev"

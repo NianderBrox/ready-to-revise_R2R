@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 
 import { DashboardService } from '../../application/services/dashboard.service';
 
@@ -17,7 +17,22 @@ export class DashboardController {
     async getDashboard(
         @CurrentUser()
         user: CurrentUserData,
+
+        @Query('dueBefore')
+        dueBefore?: string,
     ) {
-        return this.dashboardService.getDashboard(user.userId);
+        const parsedDueBefore =
+            dueBefore !== undefined && dueBefore.length > 0
+                ? new Date(dueBefore)
+                : undefined;
+
+        return this.dashboardService.getDashboard(
+            user.userId,
+
+            parsedDueBefore !== undefined &&
+                !Number.isNaN(parsedDueBefore.getTime())
+                ? parsedDueBefore
+                : undefined,
+        );
     }
 }

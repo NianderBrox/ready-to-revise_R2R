@@ -10,6 +10,8 @@ import {
     MlPredictionResponse,
     MlRecommendRequest,
     MlRecommendResponse,
+    MlScheduleRequest,
+    MlScheduleResponse,
 } from '../../domain/models/ml-contract.models';
 
 const HEALTH_ENDPOINT = '/health';
@@ -17,6 +19,8 @@ const HEALTH_ENDPOINT = '/health';
 const PREDICT_ENDPOINT = '/predict';
 
 const RECOMMEND_ENDPOINT = '/recommend-revisions';
+
+const SCHEDULE_REVIEW_ENDPOINT = '/schedule-review';
 
 @Injectable()
 export class MlHttpService {
@@ -78,6 +82,15 @@ export class MlHttpService {
 
     async recommend(request: MlRecommendRequest): Promise<MlRecommendResponse> {
         return this.post<MlRecommendResponse>(RECOMMEND_ENDPOINT, request);
+    }
+
+    async scheduleReview(
+        request: MlScheduleRequest,
+    ): Promise<MlScheduleResponse> {
+        return this.post<MlScheduleResponse>(SCHEDULE_REVIEW_ENDPOINT, {
+            ...request,
+            model_name: request.model_name ?? this.config.modelName,
+        });
     }
 
     private async post<TResponse>(

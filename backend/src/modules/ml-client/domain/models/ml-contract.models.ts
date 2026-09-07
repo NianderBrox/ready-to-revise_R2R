@@ -1,4 +1,5 @@
 export type MlModelName =
+    | 'calibrated_best'
     | 'gradient_boosting'
     | 'hist_gradient_boosting'
     | 'random_forest'
@@ -95,4 +96,27 @@ export interface MlRecommendResponse {
 export interface MlHealthResponse {
     status: string;
     model_loaded: boolean;
+}
+
+export interface MlScheduleRequest {
+    model_name?: MlModelName;
+
+    features: ReviewFeatures;
+    correct: boolean;
+    confidence: 'LOW' | 'MEDIUM' | 'HIGH';
+    fsrs_state?: number | null;
+    fsrs_step?: number | null;
+    fsrs_stability?: number | null;
+    fsrs_difficulty?: number | null;
+    last_review_at?: string | null;
+}
+
+export interface MlScheduleResponse {
+    interval_days: number;
+    next_review_at: string;
+    recall_probability: number;
+    fsrs_state: number;
+    fsrs_step: number | null;
+    fsrs_stability: number;
+    fsrs_difficulty: number;
 }

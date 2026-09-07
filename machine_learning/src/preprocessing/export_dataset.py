@@ -1,4 +1,6 @@
 
+# old exporter - only works with the local sandbox DB, not the shared one
+# use export_real_dataset.py + build_hybrid.py for the shared DB instead
 from src.feature_engineering.feature_builder import build_features
 from src.feature_engineering.joiner import join_tables
 from src.feature_engineering.loader import load_table
