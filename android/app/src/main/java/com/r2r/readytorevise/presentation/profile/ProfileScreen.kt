@@ -202,7 +202,18 @@ fun ProfileScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    OutlinedButton(
+                        onClick = {
+                            navController.navigate(com.r2r.readytorevise.navigation.Screen.ChangePassword.route)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Change Password")
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     Button(
                         onClick = { onEvent(ProfileEvent.LogoutClicked) },

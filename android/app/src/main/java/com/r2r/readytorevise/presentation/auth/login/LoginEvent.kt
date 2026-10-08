@@ -15,4 +15,6 @@ sealed interface LoginEvent : UiEvent {
     data object LoginClicked : LoginEvent
 
     data object RegisterClicked : LoginEvent
+
+    data object ForgotPasswordClicked : LoginEvent
 }

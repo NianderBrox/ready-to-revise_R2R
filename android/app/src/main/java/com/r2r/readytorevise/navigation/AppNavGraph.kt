@@ -19,8 +19,10 @@ import androidx.navigation.compose.rememberNavController
 import com.r2r.readytorevise.presentation.analytics.AnalyticsRoute
 import com.r2r.readytorevise.presentation.auth.login.LoginRoute
 import com.r2r.readytorevise.presentation.auth.register.RegisterRoute
+import com.r2r.readytorevise.presentation.auth.forgot.ForgotPasswordRoute
 import com.r2r.readytorevise.presentation.dashboard.DashboardRoute
 import com.r2r.readytorevise.presentation.profile.ProfileRoute
+import com.r2r.readytorevise.presentation.changepassword.ChangePasswordRoute
 
 import com.r2r.readytorevise.presentation.upload.UploadScreen
 import com.r2r.readytorevise.presentation.upload.DocumentUploadScreen
@@ -152,6 +154,12 @@ fun AppNavGraph(
 
                 },
 
+                onForgotPasswordClick = {
+
+                    navController.navigate(Screen.ForgotPassword.route)
+
+                },
+
                 registrationSuccessMessage = registrationSuccessMessage,
 
                 onRegistrationSuccessMessageShown = {
@@ -184,6 +192,20 @@ fun AppNavGraph(
 
         }
 
+
+
+
+        composable(Screen.ForgotPassword.route) {
+
+            ForgotPasswordRoute(
+                appContainer = appContainer,
+                navController = navController,
+                onSuccess = { message ->
+                    registrationSuccessMessage = message
+                }
+            )
+
+        }
 
 
 
@@ -281,6 +303,13 @@ fun AppNavGraph(
                 navController = navController
             )
 
+        }
+
+        composable(Screen.ChangePassword.route) {
+            ChangePasswordRoute(
+                appContainer = appContainer,
+                navController = navController
+            )
         }
 
         composable(Screen.NotificationSettings.route) {

@@ -39,6 +39,12 @@
                 LoginEvent.RegisterClicked -> {
                     navigateToRegister()
                 }
+
+                LoginEvent.ForgotPasswordClicked -> {
+                    viewModelScope.launch {
+                        sendEffect(LoginEffect.NavigateToForgotPassword)
+                    }
+                }
             }
         }
 

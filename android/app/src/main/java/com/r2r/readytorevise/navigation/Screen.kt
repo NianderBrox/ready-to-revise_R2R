@@ -6,6 +6,8 @@ sealed class Screen(val route: String) {
 
     data object Register : Screen("register")
 
+    data object ForgotPassword : Screen("forgot_password")
+
     data object Dashboard : Screen("dashboard")
 
     data object Upload : Screen("upload")
@@ -21,5 +23,7 @@ sealed class Screen(val route: String) {
     data object Profile : Screen("profile")
 
     data object NotificationSettings : Screen("notification_settings")
+
+    data object ChangePassword : Screen("change_password")
 
 }

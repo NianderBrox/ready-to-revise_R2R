@@ -1,7 +1,5 @@
-package com.r2r.readytorevise.presentation.auth.login
+package com.r2r.readytorevise.presentation.auth.forgot
 
-import androidx.activity.compose.LocalActivity
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
@@ -15,79 +13,43 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
-
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.NavHostController
 import com.r2r.readytorevise.di.AppContainer
+import kotlinx.coroutines.launch
 
 @Composable
-fun LoginRoute(
+fun ForgotPasswordRoute(
     appContainer: AppContainer,
-    onLoginSuccess: () -> Unit,
-    onRegisterClick: () -> Unit,
-    onForgotPasswordClick: () -> Unit = {},
-    registrationSuccessMessage: String? = null,
-    onRegistrationSuccessMessageShown: () -> Unit = {}
+    navController: NavHostController,
+    onSuccess: (String) -> Unit = {},
 ) {
-
     val factory = viewModelFactory {
         initializer {
-            LoginViewModel(appContainer.authRepository)
+            ForgotPasswordViewModel(appContainer.authRepository)
         }
     }
 
-    val viewModel: LoginViewModel = viewModel(factory = factory)
-
+    val viewModel: ForgotPasswordViewModel = viewModel(factory = factory)
     val state by viewModel.state.collectAsState()
-
-    val snackbarHostState = remember {
-        SnackbarHostState()
-    }
-
-    val activity = LocalActivity.current
-
-    BackHandler {
-        activity?.finish()
-    }
-
-    LaunchedEffect(registrationSuccessMessage) {
-        if (!registrationSuccessMessage.isNullOrEmpty()) {
-            snackbarHostState.showSnackbar(registrationSuccessMessage)
-            onRegistrationSuccessMessageShown()
-        }
-    }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(viewModel) {
-
         viewModel.effect.collect { effect ->
-
             when (effect) {
-
-                LoginEffect.NavigateToDashboard -> {
-                    onLoginSuccess()
+                is ForgotPasswordEffect.ShowSnackbar -> {
+                    launch { snackbarHostState.showSnackbar(effect.message) }
                 }
-
-                LoginEffect.NavigateToRegister -> {
-                    onRegisterClick()
-                }
-
-                LoginEffect.NavigateToForgotPassword -> {
-                    onForgotPasswordClick()
-                }
-
-                is LoginEffect.ShowSnackbar -> {
-
-                    snackbarHostState.showSnackbar(
-                        message = effect.message
-                    )
-
+                is ForgotPasswordEffect.NavigateToLogin -> {
+                    onSuccess(effect.message)
+                    navController.popBackStack()
                 }
             }
         }
     }
 
     Scaffold(
-
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
                 Snackbar(
@@ -97,21 +59,12 @@ fun LoginRoute(
                 )
             }
         }
-
     ) { padding ->
-
-        LoginScreen(
-
+        ForgotPasswordScreen(
             modifier = Modifier.padding(padding),
-
+            navController = navController,
             state = state,
-
             onEvent = viewModel::onEvent,
-
-            onOfflineMode = onLoginSuccess
-
         )
-
     }
-
 }

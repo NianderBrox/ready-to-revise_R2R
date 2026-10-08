@@ -4,7 +4,10 @@ import com.r2r.readytorevise.data.local.TokenManager
 import com.r2r.readytorevise.data.remote.AuthApi
 import com.r2r.readytorevise.data.remote.dto.LoginRequestDto
 import com.r2r.readytorevise.data.remote.dto.ProfileDto
+import com.r2r.readytorevise.data.remote.dto.ChangePasswordRequestDto
+import com.r2r.readytorevise.data.remote.dto.ForgotPasswordRequestDto
 import com.r2r.readytorevise.data.remote.dto.RegisterRequestDto
+import com.r2r.readytorevise.data.remote.dto.ResetPasswordRequestDto
 import com.r2r.readytorevise.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -55,6 +58,57 @@ class AuthRepositoryImpl(
             Result.failure(Exception("Network error. Please check your connection."))
         } catch (e: Exception) {
             Result.failure(Exception("An unexpected error occurred."))
+        }
+    }
+
+    override suspend fun forgotPassword(email: String): Result<String> {
+        return try {
+            val response = authApi.forgotPassword(ForgotPasswordRequestDto(email))
+            Result.success(response.data.message)
+        } catch (e: HttpException) {
+            Result.failure(Exception(serverMessage(e) ?: "Couldn't send reset code."))
+        } catch (e: IOException) {
+            Result.failure(Exception("Network error. Please check your connection."))
+        } catch (e: Exception) {
+            Result.failure(Exception("An unexpected error occurred."))
+        }
+    }
+
+    override suspend fun resetPassword(email: String, otp: String, newPassword: String): Result<String> {
+        return try {
+            val response = authApi.resetPassword(ResetPasswordRequestDto(email, otp, newPassword))
+            Result.success(response.data.message)
+        } catch (e: HttpException) {
+            Result.failure(Exception(serverMessage(e) ?: "Couldn't reset password."))
+        } catch (e: IOException) {
+            Result.failure(Exception("Network error. Please check your connection."))
+        } catch (e: Exception) {
+            Result.failure(Exception("An unexpected error occurred."))
+        }
+    }
+
+    override suspend fun changePassword(currentPassword: String, newPassword: String): Result<String> {
+        return try {
+            val response = authApi.changePassword(ChangePasswordRequestDto(currentPassword, newPassword))
+            Result.success(response.data.message)
+        } catch (e: HttpException) {
+            Result.failure(Exception(serverMessage(e) ?: "Couldn't change password."))
+        } catch (e: IOException) {
+            Result.failure(Exception("Network error. Please check your connection."))
+        } catch (e: Exception) {
+            Result.failure(Exception("An unexpected error occurred."))
+        }
+    }
+
+    private fun serverMessage(e: HttpException): String? {
+        return try {
+            val body = e.response()?.errorBody()?.string()
+            body?.let {
+                val match = Regex(""""message"\s*:\s*"([^"]+)"""").find(it)
+                match?.groupValues?.get(1)
+            }
+        } catch (t: Throwable) {
+            null
         }
     }
 

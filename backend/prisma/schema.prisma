@@ -187,6 +187,18 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+model PasswordResetOtp {
+  id        String    @id @default(uuid())
+  email     String
+  codeHash  String
+  expiresAt DateTime
+  usedAt    DateTime?
+  attempts  Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  @@index([email])
+}
+
 model Document {
   id String @id @default(cuid())
 

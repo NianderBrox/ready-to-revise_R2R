@@ -117,7 +117,9 @@ fun LoginScreen(
             Text(
                 modifier = Modifier
                     .align(Alignment.End)
-                    .clickable { },
+                    .clickable {
+                        onEvent(LoginEvent.ForgotPasswordClicked)
+                    },
                 text = "Forgot Password?",
                 color = SkyBlueDark
             )
