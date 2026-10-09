@@ -20,7 +20,6 @@ export class MailService implements OnModuleInit {
         const port =
             Number.isFinite(parsedPort) && parsedPort > 0 ? parsedPort : 587;
         const user = config.get<string>('SMTP_USER')?.trim() || undefined;
-        // Gmail App Passwords are shown as "xxxx xxxx xxxx xxxx" — spaces must be stripped.
         const pass =
             config.get<string>('SMTP_PASS')?.replace(/\s/g, '') || undefined;
         this.from =
@@ -34,9 +33,9 @@ export class MailService implements OnModuleInit {
                   secure: port === 465,
                   requireTLS: port === 587,
                   auth: user ? { user, pass } : undefined,
-                  connectionTimeout: 10_000,
-                  greetingTimeout: 10_000,
-                  socketTimeout: 10_000,
+                  connectionTimeout: 30_000,
+                  greetingTimeout: 30_000,
+                  socketTimeout: 60_000,
               })
             : null;
 
@@ -57,8 +56,9 @@ export class MailService implements OnModuleInit {
                 'SMTP transporter verified. OTP emails will be sent.',
             );
         } catch (error) {
+            const err = error as { code?: string; message?: string };
             this.logger.error(
-                `SMTP verify failed. Check SMTP_HOST/PORT/USER/PASS. ${(error as Error)?.message ?? error}`,
+                `SMTP verify failed [${err?.code ?? 'UNKNOWN'}]. Check SMTP_HOST/PORT/USER/PASS. ${err?.message ?? error}`,
             );
         }
     }
@@ -81,8 +81,9 @@ export class MailService implements OnModuleInit {
                 `OTP email sent to ${to} (messageId: ${info.messageId})`,
             );
         } catch (error) {
+            const err = error as { code?: string; message?: string };
             this.logger.error(
-                `Failed to send OTP email to ${to}. ${(error as Error)?.message ?? error}`,
+                `Failed to send OTP email to ${to} [${err?.code ?? 'UNKNOWN'}]. ${err?.message ?? error}`,
             );
             throw new ServiceUnavailableException(
                 'Email service is temporarily unavailable. Please try again.',
