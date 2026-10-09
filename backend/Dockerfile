@@ -33,4 +33,9 @@ COPY package.json ./
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/main.js"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:' + (process.env.PORT || '3000') + '/api/v1/health').then((r) => { if (!r.ok) process.exit(1); }).catch(() => process.exit(1))"
+
+# NOTE: `exec` replaces sh with node so Docker stop (SIGTERM) reaches NestJS
+# for graceful shutdown. Without it, PID 1 stays sh and shutdowns hang 10s.
+CMD ["sh", "-c", "npx prisma migrate deploy && exec node dist/src/main.js"]

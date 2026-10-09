@@ -46,6 +46,23 @@ generation, behavior-derived spaced repetition, and recall predictions.
 See `.env.example`. Required: `DATABASE_URL`, `JWT_SECRET`,
 `GEMINI_API_KEY`; optional: `GEMINI_MODEL`, `ML_SERVICE_URL`,
 `ML_MODEL_NAME`, `ML_TIMEOUT_MS`.
+Password-reset OTP mail (Gmail): `SMTP_HOST=smtp.gmail.com`,
+`SMTP_PORT=587`, `SMTP_USER`/`SMTP_FROM` = your Gmail address,
+`SMTP_PASS` = 16-char App Password (Google account with 2SV on;
+spaces optional, they are stripped). Without `SMTP_HOST`, OTPs are
+only logged, not sent.
+
+### Docker (Dockerfile-only deploys)
+
+`.env` is excluded from the image (see `.dockerignore`), so it must be
+passed at run time. From the `backend/` directory:
+
+```bash
+docker build -t r2r-backend .
+docker run -d --name r2r-backend -p 3000:3000 --env-file .env r2r-backend
+docker exec r2r-backend env | grep SMTP   # expect 5 lines
+docker logs r2r-backend | grep -i SMTP    # expect "transporter verified"
+```
 
 ## Commands
 
