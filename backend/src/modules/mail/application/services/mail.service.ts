@@ -39,47 +39,11 @@ export class MailService implements OnModuleInit {
         }
     }
 
-    async onModuleInit(): Promise<void> {
+    onModuleInit(): void {
         if (!this.host) {
             return;
         }
-
-        let address = this.host;
-        if (!isIP(this.host)) {
-            try {
-                ({ address } = await lookup(this.host, { family: 4 }));
-            } catch (error) {
-                const err = error as { code?: string; message?: string };
-                this.logger.error(
-                    `SMTP DNS lookup failed for ${this.host} [${err?.code ?? 'UNKNOWN'}]. ${err?.message ?? error}`,
-                );
-                return;
-            }
-        }
-
-        this.transporter = nodemailer.createTransport({
-            host: address,
-            servername: isIP(this.host) ? undefined : this.host,
-            port: this.port,
-            secure: this.port === 465,
-            requireTLS: this.port === 587,
-            auth: this.user ? { user: this.user, pass: this.pass } : undefined,
-            connectionTimeout: 30_000,
-            greetingTimeout: 30_000,
-            socketTimeout: 60_000,
-        });
-
-        try {
-            await this.transporter.verify();
-            this.logger.log(
-                'SMTP transporter verified. OTP emails will be sent.',
-            );
-        } catch (error) {
-            const err = error as { code?: string; message?: string };
-            this.logger.error(
-                `SMTP verify failed [${err?.code ?? 'UNKNOWN'}]. Check SMTP_HOST/PORT/USER/PASS. ${err?.message ?? error}`,
-            );
-        }
+        void this.initialize();
     }
 
     async sendOtpEmail(to: string, otp: string): Promise<void> {
@@ -107,6 +71,68 @@ export class MailService implements OnModuleInit {
             throw new ServiceUnavailableException(
                 'Email service is temporarily unavailable. Please try again.',
             );
+        }
+    }
+
+    private async initialize(): Promise<void> {
+        try {
+            let address = this.host as string;
+            if (!isIP(address)) {
+                try {
+                    ({ address } = await lookup(address, { family: 4 }));
+                } catch (error) {
+                    const err = error as { code?: string; message?: string };
+                    this.logger.error(
+                        `SMTP DNS lookup failed for ${address} [${err?.code ?? 'UNKNOWN'}]. ${err?.message ?? error}`,
+                    );
+                    return;
+                }
+            }
+
+            this.transporter = nodemailer.createTransport({
+                host: address,
+                servername: isIP(this.host as string) ? undefined : this.host,
+                port: this.port,
+                secure: this.port === 465,
+                requireTLS: this.port === 587,
+                auth: this.user
+                    ? { user: this.user, pass: this.pass }
+                    : undefined,
+                connectionTimeout: 60_000,
+                greetingTimeout: 30_000,
+                socketTimeout: 60_000,
+            });
+
+            await this.verifyWithRetries(3);
+        } catch (error) {
+            const err = error as { code?: string; message?: string };
+            this.logger.error(
+                `SMTP initialization failed [${err?.code ?? 'UNKNOWN'}]. ${err?.message ?? error}`,
+            );
+        }
+    }
+
+    private async verifyWithRetries(attempts: number): Promise<void> {
+        for (let attempt = 1; attempt <= attempts; attempt++) {
+            try {
+                await this.transporter?.verify();
+                this.logger.log(
+                    'SMTP transporter verified. OTP emails will be sent.',
+                );
+                return;
+            } catch (error) {
+                const err = error as { code?: string; message?: string };
+                if (attempt === attempts) {
+                    this.logger.error(
+                        `SMTP verify failed [${err?.code ?? 'UNKNOWN'}] after ${attempts} attempts. Check SMTP_HOST/PORT/USER/PASS. ${err?.message ?? error}`,
+                    );
+                } else {
+                    this.logger.warn(
+                        `SMTP verify attempt ${attempt}/${attempts} failed [${err?.code ?? 'UNKNOWN'}], retrying. ${err?.message ?? error}`,
+                    );
+                    await new Promise((resolve) => setTimeout(resolve, 10_000));
+                }
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 import {
     BadRequestException,
     Injectable,
+    Logger,
     UnauthorizedException,
     HttpException,
     HttpStatus,
@@ -18,6 +19,8 @@ import { RegisterDto } from '../../presentation/dto/register.dto';
 
 @Injectable()
 export class AuthService {
+    private readonly logger = new Logger(AuthService.name);
+
     constructor(
         private readonly usersService: UsersService,
         private readonly jwtService: JwtService,
@@ -83,14 +86,23 @@ export class AuthService {
         } satisfies AuthResponseDto;
     }
 
-    async changePassword(userId: string, currentPassword: string, newPassword: string) {
-        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    async changePassword(
+        userId: string,
+        currentPassword: string,
+        newPassword: string,
+    ) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+        });
 
         if (!user) {
             throw new UnauthorizedException('Account not found');
         }
 
-        const matches = await bcrypt.compare(currentPassword, user.passwordHash);
+        const matches = await bcrypt.compare(
+            currentPassword,
+            user.passwordHash,
+        );
 
         if (!matches) {
             throw new BadRequestException('Current password is incorrect');
@@ -128,6 +140,9 @@ export class AuthService {
         const user = await this.usersService.findByEmail(email);
 
         if (!user) {
+            this.logger.warn(
+                `Password reset requested for unregistered email (no code sent)`,
+            );
             return { message: 'If the email exists, a code has been sent' };
         }
 
@@ -161,7 +176,9 @@ export class AuthService {
         });
 
         if (!record) {
-            throw new BadRequestException('No active reset code for this email');
+            throw new BadRequestException(
+                'No active reset code for this email',
+            );
         }
 
         if (record.expiresAt.getTime() < Date.now()) {
