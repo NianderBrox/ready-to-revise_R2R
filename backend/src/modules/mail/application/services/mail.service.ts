@@ -4,10 +4,15 @@ import {
     OnModuleInit,
     ServiceUnavailableException,
 } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
+import { AxiosError } from 'axios';
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
 import * as nodemailer from 'nodemailer';
+import { firstValueFrom } from 'rxjs';
+
+const BREVO_SEND_URL = 'https://api.brevo.com/v3/smtp/email';
 
 @Injectable()
 export class MailService implements OnModuleInit {
@@ -18,8 +23,14 @@ export class MailService implements OnModuleInit {
     private readonly port: number;
     private readonly user?: string;
     private readonly pass?: string;
+    private readonly brevoApiKey?: string;
+    private readonly brevoSenderEmail?: string;
+    private readonly brevoSenderName: string;
 
-    constructor(private readonly config: ConfigService) {
+    constructor(
+        private readonly config: ConfigService,
+        private readonly http: HttpService,
+    ) {
         this.host = config.get<string>('SMTP_HOST')?.trim() || undefined;
         const rawPort = config.get<string | number>('SMTP_PORT');
         const parsedPort = Number(rawPort);
@@ -31,15 +42,32 @@ export class MailService implements OnModuleInit {
         this.from =
             config.get<string>('SMTP_FROM')?.trim() ||
             'Ready to Revise <no-reply@readytorevise.app>';
+        this.brevoApiKey =
+            config.get<string>('BREVO_API_KEY')?.trim() || undefined;
+        this.brevoSenderEmail =
+            config.get<string>('BREVO_SENDER_EMAIL')?.trim() || undefined;
+        this.brevoSenderName =
+            config.get<string>('BREVO_SENDER_NAME')?.trim() ||
+            'Ready to Revise';
 
-        if (!this.host) {
+        if (!this.useBrevo && !this.host) {
             this.logger.warn(
                 'SMTP_HOST is not set. OTP emails will only be logged, not sent.',
             );
         }
     }
 
+    private get useBrevo(): boolean {
+        return !!(this.brevoApiKey && this.brevoSenderEmail);
+    }
+
     onModuleInit(): void {
+        if (this.useBrevo) {
+            this.logger.log(
+                'Brevo HTTP email enabled. OTP emails will be sent via Brevo.',
+            );
+            return;
+        }
         if (!this.host) {
             return;
         }
@@ -47,6 +75,11 @@ export class MailService implements OnModuleInit {
     }
 
     async sendOtpEmail(to: string, otp: string): Promise<void> {
+        if (this.useBrevo) {
+            await this.sendViaBrevo(to, otp);
+            return;
+        }
+
         if (!this.transporter) {
             this.logger.warn(`SMTP not configured. OTP for ${to}: ${otp}`);
             return;
@@ -67,6 +100,50 @@ export class MailService implements OnModuleInit {
             const err = error as { code?: string; message?: string };
             this.logger.error(
                 `Failed to send OTP email to ${to} [${err?.code ?? 'UNKNOWN'}]. ${err?.message ?? error}`,
+            );
+            throw new ServiceUnavailableException(
+                'Email service is temporarily unavailable. Please try again.',
+            );
+        }
+    }
+
+    private async sendViaBrevo(to: string, otp: string): Promise<void> {
+        try {
+            const response = await firstValueFrom(
+                this.http.post(
+                    BREVO_SEND_URL,
+                    {
+                        sender: {
+                            name: this.brevoSenderName,
+                            email: this.brevoSenderEmail,
+                        },
+                        to: [{ email: to }],
+                        subject: 'Your password reset code',
+                        textContent: `Your Ready to Revise password reset code is ${otp}. It expires in 5 minutes. If you did not request this, ignore this email.`,
+                        htmlContent: `<p>Your Ready to Revise password reset code is <b>${otp}</b>.</p><p>It expires in 5 minutes. If you did not request this, ignore this email.</p>`,
+                    },
+                    {
+                        headers: {
+                            'api-key': this.brevoApiKey as string,
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        timeout: 30_000,
+                    },
+                ),
+            );
+            this.logger.log(
+                `OTP email sent via Brevo to ${to} (messageId: ${response.data?.messageId})`,
+            );
+        } catch (error) {
+            const axiosError = error as AxiosError<{ message?: string }>;
+            const status = axiosError?.response?.status;
+            const detail =
+                axiosError?.response?.data?.message ??
+                (error as Error)?.message ??
+                error;
+            this.logger.error(
+                `Failed to send OTP email via Brevo to ${to} [${status ?? 'UNKNOWN'}]. ${detail}`,
             );
             throw new ServiceUnavailableException(
                 'Email service is temporarily unavailable. Please try again.',

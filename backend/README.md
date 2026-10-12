@@ -51,6 +51,14 @@ Password-reset OTP mail (Gmail): `SMTP_HOST=smtp.gmail.com`,
 `SMTP_PASS` = 16-char App Password (Google account with 2SV on;
 spaces optional, they are stripped). Without `SMTP_HOST`, OTPs are
 only logged, not sent.
+Brevo HTTP mail (recommended on Render, where direct SMTP egress is
+unreliable): set `BREVO_API_KEY`, `BREVO_SENDER_EMAIL` (a sender
+address verified in the Brevo dashboard), and optionally
+`BREVO_SENDER_NAME`. When Brevo is fully configured it takes
+precedence and SMTP is not used; otherwise the Gmail SMTP settings
+above apply. Brevo setup: create an account → add and verify your
+Gmail address under Senders → generate a v3 API key → set the three
+variables on Render and redeploy.
 
 ### Docker (Dockerfile-only deploys)
 
