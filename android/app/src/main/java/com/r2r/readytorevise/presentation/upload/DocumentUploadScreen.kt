@@ -42,6 +42,7 @@ fun DocumentUploadScreen(
     DocumentPreviewScreen(
         navController = navController,
         uploadedFiles = state.files,
+        submitEnabled = !state.isBusy,
         onAddDocument = {
             addDocumentLauncher.launch(
                 arrayOf(

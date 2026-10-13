@@ -20,10 +20,11 @@ data class UploadUiState(
     val totalItems: Int = 0,
     val generatedCount: Int = 0,
     val failureLines: List<String> = emptyList(),
-    val errorCountdownSeconds: Int? = null,
     val generatedItems: List<StudyItemDto> = emptyList(),
     val discardedIds: Set<String> = emptySet(),
     val curationBusy: Boolean = false,
+    val batchId: String? = null,
+    val generatedFilePath: String? = null,
 ) : UiState {
     val isBusy: Boolean
         get() = stage == UploadStage.WORKING

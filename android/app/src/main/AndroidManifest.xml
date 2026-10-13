@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
@@ -37,6 +39,10 @@
 
         <receiver
             android:name=".notification.SnoozeAlarmReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".work.upload.UploadActionReceiver"
             android:exported="false" />
 
         <receiver

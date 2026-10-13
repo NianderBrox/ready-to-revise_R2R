@@ -6,6 +6,7 @@ import com.r2r.readytorevise.di.DefaultAppContainer
 import com.r2r.readytorevise.notification.BootReceiver
 import com.r2r.readytorevise.notification.NotificationHelper
 import com.r2r.readytorevise.notification.NotificationPreferences
+import com.r2r.readytorevise.notification.UploadNotifications
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -22,6 +23,7 @@ class ReadyToReviseApplication : Application() {
         container = DefaultAppContainer(this)
 
         NotificationHelper.createNotificationChannel(this)
+        UploadNotifications.createUploadChannel(this)
 
         val prefs = NotificationPreferences(this)
         applicationScope.launch {

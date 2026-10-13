@@ -6,7 +6,12 @@ import com.r2r.readytorevise.data.remote.dto.UploadDocumentDto
 import java.io.File
 
 interface DocumentsRepository {
-    suspend fun upload(file: File, mimeType: String): Result<UploadDocumentDto>
+    suspend fun upload(
+        file: File,
+        mimeType: String,
+        isStopped: () -> Boolean = { false },
+        onProgress: (sentBytes: Long, totalBytes: Long) -> Unit = { _, _ -> },
+    ): Result<UploadDocumentDto>
 
     suspend fun getDocument(id: String): Result<DocumentDto>
 

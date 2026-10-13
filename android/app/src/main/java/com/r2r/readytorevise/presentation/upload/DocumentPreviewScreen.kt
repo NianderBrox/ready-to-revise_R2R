@@ -31,7 +31,8 @@ fun DocumentPreviewScreen(
     uploadedFiles: List<UploadedFile>,
     onAddDocument: () -> Unit,
     onRemoveDocument: (Int) -> Unit,
-    onSubmit: () -> Unit
+    onSubmit: () -> Unit,
+    submitEnabled: Boolean = true
 ) {
     val context = LocalContext.current
 
@@ -189,7 +190,7 @@ fun DocumentPreviewScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 18.dp),
-                enabled = uploadedFiles.isNotEmpty(),
+                enabled = uploadedFiles.isNotEmpty() && submitEnabled,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = SkyBlue,
                     disabledContainerColor = SkyBlue.copy(alpha = 0.5f)

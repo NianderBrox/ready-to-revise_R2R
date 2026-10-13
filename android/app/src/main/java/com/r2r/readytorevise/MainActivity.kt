@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat
 import com.r2r.readytorevise.ui.theme.ReadyToReviseTheme
 import com.r2r.readytorevise.navigation.AppNavGraph
 import com.r2r.readytorevise.notification.NotificationHelper
+import com.r2r.readytorevise.work.upload.UploadWork
 
 class MainActivity : ComponentActivity() {
 
@@ -33,9 +34,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         requestNotificationPermission()
         val appContainer = (application as ReadyToReviseApplication).container
+        val openProcessing =
+            intent?.getBooleanExtra(UploadWork.EXTRA_OPEN_PROCESSING, false) == true
         setContent {
             ReadyToReviseTheme {
-                AppNavGraph(appContainer = appContainer)
+                AppNavGraph(appContainer = appContainer, openProcessing = openProcessing)
             }
         }
 

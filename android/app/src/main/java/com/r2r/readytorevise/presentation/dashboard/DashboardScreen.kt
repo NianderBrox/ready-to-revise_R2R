@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.r2r.readytorevise.di.AppContainer
 import com.r2r.readytorevise.presentation.upload.UploadEvent
+import com.r2r.readytorevise.presentation.upload.UploadStage
 import com.r2r.readytorevise.presentation.upload.UploadViewModel
 import com.r2r.readytorevise.presentation.upload.UploadedFile
 import com.r2r.readytorevise.presentation.upload.FileType
@@ -218,6 +219,8 @@ fun DashboardScreen(
         skipPartiallyExpanded = true
     )
 
+    val uploadState by uploadViewModel.state.collectAsState()
+
     Scaffold(
 
         containerColor = Color(0xFFF5F9FF),
@@ -241,7 +244,7 @@ fun DashboardScreen(
                         },
 
                         onChangePasswordClick = {
-
+                            navController.navigate(Screen.ChangePassword.route)
                         },
 
                         onNotificationSettingsClick = {
@@ -344,6 +347,39 @@ fun DashboardScreen(
 
             Spacer(modifier = Modifier.height(30.dp))
 
+        }
+
+        val uploadOverlayVisible = uploadState.stage == UploadStage.WORKING ||
+            (uploadState.stage == UploadStage.DONE && uploadState.batchId != null) ||
+            uploadState.stage == UploadStage.ERROR
+
+        if (uploadOverlayVisible) {
+            val overlayProgress: Float? = when {
+                uploadState.stage == UploadStage.ERROR -> 1f
+                uploadState.curationBusy -> null
+                uploadState.stage == UploadStage.DONE -> 1f
+                uploadState.totalItems > 0 ->
+                    uploadState.completedItems.toFloat() / uploadState.totalItems.toFloat()
+                else -> null
+            }
+
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                UploadProgressOverlay(
+                    progress = overlayProgress,
+                    isError = uploadState.stage == UploadStage.ERROR,
+                    showCancel = uploadState.stage == UploadStage.WORKING,
+                    onOpen = { navController.navigate(Screen.Processing.route) },
+                    onCancel = { uploadViewModel.onEvent(UploadEvent.CancelActiveBatch) },
+                    modifier = Modifier.padding(
+                        start = 16.dp,
+                        end = 16.dp,
+                        bottom = padding.calculateBottomPadding() + 12.dp
+                    )
+                )
+            }
         }
 
     }

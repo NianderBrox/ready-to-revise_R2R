@@ -91,7 +91,7 @@ fun ProcessingRoute(
 
     ProcessingScreen(
         state = state,
-        onRetry = { uploadViewModel.onEvent(UploadEvent.Submit) },
+        onRetry = { uploadViewModel.onEvent(UploadEvent.RetryBatch) },
         onBack = { navController.popBackStack() },
         onEvent = uploadViewModel::onEvent,
     )
@@ -293,16 +293,6 @@ fun ProcessingScreen(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text("Try again")
-                }
-
-                state.errorCountdownSeconds?.let { seconds ->
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = "Returning to dashboard in $seconds…",
-                        color = OnSurfaceVariant,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))

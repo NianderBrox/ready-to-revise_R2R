@@ -36,7 +36,8 @@ fun PreviewScreen(
     onAddImage: () -> Unit,
     onReplaceImage: (Int) -> Unit,
     onRemoveImage: (Int) -> Unit,
-    onSubmit: () -> Unit
+    onSubmit: () -> Unit,
+    submitEnabled: Boolean = true
 ) {
     val context = LocalContext.current
 
@@ -205,7 +206,7 @@ fun PreviewScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 18.dp),
-                enabled = images.isNotEmpty(),
+                enabled = images.isNotEmpty() && submitEnabled,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = SkyBlue,
                     disabledContainerColor = SkyBlue.copy(alpha = 0.5f)

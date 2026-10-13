@@ -54,6 +54,8 @@ fun UploadScreen(
 
         images = state.images,
 
+        submitEnabled = !state.isBusy,
+
 
         onAddImage = {
 

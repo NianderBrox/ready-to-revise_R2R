@@ -2,23 +2,40 @@ package com.r2r.readytorevise.presentation.upload
 
 import android.content.Context
 import android.net.Uri
-import androidx.lifecycle.viewModelScope
-import com.r2r.readytorevise.data.remote.dto.DocumentDto
-import com.r2r.readytorevise.domain.repository.DocumentsRepository
-import com.r2r.readytorevise.domain.repository.StudyItemsRepository
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import androidx.work.getWorkInfosForUniqueWorkFlow
+import com.r2r.readytorevise.data.remote.dto.StudyItemDto
 import com.r2r.readytorevise.presentation.base.BaseViewModel
+import com.r2r.readytorevise.notification.UploadNotifications
+import com.r2r.readytorevise.work.upload.UploadPrefs
+import com.r2r.readytorevise.work.upload.UploadWork
+import com.r2r.readytorevise.work.upload.UploadWorkScheduler
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.Locale
 
 class UploadViewModel(
-    private val documentsRepository: DocumentsRepository,
-    private val studyItemsRepository: StudyItemsRepository,
     private val appContext: Context,
 ) : BaseViewModel<UploadUiState, UploadEvent, UploadEffect>(UploadUiState()) {
+
+    private val workManager by lazy { WorkManager.getInstance(appContext) }
+    private val uploadPrefs by lazy { UploadPrefs(appContext) }
+    private val json = Json { ignoreUnknownKeys = true }
+
+    private var observeJob: Job? = null
+    private var persistJob: Job? = null
+
+    init {
+        viewModelScope.launch {
+            uploadPrefs.activeBatchId.first()?.let { observeBatch(it) }
+        }
+    }
 
     override fun onEvent(event: UploadEvent) {
         when (event) {
@@ -30,9 +47,11 @@ class UploadViewModel(
             is UploadEvent.SetFiles -> setFiles(event.files)
             is UploadEvent.RemoveFile -> removeFile(event.index)
             UploadEvent.Submit -> submitAll()
+            UploadEvent.RetryBatch -> retryBatch()
+            UploadEvent.CancelActiveBatch -> cancelActiveBatch()
             is UploadEvent.ToggleDiscard -> toggleDiscard(event.studyItemId)
-            UploadEvent.ConfirmCuration -> confirmCuration()
-            UploadEvent.SkipCuration -> skipCuration()
+            UploadEvent.ConfirmCuration -> persistSelection(keepAll = false)
+            UploadEvent.SkipCuration -> persistSelection(keepAll = true)
         }
     }
 
@@ -96,172 +115,184 @@ class UploadViewModel(
         updateState {
             copy(
                 stage = UploadStage.WORKING,
-                statusLine = "Starting upload…",
+                statusLine = "Queued…",
                 completedItems = 0,
                 totalItems = items.size,
                 generatedCount = 0,
                 failureLines = emptyList(),
-                errorCountdownSeconds = null,
                 generatedItems = emptyList(),
                 discardedIds = emptySet(),
                 curationBusy = false,
+                generatedFilePath = null,
             )
         }
 
         viewModelScope.launch {
-            val failures = mutableListOf<String>()
-            var generated = 0
+            val newBatchId = UploadWorkScheduler.enqueueBatch(
+                appContext,
+                items.map { UploadWork.BatchItem(it.uri.toString(), it.fileName, it.mimeType) },
+            )
+            updateState { copy(batchId = newBatchId) }
+            observeBatch(newBatchId)
+        }
+    }
 
-            for ((index, item) in items.withIndex()) {
+    private fun retryBatch() {
+        if (currentState.isBusy) {
+            return
+        }
+
+        viewModelScope.launch {
+            val newBatchId = UploadWorkScheduler.resumeFailed(appContext)
+
+            if (newBatchId == null) {
+                sendEffect(UploadEffect.ShowToast("Nothing to retry"))
+                return@launch
+            }
+
+            updateState {
+                copy(
+                    stage = UploadStage.WORKING,
+                    statusLine = "Retrying…",
+                    failureLines = emptyList(),
+                    batchId = newBatchId,
+                )
+            }
+            observeBatch(newBatchId)
+        }
+    }
+
+    private fun cancelActiveBatch() {
+        val batchId = currentState.batchId
+
+        if (currentState.stage != UploadStage.WORKING || batchId == null) {
+            return
+        }
+
+        viewModelScope.launch {
+            WorkManager.getInstance(appContext).cancelUniqueWork(UploadWork.batchName(batchId))
+            File(appContext.cacheDir, UploadWork.batchDirName(batchId)).deleteRecursively()
+            File(appContext.cacheDir, UploadWork.batchDirName(batchId) + "_generated.json").delete()
+            uploadPrefs.setActiveBatchId(null)
+            UploadNotifications.dismiss(appContext)
+            updateState { copy(stage = UploadStage.IDLE, statusLine = "", batchId = null) }
+            sendEffect(UploadEffect.ShowToast("Upload cancelled"))
+        }
+    }
+
+    private fun observeBatch(batchId: String) {        observeJob?.cancel()
+        observeJob = viewModelScope.launch {
+            workManager.getWorkInfosForUniqueWorkFlow(UploadWork.batchName(batchId)).collect { infos ->
+                mapChainState(infos, batchId)
+            }
+        }
+    }
+
+    private suspend fun mapChainState(infos: List<WorkInfo>, batchId: String) {
+        if (infos.isEmpty()) {
+            return
+        }
+
+        val failed = infos.firstOrNull { it.state == WorkInfo.State.FAILED }
+
+        if (failed != null) {
+            val error = failed.outputData.getString(UploadWork.OUT_ERROR) ?: "Upload failed"
+            val failedNames = failed.outputData.getStringArray(UploadWork.OUT_FAILED_FILES)?.toList().orEmpty()
+            val cancelled = failed.outputData.getBoolean(UploadWork.OUT_CANCELLED, false)
+            val loginRequired = failed.outputData.getBoolean(UploadWork.OUT_LOGIN_REQUIRED, false)
+
+            if (cancelled) {
+                uploadPrefs.setActiveBatchId(null)
+                if (currentState.stage != UploadStage.IDLE) {
+                    updateState { copy(stage = UploadStage.IDLE, statusLine = "", batchId = null) }
+                    sendEffect(UploadEffect.ShowToast("Upload cancelled"))
+                }
+            } else {
                 updateState {
                     copy(
-                        completedItems = index,
-                        statusLine = "Uploading ${item.fileName}…",
+                        stage = UploadStage.ERROR,
+                        statusLine = if (loginRequired) {
+                            "$error — please log in again"
+                        } else {
+                            error
+                        },
+                        failureLines = failedNames.map { "· $it" },
                     )
                 }
+            }
+            return
+        }
 
-                val outcome = processItem(item)
+        if (infos.any { it.state == WorkInfo.State.CANCELLED }) {
+            uploadPrefs.setActiveBatchId(null)
+            if (currentState.stage != UploadStage.IDLE) {
+                updateState { copy(stage = UploadStage.IDLE, statusLine = "", batchId = null) }
+            }
+            return
+        }
 
-                if (outcome != null) {
-                    generated += outcome
+        val running = infos.firstOrNull { it.state == WorkInfo.State.RUNNING }
+
+        if (running == null) {
+            if (infos.all { it.state == WorkInfo.State.SUCCEEDED }) {
+                val generatedFile = infos.firstNotNullOfOrNull {
+                    it.outputData.getString(UploadWork.OUT_GENERATED_FILE)
+                }
+
+                if (generatedFile != null) {
+                    val items = readGeneratedFile(generatedFile)
+
+                    if (items != null) {
+                        updateState {
+                            copy(
+                                stage = UploadStage.DONE,
+                                statusLine = "${items.size} generated — discard anything off-topic",
+                                completedItems = totalItems,
+                                generatedCount = items.size,
+                                generatedItems = items,
+                                generatedFilePath = generatedFile,
+                            )
+                        }
+                    } else {
+                        updateState {
+                            copy(
+                                stage = UploadStage.ERROR,
+                                statusLine = "Could not read results",
+                            )
+                        }
+                    }
                 } else {
-                    failures += item.fileName
+                    updateState {
+                        copy(
+                            stage = UploadStage.ERROR,
+                            statusLine = "Upload finished without results",
+                        )
+                    }
                 }
-
-                updateState { copy(completedItems = index + 1) }
-            }
-
-            finishRun(items.size, generated, failures)
-        }
-    }
-
-    private suspend fun processItem(item: UploadedFile): Int? {
-        var cacheFile: File? = null
-
-        return try {
-            val file = copyToCache(item)
-
-            if (file == null) {
-                null
             } else {
-                cacheFile = file
-
-                updateState {
-                    copy(statusLine = "Analyzing ${item.fileName}…")
-                }
-
-                val document = documentsRepository.upload(file, item.mimeType)
-                    .getOrElse { return null }
-
-                val readyDocument = awaitReady(document.documentId, document.status)
-
-                if (readyDocument == null || readyDocument.status == STATUS_FAILED) {
-                    return null
-                }
-
-                updateState {
-                    copy(statusLine = "Generating questions for ${item.fileName}…")
-                }
-
-                val questions = documentsRepository.generateQuestions(readyDocument.id)
-                    .getOrElse { return null }
-
-                updateState {
-                    copy(generatedItems = generatedItems + questions)
-                }
-
-                questions.size
+                updateState { copy(stage = UploadStage.WORKING, statusLine = "Queued…") }
             }
-        } finally {
-            cacheFile?.delete()
+            return
+        }
+
+        val progress = running.progress
+        updateState {
+            copy(
+                stage = UploadStage.WORKING,
+                completedItems = progress.getInt(UploadWork.P_COMPLETED, completedItems),
+                totalItems = progress.getInt(UploadWork.P_TOTAL, totalItems),
+                statusLine = progress.getString(UploadWork.P_MESSAGE) ?: "Working…",
+            )
         }
     }
 
-    private suspend fun awaitReady(
-        documentId: String,
-        initialStatus: String,
-    ): DocumentDto? {
-        if (initialStatus == STATUS_READY) {
-            return documentsRepository.getDocument(documentId).getOrNull()
-        }
-
-        var current: DocumentDto? = documentsRepository.getDocument(documentId).getOrNull()
-
-        repeat(POLL_ATTEMPTS) {
-            if (current?.status == STATUS_READY || current?.status == STATUS_FAILED) {
-                return current
-            }
-
-            delay(POLL_INTERVAL_MS)
-
-            current = documentsRepository.getDocument(documentId).getOrNull()
-        }
-
-        return current?.takeIf { it.status == STATUS_READY || it.status == STATUS_FAILED }
-    }
-
-    private suspend fun copyToCache(item: UploadedFile): File? {
+    private suspend fun readGeneratedFile(path: String): List<StudyItemDto>? {
         return withContext(Dispatchers.IO) {
             try {
-                appContext.contentResolver.openInputStream(item.uri)?.use { input ->
-                    val safeName = item.fileName.replace(Regex("[^A-Za-z0-9._-]"), "_")
-                    File.createTempFile("upload_", "_$safeName", appContext.cacheDir)
-                        .apply { outputStream().use { output -> input.copyTo(output) } }
-                }
+                json.decodeFromString<List<StudyItemDto>>(File(path).readText())
             } catch (t: Throwable) {
                 null
             }
-        }
-    }
-
-    private suspend fun finishRun(
-        total: Int,
-        generated: Int,
-        failures: List<String>,
-    ) {
-        val succeededAny = failures.size < total
-
-        if (succeededAny) {
-            updateState {
-                copy(
-                    images = emptyList(),
-                    files = emptyList(),
-                )
-            }
-        }
-
-        val message = when {
-            failures.isEmpty() -> "$generated question${if (generated == 1) "" else "s"} created"
-            failures.size == total -> "Upload failed"
-            else -> "$generated created · ${failures.size} failed"
-        }
-
-        updateState {
-            copy(
-                stage = if (failures.size == total) UploadStage.ERROR else UploadStage.DONE,
-                statusLine = message,
-                failureLines = failures.map { "· $it" },
-                errorCountdownSeconds = null,
-            )
-        }
-
-        if (failures.size == total) {
-            for (remaining in ERROR_AUTO_NAVIGATE_SECONDS downTo 1) {
-                updateState { copy(errorCountdownSeconds = remaining) }
-                delay(1000L)
-            }
-        }
-
-        if (failures.size == total) {
-            for (remaining in ERROR_AUTO_NAVIGATE_SECONDS downTo 1) {
-                updateState { copy(errorCountdownSeconds = remaining) }
-                delay(1000L)
-            }
-
-            sendEffect(UploadEffect.ShowToast(message))
-            sendEffect(UploadEffect.NavigateToDashboard)
-        } else {
-            sendEffect(UploadEffect.ShowToast(message))
         }
     }
 
@@ -277,52 +308,82 @@ class UploadViewModel(
         }
     }
 
-    private fun confirmCuration() {
+    private fun persistSelection(keepAll: Boolean) {
         val state = currentState
+        val toDiscard = if (keepAll) emptySet() else state.discardedIds
 
         if (state.curationBusy) {
             return
         }
 
-        if (state.stage != UploadStage.DONE || state.discardedIds.isEmpty()) {
-            skipCuration()
+        if (state.stage != UploadStage.DONE || state.generatedFilePath == null) {
+            if (keepAll) {
+                viewModelScope.launch {
+                    sendEffect(UploadEffect.ShowToast("All generated questions kept"))
+                    sendEffect(UploadEffect.NavigateToDashboard)
+                }
+            }
             return
         }
 
         updateState {
             copy(
                 curationBusy = true,
-                statusLine = "Removing discarded questions…",
+                statusLine = "Saving…",
             )
         }
 
         viewModelScope.launch {
-            var failures = 0
-
-            for (id in state.discardedIds) {
-                studyItemsRepository.deleteStudyItem(id)
-                    .onFailure { failures += 1 }
-            }
-
-            val kept = state.generatedItems.size -
-                state.discardedIds.size + failures
-
-            updateState { copy(curationBusy = false, statusLine = "") }
-
-            val message = "$kept question${if (kept == 1) "" else "s"} saved" +
-                if (failures > 0) " · ${failures} removals failed" else ""
-
-            delay(2000L)
-
-            sendEffect(UploadEffect.ShowToast(message))
-            sendEffect(UploadEffect.NavigateToDashboard)
+            val batchId = state.batchId ?: UploadWork.newBatchId()
+            val name = UploadWorkScheduler.enqueuePersist(
+                appContext,
+                batchId,
+                state.generatedFilePath,
+                toDiscard,
+            )
+            observePersist(name)
         }
     }
 
-    private fun skipCuration() {
-        viewModelScope.launch {
-            sendEffect(UploadEffect.ShowToast("All generated questions kept"))
-            sendEffect(UploadEffect.NavigateToDashboard)
+    private fun observePersist(name: String) {
+        persistJob?.cancel()
+        persistJob = viewModelScope.launch {
+            workManager.getWorkInfosForUniqueWorkFlow(name).collect { infos ->
+                val info = infos.firstOrNull() ?: return@collect
+
+                when (info.state) {
+                    WorkInfo.State.SUCCEEDED -> {
+                        val kept = info.outputData.getInt(UploadWork.OUT_KEPT, currentState.keptCount)
+                        uploadPrefs.setActiveBatchId(null)
+                        uploadPrefs.clearFailed()
+                        updateState {
+                            copy(
+                                curationBusy = false,
+                                statusLine = "",
+                                images = emptyList(),
+                                files = emptyList(),
+                                generatedItems = emptyList(),
+                                discardedIds = emptySet(),
+                                generatedFilePath = null,
+                                batchId = null,
+                                stage = UploadStage.IDLE,
+                            )
+                        }
+                        sendEffect(UploadEffect.ShowToast("$kept question${if (kept == 1) "" else "s"} saved"))
+                        sendEffect(UploadEffect.NavigateToDashboard)
+                        persistJob?.cancel()
+                    }
+                    WorkInfo.State.FAILED -> {
+                        updateState { copy(curationBusy = false) }
+                        val error = info.outputData.getString(UploadWork.OUT_ERROR) ?: "Couldn't save"
+                        sendEffect(UploadEffect.ShowToast(error))
+                    }
+                    WorkInfo.State.CANCELLED -> {
+                        updateState { copy(curationBusy = false) }
+                    }
+                    else -> Unit
+                }
+            }
         }
     }
 
@@ -348,11 +409,6 @@ class UploadViewModel(
     private companion object {
         const val MAX_IMAGES = 5
         const val MAX_FILES = 10
-        const val POLL_INTERVAL_MS = 3_000L
-        const val POLL_ATTEMPTS = 40
-        const val STATUS_READY = "READY"
-        const val STATUS_FAILED = "FAILED"
-        const val ERROR_AUTO_NAVIGATE_SECONDS = 5
     }
 }
 

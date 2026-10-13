@@ -1,6 +1,7 @@
 package com.r2r.readytorevise.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.foundation.layout.Box
@@ -40,7 +41,8 @@ import androidx.compose.runtime.setValue
 @Composable
 fun AppNavGraph(
     appContainer: com.r2r.readytorevise.di.AppContainer,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    openProcessing: Boolean = false,
 ) {
     var showSplash by remember {
         mutableStateOf(true)
@@ -85,6 +87,13 @@ fun AppNavGraph(
     val navController = rememberNavController()
 
 
+    if (openProcessing) {
+        LaunchedEffect(Unit) {
+            navController.navigate(Screen.Processing.route)
+        }
+    }
+
+
     val appContext = LocalContext.current.applicationContext
 
 
@@ -95,8 +104,6 @@ fun AppNavGraph(
             initializer {
 
                 UploadViewModel(
-                    documentsRepository = appContainer.documentsRepository,
-                    studyItemsRepository = appContainer.studyItemsRepository,
                     appContext = appContext,
                 )
 

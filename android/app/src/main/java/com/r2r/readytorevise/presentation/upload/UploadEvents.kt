@@ -13,6 +13,8 @@ sealed interface UploadEvent : UiEvent {
     data class SetFiles(val files: List<UploadedFile>) : UploadEvent
     data class RemoveFile(val index: Int) : UploadEvent
     data object Submit : UploadEvent
+    data object RetryBatch : UploadEvent
+    data object CancelActiveBatch : UploadEvent
     data class ToggleDiscard(val studyItemId: String) : UploadEvent
     data object ConfirmCuration : UploadEvent
     data object SkipCuration : UploadEvent
