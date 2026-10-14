@@ -27,7 +27,7 @@ class UploadActionReceiver : BroadcastReceiver() {
                             File(app.cacheDir, UploadWork.batchDirName(batchId) + "_generated.json").delete()
                             val prefs = UploadPrefs(app)
                             val active = try {
-                                first(prefs.activeBatchId)
+                                prefs.activeBatchId.first()
                             } catch (t: Throwable) {
                                 null
                             }

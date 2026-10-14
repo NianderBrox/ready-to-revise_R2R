@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import androidx.work.getWorkInfosForUniqueWorkFlow
+import androidx.lifecycle.viewModelScope
 import com.r2r.readytorevise.data.remote.dto.StudyItemDto
 import com.r2r.readytorevise.presentation.base.BaseViewModel
 import com.r2r.readytorevise.notification.UploadNotifications
