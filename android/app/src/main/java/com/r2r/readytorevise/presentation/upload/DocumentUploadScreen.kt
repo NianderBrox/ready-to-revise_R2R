@@ -43,6 +43,7 @@ fun DocumentUploadScreen(
         navController = navController,
         uploadedFiles = state.files,
         submitEnabled = !state.isBusy,
+        stagingError = state.stagingError,
         onAddDocument = {
             addDocumentLauncher.launch(
                 arrayOf(

@@ -1,6 +1,7 @@
 package com.r2r.readytorevise.presentation.processing
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -64,8 +65,31 @@ private val AccentGreen = androidx.compose.ui.graphics.Color(0xFF22C55E)
 fun ProcessingRoute(
     uploadViewModel: UploadViewModel,
     navController: NavController,
+    expectedBatchId: String? = null,
 ) {
     val state by uploadViewModel.state.collectAsState()
+
+    val goToDashboard: () -> Unit = {
+        navController.navigate(Screen.Dashboard.route) {
+            popUpTo(Screen.Processing.route) {
+                inclusive = true
+            }
+            launchSingleTop = true
+        }
+    }
+
+    BackHandler(onBack = goToDashboard)
+
+    LaunchedEffect(expectedBatchId) {
+        if (expectedBatchId != null && uploadViewModel.isBatchCompleted(expectedBatchId)) {
+            Toast.makeText(
+                navController.context,
+                "Questions are already accepted",
+                Toast.LENGTH_LONG,
+            ).show()
+            goToDashboard()
+        }
+    }
 
     LaunchedEffect(uploadViewModel) {
         uploadViewModel.effect.collect { effect ->
@@ -78,12 +102,16 @@ fun ProcessingRoute(
                     ).show()
                 }
 
-                UploadEffect.NavigateToDashboard -> {
-                    navController.navigate(Screen.Dashboard.route) {
+                UploadEffect.NavigateToSuccess -> {
+                    navController.navigate(Screen.UploadSuccess.route) {
                         popUpTo(Screen.Processing.route) {
                             inclusive = true
                         }
                     }
+                }
+
+                UploadEffect.NavigateToDashboard -> {
+                    goToDashboard()
                 }
             }
         }
@@ -92,7 +120,7 @@ fun ProcessingRoute(
     ProcessingScreen(
         state = state,
         onRetry = { uploadViewModel.onEvent(UploadEvent.RetryBatch) },
-        onBack = { navController.popBackStack() },
+        onBack = goToDashboard,
         onEvent = uploadViewModel::onEvent,
     )
 }
@@ -276,13 +304,16 @@ fun ProcessingScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                if (state.failureLines.isNotEmpty()) {
-                    Text(
-                        text = state.failureLines.joinToString("\n"),
-                        color = OnSurfaceVariant,
-                    )
-                } else if (state.statusLine.isNotEmpty()) {
+                if (state.statusLine.isNotEmpty()) {
                     Text(state.statusLine, color = OnSurfaceVariant)
+                }
+
+                val visibleFailures = state.failureLines.filter { it.isNotBlank() }
+
+                if (visibleFailures.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(visibleFailures.joinToString("\n"), color = OnSurfaceVariant)
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))

@@ -21,6 +21,7 @@ sealed interface UploadEvent : UiEvent {
 }
 
 sealed interface UploadEffect : UiEffect {
+    data object NavigateToSuccess : UploadEffect
     data object NavigateToDashboard : UploadEffect
     data class ShowToast(val message: String) : UploadEffect
 }

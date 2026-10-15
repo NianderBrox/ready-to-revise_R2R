@@ -17,6 +17,7 @@ import java.io.InterruptedIOException
 
 class DocumentsRepositoryImpl(
     private val documentsApi: DocumentsApi,
+    private val uploadDocumentsApi: DocumentsApi,
     private val tokenManager: TokenManager,
 ) : DocumentsRepository {
 
@@ -35,7 +36,7 @@ class DocumentsRepositoryImpl(
                 filename = file.name,
                 body = body,
             )
-            documentsApi.upload(part).data
+            uploadDocumentsApi.upload(part).data
         }
     }
 

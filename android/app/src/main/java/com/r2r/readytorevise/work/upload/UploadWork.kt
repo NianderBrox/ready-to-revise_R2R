@@ -6,6 +6,7 @@ import java.util.UUID
 
 object UploadWork {
     const val NOTIFICATION_ID = 2001
+    const val RESULT_NOTIFICATION_ID = 2002
     const val STATUS_READY = "READY"
     const val STATUS_FAILED = "FAILED"
 
@@ -21,6 +22,8 @@ object UploadWork {
     const val IN_DOC_IDS = "in_doc_ids"
     const val IN_DISCARD_IDS = "in_discard_ids"
     const val IN_GENERATED_FILE = "in_generated_file"
+    const val IN_RESUME = "in_resume"
+    const val IN_GENERATED_DOC_IDS = "in_generated_doc_ids"
     const val IN_BATCH_ID = "in_batch_id"
     const val IN_TOTAL = "in_total"
 
@@ -73,7 +76,8 @@ object UploadWork {
         IN_MIMES,
         IN_PATHS,
         IN_DOC_IDS,
+        IN_GENERATED_DOC_IDS,
     )
 
-    data class BatchItem(val uri: String, val name: String, val mime: String)
+    data class BatchItem(val path: String, val name: String, val mime: String)
 }

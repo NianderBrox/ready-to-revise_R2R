@@ -4,6 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import com.r2r.readytorevise.presentation.onboarding.OnboardingPrefs
+import com.r2r.readytorevise.presentation.onboarding.PermissionsScreen
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,6 +32,7 @@ import com.r2r.readytorevise.presentation.changepassword.ChangePasswordRoute
 import com.r2r.readytorevise.presentation.upload.UploadScreen
 import com.r2r.readytorevise.presentation.upload.DocumentUploadScreen
 import com.r2r.readytorevise.presentation.processing.ProcessingRoute
+import com.r2r.readytorevise.presentation.processing.UploadSuccessRoute
 import com.r2r.readytorevise.quiz.RevisionRoute
 import com.r2r.readytorevise.presentation.upload.UploadViewModel
 
@@ -43,6 +48,7 @@ fun AppNavGraph(
     appContainer: com.r2r.readytorevise.di.AppContainer,
     modifier: Modifier = Modifier,
     openProcessing: Boolean = false,
+    processingBatchId: String? = null,
 ) {
     var showSplash by remember {
         mutableStateOf(true)
@@ -51,6 +57,10 @@ fun AppNavGraph(
     var registrationSuccessMessage by remember {
         mutableStateOf<String?>(null)
     }
+
+    val appContext = LocalContext.current.applicationContext
+
+    val onboardingPrefs = remember { OnboardingPrefs(appContext) }
 
     if (showSplash) {
 
@@ -68,8 +78,12 @@ fun AppNavGraph(
         .isLoggedIn
         .collectAsState(initial = null)
 
+    val onboardingDone by onboardingPrefs
+        .permissionsDone
+        .collectAsState(initial = null)
 
-    if (isLoggedIn == null) {
+
+    if (isLoggedIn == null || onboardingDone == null) {
 
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -94,9 +108,6 @@ fun AppNavGraph(
     }
 
 
-    val appContext = LocalContext.current.applicationContext
-
-
     val uploadViewModel: UploadViewModel = viewModel(
 
         factory = viewModelFactory {
@@ -117,6 +128,8 @@ fun AppNavGraph(
 
     val notificationPreferences = remember { NotificationPreferences(appContext) }
 
+    val scope = rememberCoroutineScope()
+
 
 
     NavHost(
@@ -124,10 +137,11 @@ fun AppNavGraph(
         navController = navController,
 
         startDestination =
-            if (isLoggedIn == true)
-                Screen.Dashboard.route
-            else
-                Screen.Login.route,
+            when {
+                onboardingDone == false -> Screen.Onboarding.route
+                isLoggedIn == true -> Screen.Dashboard.route
+                else -> Screen.Login.route
+            },
 
         modifier = modifier
 
@@ -202,6 +216,32 @@ fun AppNavGraph(
 
 
 
+        composable(Screen.Onboarding.route) {
+
+            PermissionsScreen(
+                onContinue = {
+                    scope.launch {
+                        onboardingPrefs.setPermissionsDone()
+
+                        navController.navigate(
+                            if (isLoggedIn == true) {
+                                Screen.Dashboard.route
+                            } else {
+                                Screen.Login.route
+                            }
+                        ) {
+                            popUpTo(Screen.Onboarding.route) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                }
+            )
+
+        }
+
+
+
         composable(Screen.ForgotPassword.route) {
 
             ForgotPasswordRoute(
@@ -250,6 +290,17 @@ fun AppNavGraph(
         composable(Screen.Processing.route) {
 
             ProcessingRoute(
+                uploadViewModel = uploadViewModel,
+                navController = navController,
+                expectedBatchId = processingBatchId
+            )
+
+        }
+
+
+        composable(Screen.UploadSuccess.route) {
+
+            UploadSuccessRoute(
                 uploadViewModel = uploadViewModel,
                 navController = navController
             )

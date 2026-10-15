@@ -25,12 +25,18 @@ data class UploadUiState(
     val curationBusy: Boolean = false,
     val batchId: String? = null,
     val generatedFilePath: String? = null,
+    val lastSavedCount: Int = 0,
+    val stagedImagePaths: Map<String, String> = emptyMap(),
+    val stagingInFlight: Int = 0,
+    val stagingError: String? = null,
+    val submittedPaths: List<String> = emptyList(),
 ) : UiState {
     val isBusy: Boolean
         get() = stage == UploadStage.WORKING
 
     val canSubmit: Boolean
-        get() = !isBusy && (images.isNotEmpty() || files.isNotEmpty())
+        get() = !isBusy && stagingInFlight == 0 &&
+            (images.isNotEmpty() || files.isNotEmpty())
 
     val keptCount: Int
         get() = generatedItems.size - discardedIds.size

@@ -37,7 +37,8 @@ fun PreviewScreen(
     onReplaceImage: (Int) -> Unit,
     onRemoveImage: (Int) -> Unit,
     onSubmit: () -> Unit,
-    submitEnabled: Boolean = true
+    submitEnabled: Boolean = true,
+    stagingError: String? = null
 ) {
     val context = LocalContext.current
 
@@ -193,6 +194,15 @@ fun PreviewScreen(
                         }
                     }
                 }
+            }
+
+            if (stagingError != null) {
+                Text(
+                    text = stagingError,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
             }
 
             Button(

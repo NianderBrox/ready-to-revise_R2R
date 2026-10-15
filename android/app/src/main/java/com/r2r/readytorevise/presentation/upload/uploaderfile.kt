@@ -9,6 +9,7 @@ data class UploadedFile(
     val fileName: String,
     val type: FileType,
     val mimeType: String = "",
+    val cachePath: String? = null,
 )
 
 enum class FileType {

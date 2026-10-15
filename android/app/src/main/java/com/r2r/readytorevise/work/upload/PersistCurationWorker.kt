@@ -8,6 +8,7 @@ import com.r2r.readytorevise.data.remote.dto.StudyItemDto
 import com.r2r.readytorevise.di.DefaultAppContainer
 import com.r2r.readytorevise.notification.UploadNotifications
 import java.io.File
+import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.Json
 
 class PersistCurationWorker(
@@ -21,6 +22,7 @@ class PersistCurationWorker(
         )
         val generatedFile = inputData.getString(UploadWork.IN_GENERATED_FILE)
         val discarded = inputData.getStringArray(UploadWork.IN_DISCARD_IDS)?.toSet().orEmpty()
+        return try {
         setForeground(
             UploadNotifications.foregroundInfo(
                 applicationContext, batchId,
@@ -43,10 +45,21 @@ class PersistCurationWorker(
             File(generatedFile).delete()
         }
         File(applicationContext.cacheDir, UploadWork.batchDirName(batchId)).deleteRecursively()
-        UploadPrefs(applicationContext).setActiveBatchId(null)
-        UploadPrefs(applicationContext).clearFailed()
-        UploadNotifications.showDone(applicationContext, kept, failures)
-        return Result.success(workDataOf(UploadWork.OUT_KEPT to kept))
+        val prefs = UploadPrefs(applicationContext)
+        prefs.setActiveBatchId(null)
+        prefs.clearFailed()
+        prefs.markBatchCompleted(batchId)
+        UploadNotifications.showDone(applicationContext, batchId, kept, failures)
+        Result.success(workDataOf(UploadWork.OUT_KEPT to kept))
+        } catch (e: CancellationException) {
+            throw e
+        } catch (t: Throwable) {
+            val id = inputData.getString(UploadWork.IN_BATCH_ID)
+            if (id != null) {
+                UploadNotifications.showError(applicationContext, id, "Couldn't save", false)
+            }
+            Result.failure(workDataOf(UploadWork.OUT_ERROR to "Couldn't save"))
+        }
     }
 
     private companion object {

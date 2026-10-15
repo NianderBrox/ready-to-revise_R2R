@@ -56,6 +56,8 @@ fun UploadScreen(
 
         submitEnabled = !state.isBusy,
 
+        stagingError = state.stagingError,
+
 
         onAddImage = {
 

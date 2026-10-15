@@ -9,6 +9,8 @@ import com.r2r.readytorevise.presentation.base.BaseViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.withTimeout
 
 class DashboardViewModel(
     private val dashboardRepository: DashboardRepository,
@@ -41,8 +43,25 @@ class DashboardViewModel(
                     recommendationsRepository.getRecommendations(limit = 5, dueBefore = dueBefore)
                 }
 
-                val dashboardResult = dashboardDeferred.await()
-                val recommendationsResult = recommendationsDeferred.await()
+                val loaded = try {
+                    withTimeout(LOAD_TIMEOUT_MS) {
+                        dashboardDeferred.await() to recommendationsDeferred.await()
+                    }
+                } catch (e: TimeoutCancellationException) {
+                    null
+                }
+
+                if (loaded == null) {
+                    updateState {
+                        copy(
+                            loading = false,
+                            error = "Taking too long. Check your connection and retry.",
+                        )
+                    }
+                    return@coroutineScope
+                }
+
+                val (dashboardResult, recommendationsResult) = loaded
 
                 val dashboard = dashboardResult.getOrNull()
 
@@ -86,5 +105,9 @@ class DashboardViewModel(
 
             sendEffect(DashboardEffect.LoggedOut)
         }
+    }
+
+    private companion object {
+        const val LOAD_TIMEOUT_MS = 90_000L
     }
 }

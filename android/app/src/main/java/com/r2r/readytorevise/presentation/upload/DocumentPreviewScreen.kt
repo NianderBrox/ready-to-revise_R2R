@@ -32,7 +32,8 @@ fun DocumentPreviewScreen(
     onAddDocument: () -> Unit,
     onRemoveDocument: (Int) -> Unit,
     onSubmit: () -> Unit,
-    submitEnabled: Boolean = true
+    submitEnabled: Boolean = true,
+    stagingError: String? = null
 ) {
     val context = LocalContext.current
 
@@ -177,6 +178,15 @@ fun DocumentPreviewScreen(
                         }
                     }
                 }
+            }
+
+            if (stagingError != null) {
+                Text(
+                    text = stagingError,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
             }
 
             Button(

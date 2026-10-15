@@ -6,6 +6,7 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.r2r.readytorevise.di.DefaultAppContainer
 import com.r2r.readytorevise.notification.UploadNotifications
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 
 class AnalysisPollWorker(
@@ -22,6 +23,7 @@ class AnalysisPollWorker(
         if (docIds.isEmpty()) {
             return fail("Nothing to process", emptyList(), batchId)
         }
+        return try {
         setForeground(
             UploadNotifications.foregroundInfo(
                 applicationContext, batchId,
@@ -37,7 +39,10 @@ class AnalysisPollWorker(
                 val current = repository.getDocument(id).getOrNull()
                 when (current?.status) {
                     UploadWork.STATUS_READY -> iterator.remove()
-                    UploadWork.STATUS_FAILED -> return fail("Processing failed", names.toList(), batchId)
+                    UploadWork.STATUS_FAILED -> {
+                        val remaining = docIds.filter { it != id }
+                        return fail("Processing failed", names.toList(), batchId, remaining)
+                    }
                 }
             }
             val ready = docIds.size - pending.size
@@ -62,13 +67,18 @@ class AnalysisPollWorker(
             applicationContext, batchId,
             "Still processing — retry to check again", false,
         )
-        return Result.failure(
+        Result.failure(
             UploadWork.forward(
                 inputData,
                 UploadWork.OUT_ERROR to "Still processing — retry to check again",
                 UploadWork.OUT_FAILED_FILES to names,
             ),
         )
+        } catch (e: CancellationException) {
+            throw e
+        } catch (t: Throwable) {
+            fail("Unexpected error", emptyList(), batchId)
+        }
     }
 
     private suspend fun saveDescriptor(batchId: String, docIds: List<String>) {
@@ -82,9 +92,9 @@ class AnalysisPollWorker(
         )
     }
 
-    private suspend fun fail(message: String, failedFiles: List<String>, batchId: String? = null): Result {
+    private suspend fun fail(message: String, failedFiles: List<String>, batchId: String? = null, persistIds: List<String>? = null): Result {
         if (batchId != null) {
-            saveDescriptor(batchId, inputData.getStringArray(UploadWork.IN_DOC_IDS)?.toList().orEmpty())
+            saveDescriptor(batchId, persistIds ?: inputData.getStringArray(UploadWork.IN_DOC_IDS)?.toList().orEmpty())
             UploadNotifications.showError(applicationContext, batchId, message, false)
         }
         return Result.failure(
@@ -98,6 +108,6 @@ class AnalysisPollWorker(
 
     private companion object {
         const val POLL_INTERVAL_MS = 3_000L
-        const val POLL_ROUNDS = 60
+        const val POLL_ROUNDS = 30
     }
 }

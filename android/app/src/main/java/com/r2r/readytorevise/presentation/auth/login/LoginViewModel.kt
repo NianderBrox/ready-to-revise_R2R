@@ -8,6 +8,8 @@
     import com.r2r.readytorevise.domain.repository.AuthRepository
     import kotlinx.coroutines.delay
     import kotlinx.coroutines.launch
+    import kotlinx.coroutines.TimeoutCancellationException
+    import kotlinx.coroutines.withTimeout
 
     class LoginViewModel(
         private val authRepository: AuthRepository
@@ -112,7 +114,13 @@
                     )
                 }
 
-                val result = authRepository.login(currentState.email, currentState.password)
+                val result = try {
+                    withTimeout(LOGIN_TIMEOUT_MS) {
+                        authRepository.login(currentState.email, currentState.password)
+                    }
+                } catch (e: TimeoutCancellationException) {
+                    Result.failure<Unit>(Exception("Taking too long. Check your connection and retry."))
+                }
 
                 result.onSuccess {
                     updateState {
@@ -139,5 +147,9 @@
             viewModelScope.launch {
                 sendEffect(LoginEffect.NavigateToRegister)
             }
+        }
+
+        private companion object {
+            const val LOGIN_TIMEOUT_MS = 90_000L
         }
     }

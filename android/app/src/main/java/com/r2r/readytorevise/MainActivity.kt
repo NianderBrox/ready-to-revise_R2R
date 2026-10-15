@@ -15,12 +15,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import android.os.Handler
-import android.os.Looper
 import androidx.core.content.ContextCompat
 import com.r2r.readytorevise.ui.theme.ReadyToReviseTheme
 import com.r2r.readytorevise.navigation.AppNavGraph
-import com.r2r.readytorevise.notification.NotificationHelper
 import com.r2r.readytorevise.work.upload.UploadWork
 
 class MainActivity : ComponentActivity() {
@@ -36,20 +33,17 @@ class MainActivity : ComponentActivity() {
         val appContainer = (application as ReadyToReviseApplication).container
         val openProcessing =
             intent?.getBooleanExtra(UploadWork.EXTRA_OPEN_PROCESSING, false) == true
+        val processingBatchId =
+            intent?.getStringExtra(UploadWork.EXTRA_BATCH_ID)
         setContent {
             ReadyToReviseTheme {
-                AppNavGraph(appContainer = appContainer, openProcessing = openProcessing)
+                AppNavGraph(
+                    appContainer = appContainer,
+                    openProcessing = openProcessing,
+                    processingBatchId = processingBatchId,
+                )
             }
         }
-
-        // TODO: Remove this test block after testing is done
-        val handler = Handler(Looper.getMainLooper())
-        handler.postDelayed({
-            NotificationHelper.sendRevisionDueNotification(this, 5)
-        }, 2000)
-        handler.postDelayed({
-            NotificationHelper.sendNoRevisionNotification(this)
-        }, 4000)
     }
 
     private fun requestNotificationPermission() {

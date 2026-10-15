@@ -87,6 +87,7 @@ object UploadNotifications {
     }
 
     fun showAwaitingSelection(context: Context, batchId: String, count: Int) {
+        dismiss(context)
         val notification = builder(
             context, batchId,
             "Questions ready",
@@ -95,28 +96,30 @@ object UploadNotifications {
             .setOngoing(false)
             .setAutoCancel(true)
             .build()
-        notify(context, notification)
+        notifyResult(context, notification)
     }
 
-    fun showDone(context: Context, kept: Int, failures: Int) {
+    fun showDone(context: Context, batchId: String, kept: Int, failures: Int) {
+        dismiss(context)
         val text = "$kept question${if (kept == 1) "" else "s"} saved" +
             if (failures > 0) " · $failures removals failed" else ""
-        val notification = builder(context, "", "Upload complete", text)
+        val notification = builder(context, batchId, "Upload complete", text)
             .setOngoing(false)
             .setAutoCancel(true)
             .build()
-        notify(context, notification)
+        notifyResult(context, notification)
     }
 
     fun showError(context: Context, batchId: String, message: String, loginRequired: Boolean) {
+        dismiss(context)
         val builder = builder(context, batchId, "Upload failed", message)
             .setOngoing(false)
             .setAutoCancel(false)
         if (loginRequired) {
-            builder.addAction(0, "Open app", contentIntent(context))
+            builder.addAction(0, "Open app", contentIntent(context, batchId))
         } else {
             builder.addAction(0, "Retry", retryIntent(context, batchId))
-            builder.addAction(0, "Open app", contentIntent(context))
+            builder.addAction(0, "Open app", contentIntent(context, batchId))
         }
         notify(context, builder.build())
     }
@@ -124,6 +127,12 @@ object UploadNotifications {
     fun dismiss(context: Context) {
         val manager = context.getSystemService(NotificationManager::class.java)
         manager.cancel(UploadWork.NOTIFICATION_ID)
+        manager.cancel(UploadWork.RESULT_NOTIFICATION_ID)
+    }
+
+    fun dismissResult(context: Context) {
+        val manager = context.getSystemService(NotificationManager::class.java)
+        manager.cancel(UploadWork.RESULT_NOTIFICATION_ID)
     }
 
     private fun builder(context: Context, batchId: String, title: String, message: String): NotificationCompat.Builder {
@@ -133,7 +142,7 @@ object UploadNotifications {
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setContentIntent(contentIntent(context))
+            .setContentIntent(contentIntent(context, batchId.ifBlank { null }))
     }
 
     private fun stageTitle(stage: String): String {
@@ -147,10 +156,13 @@ object UploadNotifications {
         }
     }
 
-    private fun contentIntent(context: Context): PendingIntent {
+    private fun contentIntent(context: Context, batchId: String?): PendingIntent {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             putExtra(UploadWork.EXTRA_OPEN_PROCESSING, true)
+            if (batchId != null) {
+                putExtra(UploadWork.EXTRA_BATCH_ID, batchId)
+            }
         }
         return PendingIntent.getActivity(
             context, UploadWork.EXTRA_OPEN_PROCESSING.hashCode(), intent,
@@ -183,5 +195,10 @@ object UploadNotifications {
     private fun notify(context: Context, notification: android.app.Notification) {
         val manager = context.getSystemService(NotificationManager::class.java)
         manager.notify(UploadWork.NOTIFICATION_ID, notification)
+    }
+
+    private fun notifyResult(context: Context, notification: android.app.Notification) {
+        val manager = context.getSystemService(NotificationManager::class.java)
+        manager.notify(UploadWork.RESULT_NOTIFICATION_ID, notification)
     }
 }

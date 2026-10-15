@@ -43,9 +43,11 @@ import com.r2r.readytorevise.ui.components.dashboard.DashboardHeader
 import com.r2r.readytorevise.ui.components.dashboard.StreakCard
 import com.r2r.readytorevise.ui.components.dashboard.TopicsCard
 import android.content.ContentValues
+import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.MediaStore
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.compose.material.icons.filled.Description
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -135,7 +137,6 @@ fun DashboardScreen(
         ) { success ->
 
             if (success) {
-
                 uploadViewModel.onEvent(UploadEvent.ClearImages)
                 uploadViewModel.onEvent(UploadEvent.AddImage(cameraImageUri))
 
@@ -144,6 +145,15 @@ fun DashboardScreen(
                 navController.navigate(Screen.Preview.route)
             }
 
+        }
+
+    val cameraPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            if (granted) {
+                cameraLauncher.launch(cameraImageUri)
+            }
         }
 
     val galleryLauncher =
@@ -363,12 +373,21 @@ fun DashboardScreen(
                 else -> null
             }
 
+            val overlayMessage: String = when {
+                uploadState.stage == UploadStage.ERROR ->
+                    uploadState.statusLine.ifBlank { "Upload failed" }
+                uploadState.curationBusy -> "Saving…"
+                uploadState.stage == UploadStage.DONE -> "Tap to review questions"
+                else -> uploadState.statusLine.ifBlank { "Working…" }
+            }
+
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.BottomCenter
             ) {
                 UploadProgressOverlay(
                     progress = overlayProgress,
+                    message = overlayMessage,
                     isError = uploadState.stage == UploadStage.ERROR,
                     showCancel = uploadState.stage == UploadStage.WORKING,
                     onOpen = { navController.navigate(Screen.Processing.route) },
@@ -399,7 +418,16 @@ fun DashboardScreen(
             Surface(
 
                 onClick = {
-                    cameraLauncher.launch(cameraImageUri)
+                    if (
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            android.Manifest.permission.CAMERA
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        cameraLauncher.launch(cameraImageUri)
+                    } else {
+                        cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+                    }
                 },
 
                 color = Color.Transparent

@@ -25,6 +25,7 @@ import com.r2r.readytorevise.domain.repository.RecommendationsRepository
 import com.r2r.readytorevise.domain.repository.ReviewsRepository
 import com.r2r.readytorevise.domain.repository.StudyItemsRepository
 import kotlinx.serialization.json.Json
+import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -55,11 +56,8 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
-    private val okHttpClient = OkHttpClient.Builder()
-        .connectTimeout(15, TimeUnit.SECONDS)
-        .readTimeout(120, TimeUnit.SECONDS)
-        .writeTimeout(60, TimeUnit.SECONDS)
-        .addInterceptor { chain ->
+    private fun authInterceptor(): Interceptor {
+        return Interceptor { chain ->
             val token = runBlocking { tokenManager.token.first() }
 
             val original = chain.request()
@@ -75,12 +73,32 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
 
             chain.proceed(request)
         }
+    }
+
+    private val okHttpClient = OkHttpClient.Builder()
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(120, TimeUnit.SECONDS)
+        .writeTimeout(60, TimeUnit.SECONDS)
+        .addInterceptor(authInterceptor())
         .addInterceptor(loggingInterceptor)
+        .build()
+
+    private val uploadOkHttpClient = OkHttpClient.Builder()
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(120, TimeUnit.SECONDS)
+        .writeTimeout(60, TimeUnit.SECONDS)
+        .addInterceptor(authInterceptor())
         .build()
 
     private val retrofit = Retrofit.Builder()
         .baseUrl(NetworkConstants.BASE_URL)
         .client(okHttpClient)
+        .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+        .build()
+
+    private val uploadRetrofit = Retrofit.Builder()
+        .baseUrl(NetworkConstants.BASE_URL)
+        .client(uploadOkHttpClient)
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .build()
 
@@ -104,6 +122,10 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
         retrofit.create(DocumentsApi::class.java)
     }
 
+    private val uploadDocumentsApi: DocumentsApi by lazy {
+        uploadRetrofit.create(DocumentsApi::class.java)
+    }
+
     val dashboardApi: DashboardApi by lazy {
         retrofit.create(DashboardApi::class.java)
     }
@@ -125,7 +147,7 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
     }
 
     override val documentsRepository: DocumentsRepository by lazy {
-        DocumentsRepositoryImpl(documentsApi, tokenManager)
+        DocumentsRepositoryImpl(documentsApi, uploadDocumentsApi, tokenManager)
     }
 
     override val dashboardRepository: DashboardRepository by lazy {
@@ -134,6 +156,11 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
 
     override val imageLoader: coil.ImageLoader by lazy {
         coil.ImageLoader.Builder(context)
+            .memoryCache(
+                coil.memory.MemoryCache.Builder(context)
+                    .maxSizePercent(0.1)
+                    .build(),
+            )
             .okHttpClient(okHttpClient)
             .crossfade(true)
             .build()

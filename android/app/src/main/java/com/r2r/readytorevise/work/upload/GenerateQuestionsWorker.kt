@@ -8,7 +8,7 @@ import com.r2r.readytorevise.data.remote.dto.StudyItemDto
 import com.r2r.readytorevise.di.DefaultAppContainer
 import com.r2r.readytorevise.notification.UploadNotifications
 import java.io.File
-import kotlinx.serialization.encodeToString
+import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -26,6 +26,9 @@ class GenerateQuestionsWorker(
         if (docIds.isEmpty()) {
             return fail("Nothing to process", emptyList(), batchId)
         }
+        val doneIds = inputData.getStringArray(UploadWork.IN_GENERATED_DOC_IDS)?.toSet().orEmpty()
+        val generatedIds = ArrayList<String>()
+        return try {
         setForeground(
             UploadNotifications.foregroundInfo(
                 applicationContext, batchId,
@@ -35,6 +38,9 @@ class GenerateQuestionsWorker(
         val repository = DefaultAppContainer(applicationContext).documentsRepository
         val allItems = ArrayList<StudyItemDto>()
         for (index in docIds.indices) {
+            if (docIds[index] in doneIds) {
+                continue
+            }
             val label = names.getOrElse(index) { "File ${index + 1}" }
             val progress = workDataOf(
                 UploadWork.P_STAGE to UploadWork.STAGE_GENERATE,
@@ -48,37 +54,49 @@ class GenerateQuestionsWorker(
                 index, total, null, "Generating questions for $label…",
             )
             val questions = repository.generateQuestions(docIds[index]).getOrElse { error ->
-                return fail(error.message ?: "Question generation failed", listOf(label), batchId)
+                return fail(error.message ?: "Question generation failed", listOf(label), batchId, generatedIds.toList())
             }
             allItems += questions
+            generatedIds += docIds[index]
+            saveDescriptor(batchId, generatedIds.toList())
         }
         val outFile = File(applicationContext.cacheDir, UploadWork.batchDirName(batchId) + "_generated.json")
         try {
             outFile.writeText(json.encodeToString(allItems))
-        } catch (t: Throwable) {
-            return fail("Could not save results", names.toList(), batchId)
-        }
+            } catch (t: Throwable) {
+                return fail("Could not save results", names.toList(), batchId, generatedIds.toList())
+            }
         UploadPrefs(applicationContext).clearFailed()
         UploadNotifications.showAwaitingSelection(applicationContext, batchId, allItems.size)
-        return Result.success(
+        Result.success(
             UploadWork.forward(
                 inputData,
                 UploadWork.OUT_GENERATED_FILE to outFile.absolutePath,
             ),
         )
+        } catch (e: CancellationException) {
+            throw e
+        } catch (t: Throwable) {
+            fail("Unexpected error", emptyList(), batchId, generatedIds.toList())
+        }
     }
 
-    private suspend fun fail(message: String, failedFiles: List<String>, batchId: String? = null): Result {
+    private suspend fun saveDescriptor(batchId: String, generatedIds: List<String>) {
+        UploadPrefs(applicationContext).saveFailed(
+            FailedBatch(
+                batchId = batchId,
+                paths = inputData.getStringArray(UploadWork.IN_PATHS)?.toList().orEmpty(),
+                names = inputData.getStringArray(UploadWork.IN_NAMES)?.toList().orEmpty(),
+                mimes = inputData.getStringArray(UploadWork.IN_MIMES)?.toList().orEmpty(),
+                docIds = inputData.getStringArray(UploadWork.IN_DOC_IDS)?.toList().orEmpty(),
+                generatedDocIds = generatedIds,
+            ),
+        )
+    }
+
+    private suspend fun fail(message: String, failedFiles: List<String>, batchId: String? = null, generatedIds: List<String> = emptyList()): Result {
         if (batchId != null) {
-            UploadPrefs(applicationContext).saveFailed(
-                FailedBatch(
-                    batchId = batchId,
-                    paths = inputData.getStringArray(UploadWork.IN_PATHS)?.toList().orEmpty(),
-                    names = inputData.getStringArray(UploadWork.IN_NAMES)?.toList().orEmpty(),
-                    mimes = inputData.getStringArray(UploadWork.IN_MIMES)?.toList().orEmpty(),
-                    docIds = inputData.getStringArray(UploadWork.IN_DOC_IDS)?.toList().orEmpty(),
-                ),
-            )
+            saveDescriptor(batchId, generatedIds)
             UploadNotifications.showError(applicationContext, batchId, message, false)
         }
         return Result.failure(
