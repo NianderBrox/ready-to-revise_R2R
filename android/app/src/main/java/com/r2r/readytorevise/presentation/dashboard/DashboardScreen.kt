@@ -42,6 +42,8 @@ import com.r2r.readytorevise.ui.components.dashboard.DashboardButtons
 import com.r2r.readytorevise.ui.components.dashboard.DashboardHeader
 import com.r2r.readytorevise.ui.components.dashboard.StreakCard
 import com.r2r.readytorevise.ui.components.dashboard.TopicsCard
+import com.r2r.readytorevise.ui.theme.Background
+import com.r2r.readytorevise.ui.theme.SkyBlue
 import android.content.ContentValues
 import android.content.pm.PackageManager
 import android.os.Build
@@ -233,14 +235,14 @@ fun DashboardScreen(
 
     Scaffold(
 
-        containerColor = Color(0xFFF5F9FF),
+        containerColor = Background,
 
         topBar = {
 
             TopAppBar(
 
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF29B6F6)
+                    containerColor = SkyBlue
                 ),
 
                 title = {
@@ -323,7 +325,7 @@ fun DashboardScreen(
 
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFF5F9FF))
+                .background(Background)
                 .padding(padding)
                 .padding(horizontal = 20.dp)
                 .verticalScroll(rememberScrollState()),

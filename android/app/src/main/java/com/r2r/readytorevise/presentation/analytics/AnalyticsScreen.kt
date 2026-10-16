@@ -12,20 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -40,6 +33,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import com.r2r.readytorevise.di.AppContainer
+import com.r2r.readytorevise.ui.components.common.R2RTopBar
 import com.r2r.readytorevise.ui.theme.Background
 import com.r2r.readytorevise.ui.theme.OnSurface
 import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
@@ -67,7 +61,6 @@ fun AnalyticsRoute(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnalyticsScreen(
     state: AnalyticsUiState,
@@ -77,14 +70,9 @@ fun AnalyticsScreen(
     Scaffold(
         containerColor = Background,
         topBar = {
-            TopAppBar(
-                title = { Text("Analytics") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = SkyBlue)
+            R2RTopBar(
+                title = "Analytics",
+                onBackClick = { navController.popBackStack() }
             )
         }
     ) { padding ->

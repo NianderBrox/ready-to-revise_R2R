@@ -44,7 +44,7 @@ fun DashboardHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Hi, $userName 👋",
+            text = "Hi, $userName",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = Color.White

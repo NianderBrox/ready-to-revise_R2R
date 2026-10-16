@@ -13,17 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -36,8 +29,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.r2r.readytorevise.ui.components.common.R2RTopBar
+import com.r2r.readytorevise.ui.theme.Background
+import com.r2r.readytorevise.ui.theme.SkyBlue
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsRoute(
     preferences: SettingsPreferences,
@@ -59,7 +54,6 @@ fun SettingsRoute(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     state: SettingsState,
@@ -67,28 +61,11 @@ fun SettingsScreen(
     onBackClick: () -> Unit
 ) {
     Scaffold(
-        containerColor = Color(0xFFF5F9FF),
+        containerColor = Background,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Settings",
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF29B6F6),
-                    titleContentColor = Color.White
-                ),
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.White
-                        )
-                    }
-                }
+            R2RTopBar(
+                title = "Settings",
+                onBackClick = onBackClick
             )
         }
     ) { padding ->
@@ -154,7 +131,7 @@ private fun AutoAcceptSegmentedSwitch(
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .border(1.dp, Color(0xFF29B6F6), shape)
+            .border(1.dp, SkyBlue, shape)
     ) {
         modes.forEach { mode ->
             val isSelected = mode == selected
@@ -162,7 +139,7 @@ private fun AutoAcceptSegmentedSwitch(
                 modifier = Modifier
                     .weight(1f)
                     .background(
-                        if (isSelected) Color(0xFF29B6F6) else Color.White
+                        if (isSelected) SkyBlue else Color.White
                     )
                     .clickable { onSelect(mode) }
                     .padding(vertical = 12.dp),
@@ -172,7 +149,7 @@ private fun AutoAcceptSegmentedSwitch(
                     text = mode.label,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (isSelected) Color.White else Color(0xFF29B6F6)
+                    color = if (isSelected) Color.White else SkyBlue
                 )
             }
         }

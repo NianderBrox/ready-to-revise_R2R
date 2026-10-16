@@ -96,6 +96,7 @@ import com.r2r.readytorevise.presentation.quiz.RevisionEffect
 import com.r2r.readytorevise.presentation.quiz.RevisionEvent
 import com.r2r.readytorevise.presentation.quiz.RevisionUiState
 import com.r2r.readytorevise.presentation.quiz.RevisionViewModel
+import com.r2r.readytorevise.ui.theme.Success
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.awaitCancellation
 import kotlin.math.abs
@@ -103,7 +104,7 @@ import kotlin.math.roundToInt
 
 private val ScreenBackground = Color(0xFF0F172A)
 private val CardBackground = Color(0xFF1E293B)
-private val AccentGreen = Color(0xFF22C55E)
+private val AccentGreen = Success
 private val AccentAmber = Color(0xFFF59E0B)
 private val TextPrimary = Color(0xFFF8FAFC)
 private val TextMuted = Color(0xFF94A3B8)

@@ -13,22 +13,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,6 +39,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import com.r2r.readytorevise.di.AppContainer
+import com.r2r.readytorevise.ui.components.common.R2RTopBar
 import com.r2r.readytorevise.ui.theme.Background
 import com.r2r.readytorevise.ui.theme.OnSurface
 import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
@@ -86,7 +82,6 @@ fun ProfileRoute(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     state: ProfileUiState,
@@ -96,25 +91,9 @@ fun ProfileScreen(
     Scaffold(
         containerColor = Background,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text("Profile")
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            navController.popBackStack()
-                        }
-                    ) {
-                        Icon(
-                            Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = SkyBlue
-                )
+            R2RTopBar(
+                title = "Profile",
+                onBackClick = { navController.popBackStack() }
             )
         }
     ) { padding ->

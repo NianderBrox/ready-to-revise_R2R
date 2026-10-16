@@ -9,18 +9,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -33,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.r2r.readytorevise.ui.components.common.R2RTopBar
+import com.r2r.readytorevise.ui.theme.Background
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,28 +66,11 @@ fun NotificationSettingsScreen(
     )
 
     Scaffold(
-        containerColor = Color(0xFFF5F9FF),
+        containerColor = Background,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Notification Settings",
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF29B6F6),
-                    titleContentColor = Color.White
-                ),
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.White
-                        )
-                    }
-                }
+            R2RTopBar(
+                title = "Notification Settings",
+                onBackClick = onBackClick
             )
         }
     ) { padding ->

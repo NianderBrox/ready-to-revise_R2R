@@ -59,8 +59,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.ui.draw.alpha
 import com.r2r.readytorevise.data.remote.dto.StudyItemDto
 
-private val AccentGreen = androidx.compose.ui.graphics.Color(0xFF22C55E)
-
 @Composable
 fun ProcessingRoute(
     uploadViewModel: UploadViewModel,
@@ -358,7 +356,7 @@ private fun CurationCard(
             .alpha(if (discarded) 0.5f else 1f)
             .border(
                 width = if (discarded) 1.dp else 0.dp,
-                color = AccentGreen,
+                color = Success,
                 shape = RoundedCornerShape(12.dp),
             )
             .clickable {

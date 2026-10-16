@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
@@ -19,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.r2r.readytorevise.ui.components.common.R2RTopBar
 import com.r2r.readytorevise.ui.theme.Background
 import com.r2r.readytorevise.ui.theme.OnSurface
 import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
@@ -40,29 +40,9 @@ fun DocumentPreviewScreen(
     Scaffold(
         containerColor = Background,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Preview Documents",
-                        color = Color.White
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            navController.popBackStack()
-                        }
-                    ) {
-                        Icon(
-                            Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = null,
-                            tint = Color.White
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = SkyBlue
-                )
+            R2RTopBar(
+                title = "Preview Documents",
+                onBackClick = { navController.popBackStack() }
             )
         }
     ) { padding ->

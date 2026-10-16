@@ -5,8 +5,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,8 +24,8 @@ import androidx.navigation.NavController
 import com.r2r.readytorevise.di.AppContainer
 import com.r2r.readytorevise.ui.components.common.R2RButton
 import com.r2r.readytorevise.ui.components.common.R2RPasswordField
+import com.r2r.readytorevise.ui.components.common.R2RTopBar
 import com.r2r.readytorevise.ui.theme.Background
-import com.r2r.readytorevise.ui.theme.SkyBlue
 import kotlinx.coroutines.launch
 
 @Composable
@@ -89,14 +87,9 @@ fun ChangePasswordScreen(
     Scaffold(
         containerColor = Background,
         topBar = {
-            TopAppBar(
-                title = { Text("Change Password") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = SkyBlue)
+            R2RTopBar(
+                title = "Change Password",
+                onBackClick = { navController.popBackStack() }
             )
         }
     ) { padding ->
