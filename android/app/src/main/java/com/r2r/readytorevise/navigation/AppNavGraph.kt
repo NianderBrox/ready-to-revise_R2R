@@ -39,6 +39,8 @@ import com.r2r.readytorevise.presentation.upload.UploadViewModel
 import com.r2r.readytorevise.ui.SplashScreen
 import com.r2r.readytorevise.notification.NotificationPreferences
 import com.r2r.readytorevise.notification.NotificationSettingsRoute
+import com.r2r.readytorevise.presentation.settings.SettingsPreferences
+import com.r2r.readytorevise.presentation.settings.SettingsRoute
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -127,6 +129,8 @@ fun AppNavGraph(
 
 
     val notificationPreferences = remember { NotificationPreferences(appContext) }
+
+    val settingsPreferences = remember { SettingsPreferences(appContext) }
 
     val scope = rememberCoroutineScope()
 
@@ -373,6 +377,15 @@ fun AppNavGraph(
         composable(Screen.NotificationSettings.route) {
             NotificationSettingsRoute(
                 preferences = notificationPreferences,
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Screen.Settings.route) {
+            SettingsRoute(
+                preferences = settingsPreferences,
                 onBackClick = {
                     navController.popBackStack()
                 }

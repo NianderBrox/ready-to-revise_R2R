@@ -11,6 +11,8 @@ import androidx.work.WorkManager
 import com.r2r.readytorevise.data.remote.dto.StudyItemDto
 import com.r2r.readytorevise.notification.UploadNotifications
 import com.r2r.readytorevise.presentation.base.BaseViewModel
+import com.r2r.readytorevise.presentation.settings.AutoAcceptMode
+import com.r2r.readytorevise.presentation.settings.SettingsPreferences
 import com.r2r.readytorevise.work.upload.UploadPrefs
 import com.r2r.readytorevise.work.upload.UploadWork
 import com.r2r.readytorevise.work.upload.UploadWorkScheduler
@@ -31,10 +33,12 @@ class UploadViewModel(
 
     private val workManager by lazy { WorkManager.getInstance(appContext) }
     private val uploadPrefs by lazy { UploadPrefs(appContext) }
+    private val settingsPrefs by lazy { SettingsPreferences(appContext) }
     private val json = Json { ignoreUnknownKeys = true }
 
     private var observeJob: Job? = null
     private var persistJob: Job? = null
+    private var autoAcceptedPath: String? = null
 
     init {
         viewModelScope.launch {
@@ -261,6 +265,7 @@ class UploadViewModel(
                 stagingError = null,
             )
         }
+        autoAcceptedPath = null
 
         viewModelScope.launch {
             try {
@@ -486,16 +491,7 @@ class UploadViewModel(
                     val items = readGeneratedFile(generatedFile)
 
                     if (items != null) {
-                        updateState {
-                            copy(
-                                stage = UploadStage.DONE,
-                                statusLine = "${items.size} generated — discard anything off-topic",
-                                completedItems = totalItems,
-                                generatedCount = items.size,
-                                generatedItems = items,
-                                generatedFilePath = generatedFile,
-                            )
-                        }
+                        applyAutoAccept(items, generatedFile)
                     } else {
                         updateState {
                             copy(
@@ -549,6 +545,31 @@ class UploadViewModel(
                 },
             )
         }
+    }
+
+    private suspend fun applyAutoAccept(items: List<StudyItemDto>, generatedFile: String) {
+        val mode = settingsPrefs.autoAcceptMode.first()
+        val autoDiscards = if (mode == AutoAcceptMode.EXTRACTED) {
+            items.filter { it.origin != "EXTRACTED" }.map { it.id }.toSet()
+        } else {
+            emptySet()
+        }
+        updateState {
+            copy(
+                stage = UploadStage.DONE,
+                statusLine = "${items.size} generated — discard anything off-topic",
+                completedItems = totalItems,
+                generatedCount = items.size,
+                generatedItems = items,
+                generatedFilePath = generatedFile,
+                discardedIds = autoDiscards,
+            )
+        }
+        if (mode == AutoAcceptMode.OFF || autoAcceptedPath == generatedFile) {
+            return
+        }
+        autoAcceptedPath = generatedFile
+        persistSelection(keepAll = mode == AutoAcceptMode.ALL)
     }
 
     private fun persistSelection(keepAll: Boolean) {

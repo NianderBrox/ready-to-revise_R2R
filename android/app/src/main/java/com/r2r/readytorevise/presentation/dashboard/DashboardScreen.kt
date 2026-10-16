@@ -261,6 +261,10 @@ fun DashboardScreen(
                             navController.navigate(Screen.NotificationSettings.route)
                         },
 
+                        onSettingsClick = {
+                            navController.navigate(Screen.Settings.route)
+                        },
+
                         onLogoutClick = {
                             onEvent(DashboardEvent.LogoutClicked)
                         }
