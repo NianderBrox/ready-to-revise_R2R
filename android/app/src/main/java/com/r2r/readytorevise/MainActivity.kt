@@ -8,14 +8,21 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
+import com.r2r.readytorevise.presentation.settings.SettingsPreferences
+import com.r2r.readytorevise.presentation.settings.ThemeMode
 import com.r2r.readytorevise.ui.theme.ReadyToReviseTheme
 import com.r2r.readytorevise.navigation.AppNavGraph
 import com.r2r.readytorevise.work.upload.UploadWork
@@ -36,7 +43,16 @@ class MainActivity : ComponentActivity() {
         val processingBatchId =
             intent?.getStringExtra(UploadWork.EXTRA_BATCH_ID)
         setContent {
-            ReadyToReviseTheme {
+            val context = LocalContext.current
+            val settingsPrefs = remember { SettingsPreferences(context.applicationContext) }
+            val themeMode by settingsPrefs.themeMode.collectAsState(initial = ThemeMode.SYSTEM)
+            val systemDark = isSystemInDarkTheme()
+            val darkTheme = when (themeMode) {
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+                ThemeMode.SYSTEM -> systemDark
+            }
+            ReadyToReviseTheme(darkTheme = darkTheme) {
                 AppNavGraph(
                     appContainer = appContainer,
                     openProcessing = openProcessing,

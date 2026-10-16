@@ -25,7 +25,6 @@ import com.r2r.readytorevise.di.AppContainer
 import com.r2r.readytorevise.ui.components.common.R2RButton
 import com.r2r.readytorevise.ui.components.common.R2RPasswordField
 import com.r2r.readytorevise.ui.components.common.R2RTopBar
-import com.r2r.readytorevise.ui.theme.Background
 import kotlinx.coroutines.launch
 
 @Composable
@@ -85,7 +84,7 @@ fun ChangePasswordScreen(
     navController: NavController,
 ) {
     Scaffold(
-        containerColor = Background,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             R2RTopBar(
                 title = "Change Password",

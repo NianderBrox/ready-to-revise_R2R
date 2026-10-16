@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -33,10 +35,9 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import com.r2r.readytorevise.di.AppContainer
+import com.r2r.readytorevise.ui.components.common.AnalyticsSkeleton
+import com.r2r.readytorevise.ui.components.common.EmptyState
 import com.r2r.readytorevise.ui.components.common.R2RTopBar
-import com.r2r.readytorevise.ui.theme.Background
-import com.r2r.readytorevise.ui.theme.OnSurface
-import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
 import com.r2r.readytorevise.ui.theme.SkyBlue
 
 @Composable
@@ -68,7 +69,7 @@ fun AnalyticsScreen(
     navController: NavController,
 ) {
     Scaffold(
-        containerColor = Background,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             R2RTopBar(
                 title = "Analytics",
@@ -78,14 +79,9 @@ fun AnalyticsScreen(
     ) { padding ->
         when {
             state.loading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
+                AnalyticsSkeleton(
+                    modifier = Modifier.padding(padding)
+                )
             }
 
             else -> {
@@ -120,7 +116,7 @@ fun AnalyticsScreen(
                                     text = "Library",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
-                                    color = OnSurface
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
 
                                 Spacer(modifier = Modifier.height(12.dp))
@@ -148,7 +144,7 @@ fun AnalyticsScreen(
                                     text = "Reviews",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
-                                    color = OnSurface
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
 
                                 Spacer(modifier = Modifier.height(12.dp))
@@ -168,7 +164,7 @@ fun AnalyticsScreen(
                                     text = "Completion ${state.completionPercentage}% · " +
                                         "Streak ${state.streakDays}d",
                                     fontSize = 13.sp,
-                                    color = OnSurfaceVariant
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -180,7 +176,7 @@ fun AnalyticsScreen(
                                 text = "Recent activity",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = OnSurface
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
 
@@ -199,7 +195,7 @@ fun AnalyticsScreen(
                                     Text(
                                         text = activity.title,
                                         style = MaterialTheme.typography.bodyMedium,
-                                        color = OnSurface,
+                                        color = MaterialTheme.colorScheme.onSurface,
                                         modifier = Modifier.weight(1f),
                                         maxLines = 1
                                     )
@@ -207,10 +203,20 @@ fun AnalyticsScreen(
                                     Text(
                                         text = formatDate(activity.reviewedAt),
                                         fontSize = 12.sp,
-                                        color = OnSurfaceVariant
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
+                        }
+                    } else {
+                        item {
+                            EmptyState(
+                                icon = Icons.Default.MenuBook,
+                                title = "No activity yet",
+                                message = "Complete a revision to see it here",
+                                actionLabel = "Back to dashboard",
+                                onAction = { navController.popBackStack() }
+                            )
                         }
                     }
 
@@ -234,7 +240,7 @@ private fun StatBlock(label: String, value: Int) {
         Text(
             text = label,
             fontSize = 12.sp,
-            color = OnSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

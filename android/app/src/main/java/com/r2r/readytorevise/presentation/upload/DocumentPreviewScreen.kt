@@ -19,9 +19,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.r2r.readytorevise.ui.components.common.R2RTopBar
-import com.r2r.readytorevise.ui.theme.Background
-import com.r2r.readytorevise.ui.theme.OnSurface
-import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
 import com.r2r.readytorevise.ui.theme.SkyBlue
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,7 +35,7 @@ fun DocumentPreviewScreen(
     val context = LocalContext.current
 
     Scaffold(
-        containerColor = Background,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             R2RTopBar(
                 title = "Preview Documents",
@@ -56,13 +53,13 @@ fun DocumentPreviewScreen(
 
             Text(
                 text = "Selected Documents",
-                color = OnSurface,
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleLarge
             )
 
             Text(
                 text = "${uploadedFiles.size} file(s) selected",
-                color = OnSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -100,12 +97,12 @@ fun DocumentPreviewScreen(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = file.fileName,
-                                    color = OnSurface,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.titleMedium
                                 )
                                 Text(
                                     text = file.type.name,
-                                    color = OnSurfaceVariant
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
 

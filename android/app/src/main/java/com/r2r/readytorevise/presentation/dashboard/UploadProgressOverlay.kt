@@ -43,7 +43,7 @@ fun UploadProgressOverlay(
             .fillMaxWidth()
             .height(64.dp)
             .clickable(onClick = onOpen),
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFF1B2A4A),
         ),

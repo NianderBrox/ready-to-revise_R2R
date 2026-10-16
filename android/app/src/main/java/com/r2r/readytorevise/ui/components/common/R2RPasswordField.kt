@@ -7,6 +7,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -19,8 +20,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.r2r.readytorevise.ui.theme.AppIcons
 import com.r2r.readytorevise.ui.theme.Error
-import com.r2r.readytorevise.ui.theme.OnSurface
-import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
 import com.r2r.readytorevise.ui.theme.SkyBlue
 
 @Composable
@@ -47,11 +46,11 @@ fun R2RPasswordField(
         label = {
             Text(
                 text = label,
-                color = if (isError) Error else OnSurfaceVariant
+                color = if (isError) Error else MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
         textStyle = TextStyle(
-            color = OnSurface
+            color = MaterialTheme.colorScheme.onSurface
         ),
         visualTransformation =
             if (visible)
@@ -74,20 +73,20 @@ fun R2RPasswordField(
                         else
                             AppIcons.HidePassword,
                     contentDescription = null,
-                    tint = if (isError) Error else OnSurfaceVariant
+                    tint = if (isError) Error else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = if (isError) Error else SkyBlue,
-            unfocusedBorderColor = if (isError) Error else OnSurfaceVariant.copy(alpha = 0.3f),
+            unfocusedBorderColor = if (isError) Error else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
             focusedLabelColor = if (isError) Error else SkyBlue,
-            unfocusedLabelColor = if (isError) Error else OnSurfaceVariant,
-            focusedTextColor = OnSurface,
-            unfocusedTextColor = OnSurface,
+            unfocusedLabelColor = if (isError) Error else MaterialTheme.colorScheme.onSurfaceVariant,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
             cursorColor = SkyBlue,
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface
         )
     )
 

@@ -6,6 +6,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
@@ -46,17 +48,19 @@ import com.r2r.readytorevise.presentation.upload.UploadEvent
 import com.r2r.readytorevise.presentation.upload.UploadStage
 import com.r2r.readytorevise.presentation.upload.UploadUiState
 import com.r2r.readytorevise.presentation.upload.UploadViewModel
-import com.r2r.readytorevise.ui.theme.OnSurface
-import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
 import com.r2r.readytorevise.ui.theme.SkyBlue
 import com.r2r.readytorevise.ui.theme.Success
-import com.r2r.readytorevise.ui.theme.Background
 import com.r2r.readytorevise.navigation.Screen
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import com.r2r.readytorevise.data.remote.dto.StudyItemDto
 
 @Composable
@@ -160,7 +164,7 @@ fun ProcessingScreen(
                 Text(
                     text = "Processing your notes...",
                     style = MaterialTheme.typography.headlineSmall,
-                    color = OnSurface,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -180,14 +184,14 @@ fun ProcessingScreen(
 
                     Text(
                         text = "File ${state.completedItems + 1} of ${state.totalItems}",
-                        color = OnSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 if (state.statusLine.isNotEmpty()) {
-                    Text(state.statusLine, color = OnSurface)
+                    Text(state.statusLine, color = MaterialTheme.colorScheme.onSurface)
                 }
             }
 
@@ -209,7 +213,7 @@ fun ProcessingScreen(
                 Text(
                     text = "Review your questions",
                     style = MaterialTheme.typography.headlineSmall,
-                    color = OnSurface,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
 
                 Spacer(modifier = Modifier.height(6.dp))
@@ -218,7 +222,7 @@ fun ProcessingScreen(
                     text = state.statusLine.ifEmpty {
                         "${state.generatedCount} generated — discard anything off-topic"
                     },
-                    color = OnSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -246,7 +250,7 @@ fun ProcessingScreen(
                         }
 
                     if (state.failureLines.isNotEmpty()) {
-                        Text(state.failureLines.joinToString("\n"), color = OnSurfaceVariant)
+                        Text(state.failureLines.joinToString("\n"), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
 
@@ -262,12 +266,12 @@ fun ProcessingScreen(
                         CircularProgressIndicator(
                             modifier = Modifier.size(18.dp),
                             strokeWidth = 2.dp,
-                            color = OnSurface,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
 
                         Spacer(modifier = Modifier.width(10.dp))
 
-                        Text("Removing discarded…", color = OnSurface)
+                        Text("Removing discarded…", color = MaterialTheme.colorScheme.onSurface)
                     } else {
                         Text("Keep ${state.keptCount} · Confirm")
                     }
@@ -280,7 +284,7 @@ fun ProcessingScreen(
                     enabled = !state.curationBusy,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text("Keep all", color = OnSurface)
+                    Text("Keep all", color = MaterialTheme.colorScheme.onSurface)
                 }
             }
 
@@ -297,13 +301,13 @@ fun ProcessingScreen(
                 Text(
                     text = "Upload failed",
                     style = MaterialTheme.typography.headlineSmall,
-                    color = OnSurface,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 if (state.statusLine.isNotEmpty()) {
-                    Text(state.statusLine, color = OnSurfaceVariant)
+                    Text(state.statusLine, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
 
                 val visibleFailures = state.failureLines.filter { it.isNotBlank() }
@@ -311,7 +315,7 @@ fun ProcessingScreen(
                 if (visibleFailures.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text(visibleFailures.joinToString("\n"), color = OnSurfaceVariant)
+                    Text(visibleFailures.joinToString("\n"), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -328,7 +332,7 @@ fun ProcessingScreen(
 
                 Button(
                     onClick = onBack,
-                    colors = ButtonDefaults.buttonColors(containerColor = Background),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text("Back")
@@ -349,7 +353,7 @@ private fun CurationCard(
 
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = Background,
+            containerColor = MaterialTheme.colorScheme.background,
         ),
         modifier = Modifier
             .fillMaxWidth()
@@ -359,6 +363,13 @@ private fun CurationCard(
                 color = Success,
                 shape = RoundedCornerShape(12.dp),
             )
+            .semantics {
+                contentDescription = if (discarded) {
+                    "Discarded question, tap to keep"
+                } else {
+                    "Kept question, tap to discard"
+                }
+            }
             .clickable {
                 haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                 onToggle()
@@ -367,32 +378,40 @@ private fun CurationCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
+                .padding(16.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(if (item.origin == "EXTRACTED") Success else SkyBlue)
+                )
+
+                Spacer(modifier = Modifier.width(6.dp))
+
                 Text(
                     text = when (item.origin) {
                         "EXTRACTED" -> "EXTRACTED"
                         else -> "AI-GENERATED"
                     },
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (item.origin == "EXTRACTED") Success else SkyBlue,
-                    modifier = Modifier
-                        .alpha(1f),
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
-                    text = if (discarded) "Discard ✓" else "Tap to discard",
+                    text = if (discarded) "Discarded · tap to keep" else "Tap to discard",
                     style = MaterialTheme.typography.labelSmall,
-                    color = OnSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(item.title ?: "Untitled question", color = OnSurface)
+            Text(item.title ?: "Untitled question", color = MaterialTheme.colorScheme.onSurface)
 
             item.options?.takeIf { it.isNotEmpty() }?.let { options ->
                 Spacer(modifier = Modifier.height(4.dp))
@@ -400,7 +419,7 @@ private fun CurationCard(
                 Text(
                     text = options.joinToString("  ·  "),
                     style = MaterialTheme.typography.bodySmall,
-                    color = OnSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
                 )
             }

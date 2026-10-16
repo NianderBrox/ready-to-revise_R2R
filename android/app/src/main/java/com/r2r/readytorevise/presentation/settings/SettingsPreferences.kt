@@ -30,10 +30,23 @@ enum class AutoAcceptMode(val label: String, val description: String) {
     }
 }
 
+enum class ThemeMode(val label: String) {
+    SYSTEM("System"),
+    LIGHT("Light"),
+    DARK("Dark");
+
+    companion object {
+        fun fromName(name: String?): ThemeMode {
+            return entries.firstOrNull { it.name == name } ?: SYSTEM
+        }
+    }
+}
+
 class SettingsPreferences(private val context: Context) {
 
     companion object {
         private val AUTO_ACCEPT_MODE = stringPreferencesKey("auto_accept_mode")
+        private val THEME_MODE = stringPreferencesKey("theme_mode")
     }
 
     val autoAcceptMode: Flow<AutoAcceptMode> = context.settingsDataStore.data.map { prefs ->
@@ -43,6 +56,16 @@ class SettingsPreferences(private val context: Context) {
     suspend fun setAutoAcceptMode(mode: AutoAcceptMode) {
         context.settingsDataStore.edit { prefs ->
             prefs[AUTO_ACCEPT_MODE] = mode.name
+        }
+    }
+
+    val themeMode: Flow<ThemeMode> = context.settingsDataStore.data.map { prefs ->
+        ThemeMode.fromName(prefs[THEME_MODE])
+    }
+
+    suspend fun setThemeMode(mode: ThemeMode) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[THEME_MODE] = mode.name
         }
     }
 }

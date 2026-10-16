@@ -10,11 +10,13 @@ import kotlinx.coroutines.launch
 
 data class SettingsState(
     val autoAcceptMode: AutoAcceptMode = AutoAcceptMode.OFF,
+    val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val isLoading: Boolean = true
 )
 
 sealed interface SettingsEvent {
     data class SetAutoAcceptMode(val mode: AutoAcceptMode) : SettingsEvent
+    data class SetThemeMode(val mode: ThemeMode) : SettingsEvent
 }
 
 class SettingsViewModel(
@@ -30,6 +32,11 @@ class SettingsViewModel(
                 _state.update { it.copy(autoAcceptMode = mode, isLoading = false) }
             }
         }
+        viewModelScope.launch {
+            preferences.themeMode.collect { mode ->
+                _state.update { it.copy(themeMode = mode, isLoading = false) }
+            }
+        }
     }
 
     fun onEvent(event: SettingsEvent) {
@@ -37,6 +44,11 @@ class SettingsViewModel(
             is SettingsEvent.SetAutoAcceptMode -> {
                 viewModelScope.launch {
                     preferences.setAutoAcceptMode(event.mode)
+                }
+            }
+            is SettingsEvent.SetThemeMode -> {
+                viewModelScope.launch {
+                    preferences.setThemeMode(event.mode)
                 }
             }
         }

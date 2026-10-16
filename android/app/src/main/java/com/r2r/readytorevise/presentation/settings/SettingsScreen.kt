@@ -1,18 +1,12 @@
 package com.r2r.readytorevise.presentation.settings
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -22,16 +16,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.r2r.readytorevise.ui.components.common.R2RSegmentedSwitch
 import com.r2r.readytorevise.ui.components.common.R2RTopBar
-import com.r2r.readytorevise.ui.theme.Background
-import com.r2r.readytorevise.ui.theme.SkyBlue
 
 @Composable
 fun SettingsRoute(
@@ -61,7 +52,7 @@ fun SettingsScreen(
     onBackClick: () -> Unit
 ) {
     Scaffold(
-        containerColor = Background,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             R2RTopBar(
                 title = "Settings",
@@ -91,17 +82,20 @@ fun SettingsScreen(
             Text(
                 text = "Auto Accept Questions",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = "Skip the review step for questions you trust",
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            AutoAcceptSegmentedSwitch(
+            R2RSegmentedSwitch(
+                options = AutoAcceptMode.entries,
+                label = { it.label },
                 selected = state.autoAcceptMode,
                 onSelect = { mode ->
                     onEvent(SettingsEvent.SetAutoAcceptMode(mode))
@@ -113,45 +107,33 @@ fun SettingsScreen(
             Text(
                 text = state.autoAcceptMode.description,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        }
-    }
-}
 
-@Composable
-private fun AutoAcceptSegmentedSwitch(
-    selected: AutoAcceptMode,
-    onSelect: (AutoAcceptMode) -> Unit
-) {
-    val shape = RoundedCornerShape(12.dp)
-    val modes = AutoAcceptMode.entries
+            Spacer(modifier = Modifier.height(12.dp))
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .border(1.dp, SkyBlue, shape)
-    ) {
-        modes.forEach { mode ->
-            val isSelected = mode == selected
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .background(
-                        if (isSelected) SkyBlue else Color.White
-                    )
-                    .clickable { onSelect(mode) }
-                    .padding(vertical = 12.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = mode.label,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = if (isSelected) Color.White else SkyBlue
-                )
-            }
+            Text(
+                text = "Appearance",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = "Light, dark, or follow your system",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            R2RSegmentedSwitch(
+                options = ThemeMode.entries,
+                label = { it.label },
+                selected = state.themeMode,
+                onSelect = { mode ->
+                    onEvent(SettingsEvent.SetThemeMode(mode))
+                }
+            )
         }
     }
 }

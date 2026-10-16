@@ -23,9 +23,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil3.compose.rememberAsyncImagePainter
 import com.r2r.readytorevise.ui.components.common.R2RTopBar
-import com.r2r.readytorevise.ui.theme.Background
-import com.r2r.readytorevise.ui.theme.OnSurface
-import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
 import com.r2r.readytorevise.ui.theme.SkyBlue
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,7 +40,7 @@ fun PreviewScreen(
     val context = LocalContext.current
 
     Scaffold(
-        containerColor = Background,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             R2RTopBar(
                 title = "Preview Images",
@@ -61,12 +58,12 @@ fun PreviewScreen(
 
             Text(
                 text = "Upload up to 5 images",
-                color = OnSurface
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Text(
                 text = "${images.size}/5 Selected",
-                color = OnSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(12.dp))

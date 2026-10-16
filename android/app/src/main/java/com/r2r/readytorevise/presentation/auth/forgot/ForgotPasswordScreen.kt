@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,7 +30,6 @@ import com.r2r.readytorevise.R
 import com.r2r.readytorevise.ui.components.common.R2RButton
 import com.r2r.readytorevise.ui.components.common.R2RPasswordField
 import com.r2r.readytorevise.ui.components.common.R2RTextField
-import com.r2r.readytorevise.ui.theme.Background
 import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
 import com.r2r.readytorevise.ui.theme.SkyBlueDark
 
@@ -45,7 +45,7 @@ fun ForgotPasswordScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Background)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Image(
@@ -89,7 +89,7 @@ fun ForgotPasswordScreen(
                 } else {
                     "Enter the code sent to ${state.email} and choose a new password."
                 },
-                color = OnSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -180,7 +180,7 @@ fun ForgotPasswordScreen(
                         onEvent(ForgotPasswordEvent.ChangeEmailClicked)
                     },
                     text = "Use a different email",
-                    color = OnSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

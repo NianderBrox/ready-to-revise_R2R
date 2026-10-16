@@ -24,8 +24,6 @@ import androidx.navigation.NavController
 import com.r2r.readytorevise.navigation.Screen
 import com.r2r.readytorevise.presentation.upload.UploadViewModel
 import com.r2r.readytorevise.ui.components.common.R2RButton
-import com.r2r.readytorevise.ui.theme.OnSurface
-import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
 import com.r2r.readytorevise.ui.theme.Success
 
 @Composable
@@ -76,7 +74,7 @@ fun UploadSuccessScreen(
         Text(
             text = "Questions saved",
             style = MaterialTheme.typography.headlineSmall,
-            color = OnSurface,
+            color = MaterialTheme.colorScheme.onSurface,
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -84,7 +82,7 @@ fun UploadSuccessScreen(
         Text(
             text = "$keptCount question${if (keptCount == 1) "" else "s"} accepted into your deck",
             style = MaterialTheme.typography.bodyMedium,
-            color = OnSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
         Spacer(modifier = Modifier.height(32.dp))

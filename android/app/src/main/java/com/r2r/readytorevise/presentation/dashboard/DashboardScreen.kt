@@ -40,9 +40,10 @@ import androidx.navigation.NavHostController
 import com.r2r.readytorevise.navigation.Screen
 import com.r2r.readytorevise.ui.components.dashboard.DashboardButtons
 import com.r2r.readytorevise.ui.components.dashboard.DashboardHeader
+import com.r2r.readytorevise.ui.components.dashboard.StatTileRow
 import com.r2r.readytorevise.ui.components.dashboard.StreakCard
+import com.r2r.readytorevise.ui.components.common.DashboardSkeleton
 import com.r2r.readytorevise.ui.components.dashboard.TopicsCard
-import com.r2r.readytorevise.ui.theme.Background
 import com.r2r.readytorevise.ui.theme.SkyBlue
 import android.content.ContentValues
 import android.content.pm.PackageManager
@@ -235,7 +236,7 @@ fun DashboardScreen(
 
     Scaffold(
 
-        containerColor = Background,
+        containerColor = MaterialTheme.colorScheme.background,
 
         topBar = {
 
@@ -283,14 +284,9 @@ fun DashboardScreen(
 
         if (state.loading) {
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
+            DashboardSkeleton(
+                modifier = Modifier.padding(padding)
+            )
 
             return@Scaffold
 
@@ -325,7 +321,7 @@ fun DashboardScreen(
 
             modifier = Modifier
                 .fillMaxSize()
-                .background(Background)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(padding)
                 .padding(horizontal = 20.dp)
                 .verticalScroll(rememberScrollState()),
@@ -338,6 +334,12 @@ fun DashboardScreen(
 
             StreakCard(
                 streakDays = state.streakDays
+            )
+
+            StatTileRow(
+                dueToday = state.dueToday,
+                completedToday = state.completedToday,
+                upcoming = state.upcoming
             )
 
             TopicsCard(

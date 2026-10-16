@@ -12,3 +12,8 @@ val OnSurfaceVariant = Color(0xFF5F6368)
 val Error = Color(0xFFE53935)
 val Success = Color(0xFF4CAF50)
 val Streak = Color(0xFFFF9800)
+
+val DarkBackground = Color(0xFF101418)
+val DarkSurface = Color(0xFF1A2027)
+val DarkOnSurface = Color(0xFFE8EAED)
+val DarkOnSurfaceVariant = Color(0xFF9AA3AD)

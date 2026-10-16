@@ -40,9 +40,6 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import com.r2r.readytorevise.di.AppContainer
 import com.r2r.readytorevise.ui.components.common.R2RTopBar
-import com.r2r.readytorevise.ui.theme.Background
-import com.r2r.readytorevise.ui.theme.OnSurface
-import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
 import com.r2r.readytorevise.ui.theme.SkyBlue
 
 @Composable
@@ -89,7 +86,7 @@ fun ProfileScreen(
     navController: NavController,
 ) {
     Scaffold(
-        containerColor = Background,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             R2RTopBar(
                 title = "Profile",
@@ -140,13 +137,13 @@ fun ProfileScreen(
                             Text(
                                 text = "Name",
                                 fontSize = 14.sp,
-                                color = OnSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = state.name.ifBlank { "-" },
                                 style = MaterialTheme.typography.titleLarge,
-                                color = OnSurface
+                                color = MaterialTheme.colorScheme.onSurface
                             )
 
                             Spacer(modifier = Modifier.height(20.dp))
@@ -154,13 +151,13 @@ fun ProfileScreen(
                             Text(
                                 text = "Email",
                                 fontSize = 14.sp,
-                                color = OnSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = state.email.ifBlank { "-" },
                                 style = MaterialTheme.typography.titleMedium,
-                                color = OnSurface
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }

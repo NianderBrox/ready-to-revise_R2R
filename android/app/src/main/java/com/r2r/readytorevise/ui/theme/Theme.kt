@@ -2,6 +2,8 @@ package com.r2r.readytorevise.ui.theme
 
 import android.app.Activity
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -31,16 +33,38 @@ private val LightColorScheme = lightColorScheme(
     onError = Color.White
 )
 
+private val DarkColorScheme = darkColorScheme(
+    primary = SkyBlue,
+    onPrimary = Color.White,
+    primaryContainer = SkyBlueDark,
+    onPrimaryContainer = SkyBlueLight,
+    secondary = SkyBlue,
+    onSecondary = Color.White,
+    secondaryContainer = SkyBlueDark,
+    onSecondaryContainer = SkyBlueLight,
+    tertiary = Success,
+    background = DarkBackground,
+    onBackground = DarkOnSurface,
+    surface = DarkSurface,
+    onSurface = DarkOnSurface,
+    surfaceVariant = SkyBlueDark,
+    onSurfaceVariant = DarkOnSurfaceVariant,
+    error = Error,
+    onError = Color.White
+)
+
 @Composable
 fun ReadyToReviseTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
     CompositionLocalProvider(
         LocalSpacing provides AppSpacing()
     ) {
         MaterialTheme(
-            colorScheme = LightColorScheme,
+            colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme,
             typography = Typography,
+            shapes = AppShapes,
             content = content
         )
     }

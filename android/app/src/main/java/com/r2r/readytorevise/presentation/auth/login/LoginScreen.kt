@@ -9,6 +9,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -33,8 +34,6 @@ import com.r2r.readytorevise.R
 import com.r2r.readytorevise.ui.components.common.R2RButton
 import com.r2r.readytorevise.ui.components.common.R2RPasswordField
 import com.r2r.readytorevise.ui.components.common.R2RTextField
-import com.r2r.readytorevise.ui.theme.Background
-import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
 import com.r2r.readytorevise.ui.theme.ReadyToReviseTheme
 import com.r2r.readytorevise.ui.theme.SkyBlueDark
 
@@ -54,7 +53,7 @@ fun LoginScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Background)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Image(
             painter = painterResource(id = R.drawable.auth_banner),
@@ -160,7 +159,7 @@ fun LoginScreen(
 
             Text(
                 text = "Don't have an account?",
-                color = OnSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(8.dp))

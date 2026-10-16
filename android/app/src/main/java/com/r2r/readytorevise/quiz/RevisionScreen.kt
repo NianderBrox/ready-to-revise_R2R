@@ -34,6 +34,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -96,18 +97,27 @@ import com.r2r.readytorevise.presentation.quiz.RevisionEffect
 import com.r2r.readytorevise.presentation.quiz.RevisionEvent
 import com.r2r.readytorevise.presentation.quiz.RevisionUiState
 import com.r2r.readytorevise.presentation.quiz.RevisionViewModel
+import com.r2r.readytorevise.ui.theme.Background
+import com.r2r.readytorevise.ui.theme.OnSurface
+import com.r2r.readytorevise.ui.theme.OnSurfaceVariant
+import com.r2r.readytorevise.ui.theme.Streak
 import com.r2r.readytorevise.ui.theme.Success
+import com.r2r.readytorevise.ui.theme.Surface
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.awaitCancellation
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-private val ScreenBackground = Color(0xFF0F172A)
-private val CardBackground = Color(0xFF1E293B)
+private val ScreenBackground: Color
+    @Composable get() = MaterialTheme.colorScheme.background
+private val CardBackground: Color
+    @Composable get() = MaterialTheme.colorScheme.surface
 private val AccentGreen = Success
-private val AccentAmber = Color(0xFFF59E0B)
-private val TextPrimary = Color(0xFFF8FAFC)
-private val TextMuted = Color(0xFF94A3B8)
+private val AccentAmber = Streak
+private val TextPrimary: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurface
+private val TextMuted: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 
 @Composable
 fun RevisionRoute(
@@ -331,10 +341,10 @@ private fun TopBar(
             text = formatTime(elapsedSeconds),
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
-            color = AccentGreen,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
-                .background(Color(0xFF052E16))
+                .background(MaterialTheme.colorScheme.primaryContainer)
                 .padding(horizontal = 10.dp, vertical = 6.dp),
         )
     }
@@ -358,7 +368,7 @@ private fun ActiveSessionContent(
                     .height(6.dp)
                     .clip(RoundedCornerShape(3.dp)),
                 color = AccentGreen,
-                trackColor = Color(0xFF334155),
+                trackColor = MaterialTheme.colorScheme.primaryContainer,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -473,7 +483,7 @@ private fun QuestionArea(
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = "Memorized",
-                    tint = Color(0xFF052E16),
+                    tint = Color.White,
                     modifier = Modifier.size(18.dp),
                 )
             }
@@ -628,7 +638,7 @@ private fun DiagramImage(mediaDocumentId: String) {
             .fillMaxWidth()
             .height(220.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFF1E293B)),
+            .background(ScreenBackground),
     ) {
         if (loading) {
             SkeletonShimmer(modifier = Modifier.matchParentSize())
@@ -684,7 +694,7 @@ private fun SkeletonShimmer(modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .weight(1f)
                 .clip(RoundedCornerShape(8.dp))
-                .background(Color.White.copy(alpha = pulse)),
+                .background(TextMuted.copy(alpha = pulse)),
         )
 
         Box(
@@ -692,7 +702,7 @@ private fun SkeletonShimmer(modifier: Modifier = Modifier) {
                 .fillMaxWidth(0.62f)
                 .height(14.dp)
                 .clip(RoundedCornerShape(7.dp))
-                .background(Color.White.copy(alpha = pulse * 0.8f)),
+                .background(TextMuted.copy(alpha = pulse * 0.8f)),
         )
     }
 }
@@ -754,11 +764,11 @@ private fun OptionRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(if (selected) Color(0xFF14532D) else Color(0xFF334155))
+            .background(if (selected) AccentGreen.copy(alpha = 0.15f) else MaterialTheme.colorScheme.primaryContainer)
             .border(
                 border = BorderStroke(
                     width = if (selected) 2.dp else 1.dp,
-                    color = if (selected) AccentGreen else Color(0xFF475569),
+                    color = if (selected) AccentGreen else MaterialTheme.colorScheme.onPrimaryContainer,
                 ),
                 shape = RoundedCornerShape(12.dp),
             )
@@ -770,13 +780,13 @@ private fun OptionRow(
             modifier = Modifier
                 .size(28.dp)
                 .clip(CircleShape)
-                .background(if (selected) AccentGreen else Color(0xFF475569)),
+                .background(if (selected) AccentGreen else MaterialTheme.colorScheme.onPrimaryContainer),
         ) {
             Text(
                 text = letter.toString(),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
-                color = if (selected) Color(0xFF052E16) else TextPrimary,
+                color = if (selected) Color(0xFF052E16) else MaterialTheme.colorScheme.primaryContainer,
             )
         }
 
@@ -827,7 +837,7 @@ private fun NavigationButtons(
                     state.isLastQuestion -> "Finish"
                     else -> "Next"
                 },
-                color = Color(0xFF052E16),
+                color = Color.White,
                 fontWeight = FontWeight.Bold,
             )
         }
@@ -858,7 +868,7 @@ private fun ErrorContent(
                 onClick = onRetry,
                 colors = ButtonDefaults.buttonColors(containerColor = AccentGreen),
             ) {
-                Text("Retry", color = Color(0xFF052E16), fontWeight = FontWeight.Bold)
+                Text("Retry", color = Color.White, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -931,7 +941,7 @@ private fun FinishedContent(
             ) {
                 Text(
                     "Done",
-                    color = Color(0xFF052E16),
+                    color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                 )
