@@ -252,6 +252,10 @@ fun DashboardScreen(
 
                         userName = state.userName.ifBlank { "there" },
 
+                        onAnalyticsClick = {
+                            navController.navigate(Screen.Analytics.route)
+                        },
+
                         onProfileClick = {
                             navController.navigate(Screen.Profile.route)
                         },

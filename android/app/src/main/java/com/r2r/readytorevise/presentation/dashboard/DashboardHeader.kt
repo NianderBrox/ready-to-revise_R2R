@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Menu
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun DashboardHeader(
     userName: String,
+    onAnalyticsClick: () -> Unit = {},
     onProfileClick: () -> Unit,
     onChangePasswordClick: () -> Unit,
     onNotificationSettingsClick: () -> Unit,
@@ -53,6 +55,21 @@ fun DashboardHeader(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Icon(
+                imageVector = Icons.Default.Insights,
+                contentDescription = "Analytics",
+                tint = Color.White,
+                modifier = Modifier
+                    .size(30.dp)
+                    .clickable {
+                        onAnalyticsClick()
+                    }
+            )
+
+            androidx.compose.foundation.layout.Spacer(
+                modifier = Modifier.size(14.dp)
+            )
+
             Icon(
                 imageVector = Icons.Default.AccountCircle,
                 contentDescription = "Profile",

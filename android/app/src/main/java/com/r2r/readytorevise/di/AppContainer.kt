@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.r2r.readytorevise.data.local.TokenManager
+import com.r2r.readytorevise.data.remote.AnalyticsApi
 import com.r2r.readytorevise.data.remote.AuthApi
 import com.r2r.readytorevise.data.remote.DashboardApi
 import com.r2r.readytorevise.data.remote.DocumentsApi
@@ -12,12 +13,14 @@ import com.r2r.readytorevise.data.remote.NetworkConstants
 import com.r2r.readytorevise.data.remote.RecommendationsApi
 import com.r2r.readytorevise.data.remote.ReviewsApi
 import com.r2r.readytorevise.data.remote.StudyItemsApi
+import com.r2r.readytorevise.data.repository.AnalyticsRepositoryImpl
 import com.r2r.readytorevise.data.repository.AuthRepositoryImpl
 import com.r2r.readytorevise.data.repository.DashboardRepositoryImpl
 import com.r2r.readytorevise.data.repository.DocumentsRepositoryImpl
 import com.r2r.readytorevise.data.repository.RecommendationsRepositoryImpl
 import com.r2r.readytorevise.data.repository.ReviewsRepositoryImpl
 import com.r2r.readytorevise.data.repository.StudyItemsRepositoryImpl
+import com.r2r.readytorevise.domain.repository.AnalyticsRepository
 import com.r2r.readytorevise.domain.repository.AuthRepository
 import com.r2r.readytorevise.domain.repository.DashboardRepository
 import com.r2r.readytorevise.domain.repository.DocumentsRepository
@@ -39,6 +42,7 @@ interface AppContainer {
     val recommendationsRepository: RecommendationsRepository
     val documentsRepository: DocumentsRepository
     val dashboardRepository: DashboardRepository
+    val analyticsRepository: AnalyticsRepository
     val imageLoader: coil.ImageLoader
 }
 
@@ -130,6 +134,10 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
         retrofit.create(DashboardApi::class.java)
     }
 
+    val analyticsApi: AnalyticsApi by lazy {
+        retrofit.create(AnalyticsApi::class.java)
+    }
+
     override val authRepository: AuthRepository by lazy {
         AuthRepositoryImpl(authApi, tokenManager)
     }
@@ -152,6 +160,10 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
 
     override val dashboardRepository: DashboardRepository by lazy {
         DashboardRepositoryImpl(dashboardApi, tokenManager)
+    }
+
+    override val analyticsRepository: AnalyticsRepository by lazy {
+        AnalyticsRepositoryImpl(analyticsApi, tokenManager)
     }
 
     override val imageLoader: coil.ImageLoader by lazy {

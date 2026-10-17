@@ -11,6 +11,7 @@ import { ChaptersModule } from './modules/chapters/chapters.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { AttachmentsModule } from './modules/attachments/attachments.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AiModule } from './modules/ai/ai.module';
 import { DocumentAnalysisModule } from './modules/document-analysis/document-analysis.module';
 import { LearningGenerationModule } from './modules/learning-generation/learning-generation.module';
@@ -34,6 +35,7 @@ import { RecallPredictionsModule } from './modules/recall-predictions/recall-pre
         ReviewsModule,
         AttachmentsModule,
         DashboardModule,
+        AnalyticsModule,
         AiModule,
         DocumentAnalysisModule,
         LearningGenerationModule,
