@@ -11,16 +11,25 @@ generation, behavior-derived spaced repetition, and recall predictions.
 
 | Module | Responsibility |
 |---|---|
-| `auth`, `users`, `health` | JWT auth (access token), profile, liveness |
+| `auth`, `users`, `health` | JWT auth (access token), profile, liveness; password reset (OTP) + change password |
 | `documents` | Multipart upload (20 MB cap), listing, status polling, file download |
+| `ai` | Shared Gemini layer: `LLMProvider` + Gemini provider/client, OCR, classification, flashcard, summary, metadata services |
 | `document-analysis` | Gemini analysis provider (pdf/images inline; `.docx` via mammoth text extraction), text-extractor service |
-| `storage` | Local file storage keyed per document (`file-extension.util` maps MIME → extension) |
 | `learning-generation` | `POST documents/{id}/questions` → strict 4-option MCQ generation + persistence |
 | `study-items` | CRUD; MCQ options storage; `GET ?type=&due=true` due filter |
-| `reviews` | Raw-observable intake (`selectedOptionIndex` + passive timers) → server derives result/confidence → expanding scheduler; `POST reviews/self-grade` for swipe "memorized" |
-| `ml-client` | Typed client for the frozen ML HTTP contract (2 s timeout, availability flag) |
+| `attachments` | Study-item attachments: create (`POST attachments`) list per study item and delete |
+| `subject`, `chapters` | Taxonomy CRUD: subjects and chapters (`Topic`, `DocumentMetadata` extend this) |
+| `reviews` | Raw-observable intake (`selectedOptionIndex` + passive timers) → server derives result/confidence → expanding scheduler; review history; `POST reviews/self-grade` for swipe "memorized" |
 | `recall-predictions` | Feature building per frozen contract, `GET recommendations?limit=&subjectId=` with scheduler-order fallback |
-| `dashboard` | Aggregated stats + at-risk suggestion behind ML availability |
+| `ml-client` | Typed client for the frozen ML HTTP contract (2 s timeout, availability flag, failure cooldown) |
+| `dashboard` | `GET dashboard` aggregated stats + at-risk suggestion behind ML availability |
+| `analytics` | `GET analytics/overview` + `GET analytics/heatmap` (activity grid) |
+| `mail` | No controller: mail service used by auth — Gmail SMTP or Brevo HTTP API (see Environment) |
+| `storage` | File storage abstraction: `local` driver (filesystem, `file-extension.util` for MIME → extension) or `s3` driver (Tigris / Cloudflare R2 / Backblaze B2) |
+
+Prisma models (`prisma/schema.prisma`): `User`, `PasswordResetOtp`, `Subject`,
+`Chapter`, `Topic`, `StudyItem`, `Review`, `Attachment`, `Document`,
+`DocumentMetadata`.
 
 ## Key behaviors
 
@@ -43,9 +52,17 @@ generation, behavior-derived spaced repetition, and recall predictions.
 
 ## Environment
 
-See `.env.example`. Required: `DATABASE_URL`, `JWT_SECRET`,
-`GEMINI_API_KEY`; optional: `GEMINI_MODEL`, `ML_SERVICE_URL`,
-`ML_MODEL_NAME`, `ML_TIMEOUT_MS`.
+See `.env.example`. Server: `PORT` (default 3000), `CORS_ORIGIN`
+(comma-separated origins, `*` allowed), `NODE_ENV`.
+Required: `DATABASE_URL`, `JWT_SECRET`
+(`JWT_EXPIRES_IN`, default 7d), `GEMINI_API_KEY`
+(`GEMINI_MODEL`, default `gemini-3.6-flash`).
+Storage: `STORAGE_DRIVER=local` (filesystem; `UPLOAD_DIRECTORY`) or `s3`
+(`S3_BUCKET`, `S3_ENDPOINT`, `S3_REGION`, `S3_ACCESS_KEY_ID`,
+`S3_SECRET_ACCESS_KEY`, `S3_FORCE_PATH_STYLE`, `S3_PREFIX`).
+ML: `ML_SERVICE_URL` (default `http://localhost:8000`), `ML_MODEL_NAME`
+(default `calibrated_best`), `ML_TIMEOUT_MS`, `ML_FAILURE_COOLDOWN_MS`.
+Recommendations: `RECOMMENDATION_DAILY_CAP` (default 20).
 Password-reset OTP mail (Gmail): `SMTP_HOST=smtp.gmail.com`,
 `SMTP_PORT=587`, `SMTP_USER`/`SMTP_FROM` = your Gmail address,
 `SMTP_PASS` = 16-char App Password (Google account with 2SV on;
@@ -68,9 +85,18 @@ passed at run time. From the `backend/` directory:
 ```bash
 docker build -t r2r-backend .
 docker run -d --name r2r-backend -p 3000:3000 --env-file .env r2r-backend
-docker exec r2r-backend env | grep SMTP   # expect 5 lines
-docker logs r2r-backend | grep -i SMTP    # expect "transporter verified"
+docker logs r2r-backend | grep -i brevo   # Brevo deployment: expect "Brevo HTTP email enabled"
+                                          # (then SMTP lines below are not used)
+docker exec r2r-backend env | grep SMTP   # SMTP deployment: expect 5 lines
+docker logs r2r-backend | grep -i SMTP    # SMTP deployment: expect "transporter verified"
 ```
+
+Mail selection at startup: Brevo runs when `BREVO_API_KEY` **and**
+`BREVO_SENDER_EMAIL` are set (log line `Brevo HTTP email enabled. OTP
+emails will be sent via Brevo.`); otherwise Gmail SMTP is used only when
+`SMTP_HOST` is set (log line `SMTP transporter verified.`); with neither,
+OTPs are log-only. Brevo API failures surface as 503
+`Email service is temporarily unavailable`.
 
 ## Commands
 
@@ -83,6 +109,7 @@ npm run build              # production build
 npm run lint               # eslint
 npm test                   # unit tests
 npm run test:e2e           # requires a reachable DATABASE_URL
+npm run ai:test            # Gemini document-analysis smoke (scripts/test-document-analysis.ts)
 ```
 
 From the repo root, `./scripts/e2e.sh` exercises the full live flow
